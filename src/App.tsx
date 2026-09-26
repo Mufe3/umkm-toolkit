@@ -19,11 +19,12 @@ import PaymentTracker from './components/PaymentTracker'
 import FinancialReport from './components/FinancialReport'
 import LoyaltyProgram from './components/LoyaltyProgram'
 import ProductBundle from './components/ProductBundle'
+import ShippingReceipt from './components/ShippingReceipt'
 import ComingSoon from './components/ComingSoon'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'expedition' | 'payment-gateway' | 'wa-business'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'expedition' | 'payment-gateway' | 'wa-business'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -33,6 +34,7 @@ export default function App() {
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
     { id: 'invoice' as Page, label: 'Invoice', icon: 'invoice' as IconName, category: 'Keuangan' },
     { id: 'receipt' as Page, label: 'Struk & Resi', icon: 'print' as IconName, category: 'Keuangan' },
+    { id: 'shipping' as Page, label: 'Resi Pengiriman', icon: 'truck' as IconName, category: 'Keuangan' },
     { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Keuangan' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
     { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },
@@ -62,6 +64,7 @@ export default function App() {
       case 'dashboard': return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
       case 'invoice': return <InvoiceGenerator />
       case 'receipt': return <ReceiptGenerator />
+      case 'shipping': return <ShippingReceipt />
       case 'payment': return <PaymentTracker />
       case 'report': return <FinancialReport />
       case 'loyalty': return <LoyaltyProgram />

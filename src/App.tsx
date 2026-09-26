@@ -70,14 +70,14 @@ export default function App() {
         flex flex-col
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-slate-100">
+        <div className="p-6 border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-400 flex items-center justify-center shadow-md shadow-indigo-100">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-200">
               <span className="text-white font-bold text-lg">U</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-800">UMKM Toolkit</h1>
-              <p className="text-xs text-slate-500">Business Management</p>
+              <h1 className="text-lg font-bold text-slate-900">UMKM Toolkit</h1>
+              <p className="text-xs text-slate-600">Business Management</p>
             </div>
           </div>
         </div>
@@ -105,15 +105,15 @@ export default function App() {
                         w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                         transition-all duration-200
                         ${currentPage === item.id
-                          ? 'bg-indigo-50 text-indigo-600'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                          : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
                         }
                       `}
                     >
                       <Icon name={item.icon} size={18} filled={currentPage === item.id} />
                       <span>{item.label}</span>
                       {currentPage === item.id && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600" />
                       )}
                     </button>
                   ))}
@@ -124,13 +124,13 @@ export default function App() {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-100">
-          <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl p-4">
-            <p className="text-xs font-semibold text-indigo-600 mb-1">UMKM Toolkit Pro</p>
-            <p className="text-xs text-slate-500 mb-3">11 tools lengkap untuk bisnis Anda</p>
+        <div className="p-4 border-t border-slate-200">
+          <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+            <p className="text-xs font-semibold text-indigo-700 mb-1">UMKM Toolkit Pro</p>
+            <p className="text-xs text-slate-700 mb-3">11 tools lengkap untuk bisnis Anda</p>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs text-slate-500">Data tersimpan lokal</span>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs text-slate-700">Data tersimpan lokal</span>
             </div>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function App() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100">
+      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             {/* Mobile menu button */}
@@ -147,21 +147,21 @@ export default function App() {
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
             >
-              <Icon name="menu" size={20} className="text-slate-600" />
+              <Icon name="menu" size={20} className="text-slate-700" />
             </button>
             
             <div className="flex items-center gap-3">
               <Icon 
                 name={menuItems.find(m => m.id === currentPage)?.icon || 'dashboard'} 
                 size={24} 
-                className="text-indigo-500"
+                className="text-indigo-600"
                 filled 
               />
               <div>
-                <h2 className="text-xl font-bold text-slate-800">
+                <h2 className="text-xl font-bold text-slate-900">
                   {menuItems.find(m => m.id === currentPage)?.label}
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-600">
                   {menuItems.find(m => m.id === currentPage)?.category}
                 </p>
               </div>
@@ -169,9 +169,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full">
-              <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="text-xs font-medium text-emerald-600">Online</span>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-200">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="text-xs font-medium text-emerald-700">Online</span>
             </div>
           </div>
         </div>
@@ -184,12 +184,12 @@ export default function App() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-slate-100 px-6 py-4">
+        <footer className="border-t border-slate-200 px-6 py-4 bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               © 2024 UMKM Toolkit — Dibuat dengan ❤️ untuk UMKM Indonesia
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               v2.0 • 11 Tools • All-in-One Business Solution
             </p>
           </div>

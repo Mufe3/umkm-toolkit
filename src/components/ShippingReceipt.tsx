@@ -104,7 +104,8 @@ export default function ShippingReceipt() {
   }, [viewReceipt])
 
   const totalWeight = items.reduce((sum, item) => sum + (item.qty * item.weight), 0)
-  const totalCost = shippingCost + insurance
+  const totalItemsCost = items.reduce((sum, item) => sum + (item.qty * item.price), 0)
+  const totalCost = totalItemsCost + shippingCost + insurance
 
   const handleSubmit = () => {
     if (!senderName || !receiverName || !receiverAddress) {
@@ -276,25 +277,25 @@ export default function ShippingReceipt() {
           
           {/* ===== BAGIAN 1: HEADER ===== */}
           {/* ===== BAGIAN 1: HEADER - Logo Brand Kiri, QR Code Kanan ===== */}
-          <div className="flex justify-between items-start mb-2">
+          <div className="flex justify-between items-center mb-2">
             {/* Logo & Brand Name - KIRI */}
             <div className="flex items-center gap-2">
               {viewReceipt.customLogo ? (
-                <img src={viewReceipt.customLogo} alt="Logo" className="w-10 h-10 object-contain" />
+                <img src={viewReceipt.customLogo} alt="Logo" className="w-16 h-16 object-contain" />
               ) : viewReceipt.customBrandName ? (
-                <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-base">
+                <div className="w-16 h-16 bg-black rounded flex items-center justify-center text-white font-bold text-2xl">
                   {viewReceipt.customBrandName.charAt(0).toUpperCase()}
                 </div>
               ) : (
-                <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-base">
+                <div className="w-16 h-16 bg-black rounded flex items-center justify-center text-white font-bold text-2xl">
                   {viewReceipt.courier.charAt(0)}
                 </div>
               )}
               <div>
-                <p className="text-sm font-bold text-black leading-tight">
+                <p className="text-base font-bold text-black leading-tight">
                   {viewReceipt.customBrandName || viewReceipt.courier}
                 </p>
-                <p className="text-[10px] text-black">{viewReceipt.courier} • {viewReceipt.service}</p>
+                <p className="text-xs text-black">{viewReceipt.courier} • {viewReceipt.service}</p>
               </div>
             </div>
             {/* QR Code - KANAN */}
@@ -304,15 +305,16 @@ export default function ShippingReceipt() {
           </div>
 
           {/* ===== BAGIAN 2: BARCODE & NO RESI (Full Width) ===== */}
-          <div className="mb-3 pb-2 border-b-2 border-black">
+          <div className="mb-3 pb-2 border-b-2 border-black" style={{ margin: '0 -4mm', padding: '0 4mm' }}>
             <p className="text-xs font-bold text-black mb-1 text-center tracking-wider">{viewReceipt.resiNumber}</p>
-            <div style={{ overflow: 'hidden', margin: '0 -4mm' }}>
+            <div className="w-full">
               <Barcode 
                 value={viewReceipt.resiNumber} 
-                width={2.2}
-                height={38}
+                width={2.5}
+                height={40}
                 fontSize={0}
                 margin={0}
+                displayValue={false}
               />
             </div>
           </div>
@@ -321,7 +323,7 @@ export default function ShippingReceipt() {
           <div className="mb-2 pb-2 border-b border-black grid grid-cols-2 gap-2">
             {/* PENERIMA - KIRI */}
             <div className="border-r border-black pr-2">
-              <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">TUJUAN / TO:</p>
+              <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">PENERIMA:</p>
               <p className="text-xs font-bold text-black leading-tight mb-0.5">{viewReceipt.receiverName}</p>
               <p className="text-[10px] text-black leading-tight">{viewReceipt.receiverPhone}</p>
               <p className="text-[10px] text-black leading-tight">{viewReceipt.receiverAddress}</p>
@@ -333,7 +335,7 @@ export default function ShippingReceipt() {
             </div>
             {/* PENGIRIM - KANAN */}
             <div className="pl-2">
-              <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">DARI / FROM:</p>
+              <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">PENGIRIM:</p>
               <p className="text-[10px] text-black leading-tight font-semibold">{viewReceipt.senderName}</p>
               <p className="text-[10px] text-black leading-tight">{viewReceipt.senderPhone}</p>
               <p className="text-[10px] text-black leading-tight">{viewReceipt.senderAddress}</p>
@@ -360,7 +362,11 @@ export default function ShippingReceipt() {
           {/* ===== BAGIAN 6: BIAYA ===== */}
           <div className="mb-2 pb-2 border-b border-black text-[10px] text-black">
             <div className="flex justify-between">
-              <span>Ongkir:</span>
+              <span>Subtotal Barang:</span>
+              <span className="font-semibold">{formatRupiah(viewReceipt.totalCost - viewReceipt.shippingCost - viewReceipt.insurance)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Ongkir ({viewReceipt.service}):</span>
               <span className="font-semibold">{formatRupiah(viewReceipt.shippingCost)}</span>
             </div>
             {viewReceipt.insurance > 0 && (
@@ -383,9 +389,12 @@ export default function ShippingReceipt() {
             </div>
           )}
 
-          {/* ===== BAGIAN 8: STATUS ===== */}
-          <div className="text-center pt-1">
-            <p className="text-[10px] font-bold text-black border border-black inline-block px-3 py-0.5 tracking-wider">
+          {/* ===== BAGIAN 8: TANGGAL & STATUS ===== */}
+          <div className="flex justify-between items-center pt-1">
+            <p className="text-[10px] text-black">
+              {formatDate(viewReceipt.date)}
+            </p>
+            <p className="text-[10px] font-bold text-black border border-black px-3 py-0.5 tracking-wider">
               {statusLabels[viewReceipt.status]}
             </p>
           </div>

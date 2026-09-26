@@ -164,26 +164,55 @@ export function IconButton({ icon, label, active = false, onClick, className = '
   )
 }
 
-// Stat icon dengan gradient background
+// Stat icon dengan soft pastel background
 interface StatIconProps {
   icon: IconName
-  color: 'indigo' | 'green' | 'red' | 'purple' | 'amber' | 'blue'
+  color: 'indigo' | 'green' | 'red' | 'purple' | 'amber' | 'blue' | 'slate' | 'teal' | 'rose' | 'violet'
   size?: number
+  variant?: 'solid' | 'soft'
 }
 
-export function StatIcon({ icon, color, size = 48 }: StatIconProps) {
+export function StatIcon({ icon, color, size = 48, variant = 'soft' }: StatIconProps) {
   const colorClasses = {
-    indigo: 'from-indigo-500 to-indigo-600 shadow-indigo-200',
-    green: 'from-green-500 to-emerald-600 shadow-green-200',
-    red: 'from-red-500 to-rose-600 shadow-red-200',
-    purple: 'from-purple-500 to-violet-600 shadow-purple-200',
-    amber: 'from-amber-500 to-orange-600 shadow-amber-200',
-    blue: 'from-blue-500 to-cyan-600 shadow-blue-200',
+    indigo: variant === 'soft' 
+      ? 'bg-indigo-50 text-indigo-600' 
+      : 'from-indigo-400 to-indigo-500 shadow-indigo-100 text-white',
+    green: variant === 'soft' 
+      ? 'bg-emerald-50 text-emerald-600' 
+      : 'from-emerald-400 to-emerald-500 shadow-emerald-100 text-white',
+    red: variant === 'soft' 
+      ? 'bg-rose-50 text-rose-600' 
+      : 'from-rose-400 to-rose-500 shadow-rose-100 text-white',
+    purple: variant === 'soft' 
+      ? 'bg-violet-50 text-violet-600' 
+      : 'from-violet-400 to-violet-500 shadow-violet-100 text-white',
+    amber: variant === 'soft' 
+      ? 'bg-amber-50 text-amber-600' 
+      : 'from-amber-400 to-amber-500 shadow-amber-100 text-white',
+    blue: variant === 'soft' 
+      ? 'bg-sky-50 text-sky-600' 
+      : 'from-sky-400 to-sky-500 shadow-sky-100 text-white',
+    slate: variant === 'soft' 
+      ? 'bg-slate-50 text-slate-600' 
+      : 'from-slate-400 to-slate-500 shadow-slate-100 text-white',
+    teal: variant === 'soft' 
+      ? 'bg-teal-50 text-teal-600' 
+      : 'from-teal-400 to-teal-500 shadow-teal-100 text-white',
+    rose: variant === 'soft' 
+      ? 'bg-rose-50 text-rose-600' 
+      : 'from-rose-400 to-rose-500 shadow-rose-100 text-white',
+    violet: variant === 'soft' 
+      ? 'bg-violet-50 text-violet-600' 
+      : 'from-violet-400 to-violet-500 shadow-violet-100 text-white',
   }
 
+  const baseClasses = variant === 'soft'
+    ? `w-12 h-12 rounded-xl flex items-center justify-center`
+    : `w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md`
+
   return (
-    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center shadow-lg`}>
-      <Icon name={icon} size={size / 2.5} className="text-white" />
+    <div className={`${baseClasses} ${colorClasses[color]}`}>
+      <Icon name={icon} size={size / 2.5} />
     </div>
   )
 }

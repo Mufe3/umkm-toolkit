@@ -306,7 +306,6 @@ export default function ShippingReceipt() {
 
           {/* ===== BAGIAN 2: BARCODE & NO RESI (Full Width) ===== */}
           <div className="mb-3 pb-2 border-b-2 border-black" style={{ margin: '0 -4mm', padding: '0 4mm' }}>
-            <p className="text-xs font-bold text-black mb-1 text-center tracking-wider">{viewReceipt.resiNumber}</p>
             <div className="w-full">
               <Barcode 
                 value={viewReceipt.resiNumber} 
@@ -317,6 +316,7 @@ export default function ShippingReceipt() {
                 displayValue={false}
               />
             </div>
+            <p className="text-xs font-bold text-black mt-1 text-center tracking-wider">{viewReceipt.resiNumber}</p>
           </div>
 
           {/* ===== BAGIAN 3: INFO PENERIMA & PENGIRIM (Side by Side) ===== */}

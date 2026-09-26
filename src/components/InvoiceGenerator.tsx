@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getFromStorage, saveToStorage, formatRupiah, formatDate, generateId } from '../utils/storage'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
+import { Icon } from './Icon'
 
 interface InvoiceItem {
   name: string
@@ -124,59 +125,61 @@ export default function InvoiceGenerator() {
         <div className="flex gap-3">
           <button
             onClick={() => setViewInvoice(null)}
-            className="px-5 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 font-medium"
+            className="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2"
           >
-            ← Kembali
+            <Icon name="arrow-down" size={16} className="rotate-90" /> Kembali
           </button>
           <button
             onClick={handleExportPDF}
-            className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-indigo-200 transition-all font-medium"
+            className="px-5 py-2.5 bg-gradient-to-r from-indigo-400 to-violet-400 text-white rounded-lg hover:shadow-md hover:shadow-indigo-100 transition-all font-medium flex items-center gap-2"
           >
-            📄 Export PDF
+            <Icon name="download" size={16} /> Export PDF
           </button>
         </div>
-        <div className="bg-white text-gray-900 rounded-2xl p-8 shadow-lg border border-gray-100" id="invoice-preview">
+        <div className="bg-white text-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100" id="invoice-preview">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-purple-600">INVOICE</h1>
-              <p className="text-gray-500">{viewInvoice.invoiceNumber}</p>
+              <h1 className="text-3xl font-bold text-indigo-500">INVOICE</h1>
+              <p className="text-slate-500">{viewInvoice.invoiceNumber}</p>
             </div>
             <div className="text-right">
-              <div className="text-3xl">🚀</div>
-              <p className="font-bold">UMKM Toolkit</p>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-400 flex items-center justify-center mb-2">
+                <span className="text-white font-bold text-xl">U</span>
+              </div>
+              <p className="font-semibold text-slate-700">UMKM Toolkit</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-8 mb-8">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Kepada:</p>
-              <p className="font-bold text-lg">{viewInvoice.customer}</p>
-              {viewInvoice.customerPhone && <p className="text-gray-600">{viewInvoice.customerPhone}</p>}
+              <p className="text-sm text-slate-500 mb-1">Kepada:</p>
+              <p className="font-semibold text-lg text-slate-800">{viewInvoice.customer}</p>
+              {viewInvoice.customerPhone && <p className="text-slate-600">{viewInvoice.customerPhone}</p>}
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500 mb-1">Tanggal:</p>
-              <p className="font-bold">{formatDate(viewInvoice.date)}</p>
-              <p className="text-sm text-gray-500 mt-2">Jatuh Tempo:</p>
-              <p className="font-bold">{formatDate(viewInvoice.dueDate)}</p>
+              <p className="text-sm text-slate-500 mb-1">Tanggal:</p>
+              <p className="font-semibold text-slate-800">{formatDate(viewInvoice.date)}</p>
+              <p className="text-sm text-slate-500 mt-2">Jatuh Tempo:</p>
+              <p className="font-semibold text-slate-800">{formatDate(viewInvoice.dueDate)}</p>
             </div>
           </div>
 
           <table className="w-full mb-8">
             <thead>
-              <tr className="border-b-2 border-purple-200">
-                <th className="text-left py-2">Item</th>
-                <th className="text-center py-2">Qty</th>
-                <th className="text-right py-2">Harga</th>
-                <th className="text-right py-2">Subtotal</th>
+              <tr className="border-b-2 border-slate-200">
+                <th className="text-left py-2 text-slate-500 text-xs uppercase tracking-wider">Item</th>
+                <th className="text-center py-2 text-slate-500 text-xs uppercase tracking-wider">Qty</th>
+                <th className="text-right py-2 text-slate-500 text-xs uppercase tracking-wider">Harga</th>
+                <th className="text-right py-2 text-slate-500 text-xs uppercase tracking-wider">Subtotal</th>
               </tr>
             </thead>
             <tbody>
               {viewInvoice.items.map((item, i) => (
-                <tr key={i} className="border-b border-gray-200">
-                  <td className="py-3">{item.name}</td>
-                  <td className="text-center py-3">{item.qty}</td>
-                  <td className="text-right py-3">{formatRupiah(item.price)}</td>
-                  <td className="text-right py-3 font-bold">{formatRupiah(item.qty * item.price)}</td>
+                <tr key={i} className="border-b border-slate-100">
+                  <td className="py-3 text-slate-700">{item.name}</td>
+                  <td className="text-center py-3 text-slate-600">{item.qty}</td>
+                  <td className="text-right py-3 text-slate-600">{formatRupiah(item.price)}</td>
+                  <td className="text-right py-3 font-semibold text-slate-800">{formatRupiah(item.qty * item.price)}</td>
                 </tr>
               ))}
             </tbody>
@@ -184,24 +187,28 @@ export default function InvoiceGenerator() {
 
           <div className="flex justify-end">
             <div className="w-64">
-              <div className="flex justify-between py-2 border-b border-gray-200">
-                <span>Total</span>
-                <span className="font-bold text-xl text-purple-600">{formatRupiah(viewInvoice.total)}</span>
+              <div className="flex justify-between py-3 border-b border-slate-200">
+                <span className="text-slate-600">Total</span>
+                <span className="font-bold text-xl text-indigo-500">{formatRupiah(viewInvoice.total)}</span>
               </div>
             </div>
           </div>
 
           {viewInvoice.notes && (
-            <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500 mb-1">Catatan:</p>
-              <p className="text-gray-700">{viewInvoice.notes}</p>
+            <div className="mt-8 p-4 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-500 mb-1">Catatan:</p>
+              <p className="text-slate-700">{viewInvoice.notes}</p>
             </div>
           )}
 
-          <div className="mt-8 text-center text-gray-400 text-sm">
-            <p>Status: <span className={viewInvoice.status === 'paid' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>
-              {viewInvoice.status === 'paid' ? 'LUNAS ✅' : 'BELUM DIBAYAR'}
-            </span></p>
+          <div className="mt-8 text-center">
+            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+              viewInvoice.status === 'paid' 
+                ? 'bg-emerald-50 text-emerald-600' 
+                : 'bg-rose-50 text-rose-600'
+            }`}>
+              {viewInvoice.status === 'paid' ? '✓ LUNAS' : 'BELUM DIBAYAR'}
+            </span>
           </div>
         </div>
       </div>
@@ -212,61 +219,62 @@ export default function InvoiceGenerator() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Invoice Generator</h2>
-          <p className="text-gray-500 mt-1">Buat invoice profesional untuk pelanggan Anda</p>
+          <h2 className="text-2xl font-bold text-slate-800">Invoice Generator</h2>
+          <p className="text-slate-500 mt-1">Buat invoice profesional untuk pelanggan Anda</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-indigo-200 transition-all"
+          className="px-6 py-2.5 bg-gradient-to-r from-indigo-400 to-violet-400 text-white rounded-lg font-medium hover:shadow-md hover:shadow-indigo-100 transition-all flex items-center gap-2"
         >
-          {showForm ? 'Batal' : '+ Buat Invoice'}
+          <Icon name={showForm ? 'close' : 'plus'} size={18} />
+          {showForm ? 'Batal' : 'Buat Invoice'}
         </button>
       </div>
 
       {/* Form */}
       {showForm && (
-        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm space-y-6">
-          <h3 className="text-xl font-bold">Data Invoice</h3>
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm space-y-6">
+          <h3 className="text-xl font-semibold text-slate-800">Data Invoice</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Nama Pelanggan *</label>
+              <label className="text-sm text-slate-600 mb-1 block">Nama Pelanggan *</label>
               <input
                 type="text"
                 value={customer}
                 onChange={e => setCustomer(e.target.value)}
                 placeholder="Contoh: Toko Maju Jaya"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">No. Telepon</label>
+              <label className="text-sm text-slate-600 mb-1 block">No. Telepon</label>
               <input
                 type="text"
                 value={customerPhone}
                 onChange={e => setCustomerPhone(e.target.value)}
                 placeholder="08xxxxxxxxxx"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-sm text-gray-400 mb-1 block">Jatuh Tempo</label>
+            <label className="text-sm text-slate-600 mb-1 block">Jatuh Tempo</label>
             <input
               type="date"
               value={dueDate}
               onChange={e => setDueDate(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
             />
           </div>
 
           {/* Items */}
           <div>
             <div className="flex justify-between items-center mb-3">
-              <label className="text-sm text-gray-400">Item Produk *</label>
-              <button onClick={addItem} className="text-sm text-purple-400 hover:text-purple-300">
-                + Tambah Item
+              <label className="text-sm text-slate-600">Item Produk *</label>
+              <button onClick={addItem} className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1">
+                <Icon name="plus" size={14} /> Tambah Item
               </button>
             </div>
             <div className="space-y-3">
@@ -277,7 +285,7 @@ export default function InvoiceGenerator() {
                     value={item.name}
                     onChange={e => updateItem(i, 'name', e.target.value)}
                     placeholder="Nama produk"
-                    className="col-span-5 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
+                    className="col-span-5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-sm text-slate-800"
                   />
                   <input
                     type="number"
@@ -285,19 +293,19 @@ export default function InvoiceGenerator() {
                     onChange={e => updateItem(i, 'qty', parseInt(e.target.value) || 0)}
                     placeholder="Qty"
                     min="1"
-                    className="col-span-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
+                    className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-sm text-slate-800"
                   />
                   <input
                     type="number"
                     value={item.price}
                     onChange={e => updateItem(i, 'price', parseInt(e.target.value) || 0)}
                     placeholder="Harga"
-                    className="col-span-4 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
+                    className="col-span-4 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-sm text-slate-800"
                   />
                   {items.length > 1 && (
                     <button
                       onClick={() => removeItem(i)}
-                      className="col-span-1 text-red-400 hover:text-red-300 text-xl"
+                      className="col-span-1 text-rose-400 hover:text-rose-500 text-xl"
                     >
                       ×
                     </button>
@@ -306,27 +314,27 @@ export default function InvoiceGenerator() {
               ))}
             </div>
             <div className="mt-4 text-right">
-              <span className="text-gray-400">Total: </span>
-              <span className="text-2xl font-bold text-purple-400">{formatRupiah(total)}</span>
+              <span className="text-slate-500">Total: </span>
+              <span className="text-2xl font-bold text-indigo-500">{formatRupiah(total)}</span>
             </div>
           </div>
 
           <div>
-            <label className="text-sm text-gray-400 mb-1 block">Catatan</label>
+            <label className="text-sm text-slate-600 mb-1 block">Catatan</label>
             <textarea
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="Catatan tambahan..."
               rows={3}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none resize-none"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none text-slate-800"
             />
           </div>
 
           <button
             onClick={handleSubmit}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:scale-[1.02] transition-transform shadow-lg shadow-purple-500/30"
+            className="w-full py-3 bg-gradient-to-r from-indigo-400 to-violet-400 text-white rounded-lg font-medium hover:shadow-md hover:shadow-indigo-100 transition-all flex items-center justify-center gap-2"
           >
-            💾 Simpan Invoice
+            <Icon name="check" size={18} /> Simpan Invoice
           </button>
         </div>
       )}
@@ -334,57 +342,60 @@ export default function InvoiceGenerator() {
       {/* Invoice List */}
       <div className="space-y-3">
         {invoices.length === 0 ? (
-          <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800 text-center">
-            <div className="text-5xl mb-4">🧾</div>
-            <p className="text-gray-400">Belum ada invoice. Buat invoice pertamamu!</p>
+          <div className="bg-white rounded-xl p-12 border border-slate-100 shadow-sm text-center">
+            <div className="mb-4">
+              <Icon name="invoice" size={48} className="text-slate-300 mx-auto" />
+            </div>
+            <p className="text-slate-500">Belum ada invoice. Buat invoice pertamamu!</p>
           </div>
         ) : (
           invoices.map((invoice) => (
             <div
               key={invoice.id}
-              className="bg-gray-900 rounded-xl p-5 border border-gray-800 hover:border-gray-700 transition-colors"
+              className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm hover:border-slate-200 transition-colors"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-sm text-gray-500">{invoice.invoiceNumber}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                    <span className="text-sm text-slate-500">{invoice.invoiceNumber}</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                       invoice.status === 'paid'
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-red-500/20 text-red-400'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-rose-50 text-rose-600'
                     }`}>
                       {invoice.status === 'paid' ? 'LUNAS' : 'BELUM BAYAR'}
                     </span>
                   </div>
-                  <h4 className="text-lg font-bold text-white">{invoice.customer}</h4>
-                  <p className="text-sm text-gray-400">{formatDate(invoice.date)}</p>
+                  <h4 className="text-lg font-semibold text-slate-800">{invoice.customer}</h4>
+                  <p className="text-sm text-slate-500">{formatDate(invoice.date)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-purple-400">{formatRupiah(invoice.total)}</p>
+                  <p className="text-xl font-bold text-indigo-500">{formatRupiah(invoice.total)}</p>
                 </div>
               </div>
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => setViewInvoice(invoice)}
-                  className="px-3 py-1.5 bg-gray-800 rounded-lg text-sm hover:bg-gray-700 transition-colors"
+                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-1"
                 >
-                  👁️ Lihat
+                  <Icon name="eye" size={14} /> Lihat
                 </button>
                 <button
                   onClick={() => toggleStatus(invoice.id)}
-                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-1 ${
                     invoice.status === 'paid'
-                      ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30'
-                      : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                      ? 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                      : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
                   }`}
                 >
-                  {invoice.status === 'paid' ? '↩️ Belum Lunas' : '✅ Tandai Lunas'}
+                  <Icon name={invoice.status === 'paid' ? 'x-circle' : 'check-circle'} size={14} />
+                  {invoice.status === 'paid' ? 'Belum Lunas' : 'Tandai Lunas'}
                 </button>
                 <button
                   onClick={() => deleteInvoice(invoice.id)}
-                  className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-sm hover:bg-red-500/30 transition-colors"
+                  className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-sm hover:bg-rose-100 transition-colors flex items-center gap-1"
                 >
-                  🗑️ Hapus
+                  <Icon name="trash" size={14} /> Hapus
                 </button>
               </div>
             </div>

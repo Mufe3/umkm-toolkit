@@ -319,12 +319,13 @@ export default function CashFlowTracker() {
                     <p className="text-sm text-slate-500">{t.category} • {formatDate(t.date)}</p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-2">
                   <p className={`font-bold text-lg ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
                     {t.type === 'income' ? '+' : '-'}{formatRupiah(t.amount)}
                   </p>
-                  <button onClick={() => deleteTransaction(t.id)}
-                    className="text-xs text-slate-400 hover:text-rose-500 mt-1 flex items-center gap-1 ml-auto">
+                  <button 
+                    onClick={() => deleteTransaction(t.id)}
+                    className="px-3 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs hover:bg-rose-100 transition-colors flex items-center gap-1 cursor-pointer">
                     <Icon name="trash" size={12} /> Hapus
                   </button>
                 </div>

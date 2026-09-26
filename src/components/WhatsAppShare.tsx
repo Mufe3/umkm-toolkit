@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getFromStorage, formatRupiah } from '../utils/storage'
+import { Icon } from './Icon'
 
 interface Invoice {
   id: string
@@ -25,7 +26,6 @@ export default function WhatsAppShare() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [tab, setTab] = useState<'invoice' | 'catalog'>('invoice')
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [customMessage, setCustomMessage] = useState('')
 
   useEffect(() => {
@@ -35,7 +35,6 @@ export default function WhatsAppShare() {
 
   const unpaidInvoices = invoices.filter(i => i.status === 'unpaid')
 
-  // Generate WhatsApp message for invoice
   const generateInvoiceMessage = (invoice: Invoice): string => {
     const invNum = invoice.invoiceNumber || invoice.id.slice(-6)
     let msg = `🧾 *INVOICE ${invNum}*\n\n`
@@ -55,7 +54,6 @@ export default function WhatsAppShare() {
     return msg
   }
 
-  // Generate WhatsApp message for catalog
   const generateCatalogMessage = (): string => {
     let msg = `🛍️ *KATALOG PRODUK KAMI*\n\n`
     msg += `Halo! Berikut daftar produk yang tersedia:\n\n`
@@ -84,11 +82,8 @@ export default function WhatsAppShare() {
     return msg
   }
 
-  // Open WhatsApp with message
   const openWhatsApp = (phone: string, message: string) => {
-    // Clean phone number
     let cleanPhone = phone.replace(/[^0-9]/g, '')
-    // Convert 08xxx to 628xxx
     if (cleanPhone.startsWith('0')) {
       cleanPhone = '62' + cleanPhone.substring(1)
     }
@@ -109,58 +104,71 @@ export default function WhatsAppShare() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">📱 WhatsApp Integration</h2>
-        <p className="text-gray-400 mt-1">Kirim invoice & katalog langsung via WhatsApp</p>
+        <h2 className="text-2xl font-bold text-slate-800">WhatsApp Integration</h2>
+        <p className="text-slate-500 mt-1">Kirim invoice & katalog langsung via WhatsApp</p>
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex bg-gray-900 rounded-lg border border-gray-800 overflow-hidden w-fit">
+      <div className="flex bg-white rounded-lg border border-slate-200 overflow-hidden w-fit">
         <button onClick={() => setTab('invoice')}
-          className={`px-6 py-3 text-sm font-semibold transition-colors ${tab === 'invoice' ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white'}`}>
-          🧾 Kirim Invoice
+          className={`px-6 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
+            tab === 'invoice' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500 hover:bg-slate-50'
+          }`}>
+          <Icon name="invoice" size={16} /> Kirim Invoice
         </button>
         <button onClick={() => setTab('catalog')}
-          className={`px-6 py-3 text-sm font-semibold transition-colors ${tab === 'catalog' ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white'}`}>
-          🛍️ Share Katalog
+          className={`px-6 py-3 text-sm font-medium transition-colors flex items-center gap-2 ${
+            tab === 'catalog' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500 hover:bg-slate-50'
+          }`}>
+          <Icon name="package" size={16} /> Share Katalog
         </button>
       </div>
 
       {/* Custom Message */}
-      <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-        <label className="text-sm text-gray-400 mb-2 block">📝 Pesan Tambahan (Opsional)</label>
+      <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+        <label className="text-sm text-slate-600 mb-2 block flex items-center gap-1">
+          <Icon name="edit" size={14} /> Pesan Tambahan (Opsional)
+        </label>
         <textarea value={customMessage} onChange={e => setCustomMessage(e.target.value)}
           placeholder="Tambahkan pesan khusus..."
-          rows={2} className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-green-500 focus:outline-none resize-none" />
+          rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none text-slate-800" />
       </div>
 
       {tab === 'invoice' ? (
         <div className="space-y-4">
-          <h3 className="text-xl font-bold">Invoice Belum Dibayar ({unpaidInvoices.length})</h3>
+          <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+            <Icon name="invoice" size={18} className="text-indigo-500" />
+            Invoice Belum Dibayar ({unpaidInvoices.length})
+          </h3>
           {unpaidInvoices.length === 0 ? (
-            <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800 text-center">
-              <div className="text-5xl mb-4">🎉</div>
-              <p className="text-gray-400">Semua invoice sudah lunas!</p>
+            <div className="bg-white rounded-xl p-12 border border-slate-100 shadow-sm text-center">
+              <div className="mb-4">
+                <Icon name="check-circle" size={48} className="text-emerald-500 mx-auto" />
+              </div>
+              <p className="text-slate-500">Semua invoice sudah lunas!</p>
             </div>
           ) : (
             <div className="space-y-3">
               {unpaidInvoices.map(invoice => (
-                <div key={invoice.id} className="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                <div key={invoice.id} className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h4 className="text-lg font-bold">{invoice.customer}</h4>
-                      <p className="text-sm text-gray-400">
+                      <h4 className="text-lg font-semibold text-slate-800">{invoice.customer}</h4>
+                      <p className="text-sm text-slate-500">
                         {invoice.invoiceNumber || `#${invoice.id.slice(-6)}`} • {formatRupiah(invoice.total)}
                       </p>
                       {invoice.customerPhone && (
-                        <p className="text-sm text-green-400 mt-1">📱 {invoice.customerPhone}</p>
+                        <p className="text-sm text-emerald-600 mt-1 flex items-center gap-1">
+                          <Icon name="phone" size={12} /> {invoice.customerPhone}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   {/* Preview Message */}
-                  <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
-                    <p className="text-xs text-gray-500 mb-2">Preview Pesan:</p>
-                    <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans">
+                  <div className="bg-slate-50 rounded-lg p-4 mb-4">
+                    <p className="text-xs text-slate-500 mb-2">Preview Pesan:</p>
+                    <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans">
                       {generateInvoiceMessage(invoice)}
                     </pre>
                   </div>
@@ -169,9 +177,9 @@ export default function WhatsAppShare() {
                     {invoice.customerPhone ? (
                       <button
                         onClick={() => openWhatsApp(invoice.customerPhone!, generateInvoiceMessage(invoice))}
-                        className="flex-1 py-3 bg-green-600 rounded-lg font-semibold hover:bg-green-500 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
                       >
-                        <span>📱</span> Kirim via WhatsApp
+                        <Icon name="phone" size={16} /> Kirim via WhatsApp
                       </button>
                     ) : (
                       <button
@@ -179,16 +187,16 @@ export default function WhatsAppShare() {
                           const phone = prompt('Masukkan nomor WhatsApp pelanggan:')
                           if (phone) openWhatsApp(phone, generateInvoiceMessage(invoice))
                         }}
-                        className="flex-1 py-3 bg-green-600/50 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 py-3 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
                       >
-                        <span>📱</span> Masukkan Nomor WA
+                        <Icon name="phone" size={16} /> Masukkan Nomor WA
                       </button>
                     )}
                     <button
                       onClick={() => copyToClipboard(generateInvoiceMessage(invoice))}
-                      className="px-4 py-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+                      className="px-4 py-3 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors text-slate-700"
                     >
-                      📋 Copy
+                      <Icon name="download" size={16} />
                     </button>
                   </div>
                 </div>
@@ -198,18 +206,23 @@ export default function WhatsAppShare() {
         </div>
       ) : (
         <div className="space-y-4">
-          <h3 className="text-xl font-bold">Katalog Produk ({products.length} produk)</h3>
+          <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+            <Icon name="package" size={18} className="text-indigo-500" />
+            Katalog Produk ({products.length} produk)
+          </h3>
           {products.length === 0 ? (
-            <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800 text-center">
-              <div className="text-5xl mb-4">🛍️</div>
-              <p className="text-gray-400">Belum ada produk. Tambah produk di menu Inventory dulu!</p>
+            <div className="bg-white rounded-xl p-12 border border-slate-100 shadow-sm text-center">
+              <div className="mb-4">
+                <Icon name="package" size={48} className="text-slate-300 mx-auto" />
+              </div>
+              <p className="text-slate-500">Belum ada produk. Tambah produk di menu Inventory dulu!</p>
             </div>
           ) : (
             <>
               {/* Preview */}
-              <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                <p className="text-xs text-gray-500 mb-2">Preview Katalog:</p>
-                <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans max-h-64 overflow-y-auto">
+              <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+                <p className="text-xs text-slate-500 mb-2">Preview Katalog:</p>
+                <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans max-h-64 overflow-y-auto">
                   {generateCatalogMessage()}
                 </pre>
               </div>
@@ -220,15 +233,15 @@ export default function WhatsAppShare() {
                     const phone = prompt('Masukkan nomor WhatsApp tujuan:')
                     if (phone) openWhatsApp(phone, generateCatalogMessage())
                   }}
-                  className="flex-1 py-3 bg-green-600 rounded-lg font-semibold hover:bg-green-500 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2"
                 >
-                  <span>📱</span> Share via WhatsApp
+                  <Icon name="phone" size={16} /> Share via WhatsApp
                 </button>
                 <button
                   onClick={() => copyToClipboard(generateCatalogMessage())}
-                  className="px-4 py-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+                  className="px-4 py-3 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors text-slate-700"
                 >
-                  📋 Copy
+                  <Icon name="download" size={16} />
                 </button>
               </div>
             </>
@@ -237,9 +250,11 @@ export default function WhatsAppShare() {
       )}
 
       {/* Tips */}
-      <div className="bg-green-900/20 rounded-xl p-5 border border-green-500/30">
-        <h4 className="font-bold text-green-400 mb-2">💡 Tips WhatsApp Marketing</h4>
-        <ul className="text-sm text-gray-300 space-y-1">
+      <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-100">
+        <h4 className="font-semibold text-indigo-700 mb-2 flex items-center gap-2">
+          <Icon name="info" size={16} /> Tips WhatsApp Marketing
+        </h4>
+        <ul className="text-sm text-slate-700 space-y-1">
           <li>• Kirim invoice reminder setiap 3 hari sekali</li>
           <li>• Share katalog ke grup pelanggan setia</li>
           <li>• Gunakan pesan personal untuk pelanggan VIP</li>

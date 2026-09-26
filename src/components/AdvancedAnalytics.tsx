@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getFromStorage, formatRupiah } from '../utils/storage'
+import { Icon } from './Icon'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -30,7 +31,7 @@ interface Invoice {
   status: 'paid' | 'unpaid'
 }
 
-const COLORS = ['#a855f7', '#ec4899', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6']
+const COLORS = ['#818cf8', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff']
 
 export default function AdvancedAnalytics() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -44,7 +45,6 @@ export default function AdvancedAnalytics() {
     setInvoices(getFromStorage<Invoice[]>('umkm_invoices', []))
   }, [])
 
-  // Filter by period
   const filteredTransactions = transactions.filter(t => {
     const tDate = new Date(t.date)
     const now = new Date()
@@ -62,7 +62,6 @@ export default function AdvancedAnalytics() {
     return true
   })
 
-  // Daily sales data for chart
   const getDailyData = () => {
     const days = period === 'week' ? 7 : period === 'month' ? 30 : period === 'year' ? 12 : 30
     const data = []
@@ -87,7 +86,6 @@ export default function AdvancedAnalytics() {
     return data
   }
 
-  // Category breakdown
   const getCategoryData = () => {
     const categoryMap: Record<string, number> = {}
     
@@ -100,7 +98,6 @@ export default function AdvancedAnalytics() {
     return Object.entries(categoryMap).map(([name, value]) => ({ name, value }))
   }
 
-  // Top products by value
   const getTopProducts = () => {
     return [...products]
       .map(p => ({ ...p, value: p.stock * p.price }))
@@ -108,7 +105,6 @@ export default function AdvancedAnalytics() {
       .slice(0, 5)
   }
 
-  // Invoice stats
   const invoiceStats = {
     total: invoices.length,
     paid: invoices.filter(i => i.status === 'paid').length,
@@ -118,13 +114,11 @@ export default function AdvancedAnalytics() {
     unpaidValue: invoices.filter(i => i.status === 'unpaid').reduce((sum, i) => sum + i.total, 0),
   }
 
-  // Profit margin analysis
   const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
   const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
   const profit = totalIncome - totalExpense
   const profitMargin = totalIncome > 0 ? (profit / totalIncome) * 100 : 0
 
-  // Sales forecast (simple moving average)
   const getForecast = () => {
     const dailyData = getDailyData()
     const recentIncomes = dailyData.slice(-7).map(d => d.income)
@@ -136,7 +130,7 @@ export default function AdvancedAnalytics() {
       date.setDate(date.getDate() + i)
       forecast.push({
         date: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
-        predicted: Math.round(avg * (1 + (Math.random() * 0.2 - 0.1))), // ±10% variance
+        predicted: Math.round(avg * (1 + (Math.random() * 0.2 - 0.1))),
       })
     }
     return forecast
@@ -150,25 +144,22 @@ export default function AdvancedAnalytics() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">📊 Advanced Analytics</h2>
-        <p className="text-gray-400 mt-1">Analisis mendalam untuk bisnis kamu</p>
+        <h2 className="text-2xl font-bold text-slate-800">Advanced Analytics</h2>
+        <p className="text-slate-500 mt-1">Analisis mendalam untuk bisnis Anda</p>
       </div>
 
       {/* Period Filter */}
-      <div className="flex bg-gray-900 rounded-lg border border-gray-800 overflow-hidden w-fit">
+      <div className="flex bg-white rounded-lg border border-slate-200 overflow-hidden w-fit">
         {([
           { id: 'week', label: 'Minggu Ini' },
           { id: 'month', label: 'Bulan Ini' },
           { id: 'year', label: 'Tahun Ini' },
           { id: 'all', label: 'Semua' },
         ] as const).map(p => (
-          <button
-            key={p.id}
-            onClick={() => setPeriod(p.id)}
+          <button key={p.id} onClick={() => setPeriod(p.id)}
             className={`px-4 py-2 text-sm transition-colors ${
-              period === p.id ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'
-            }`}
-          >
+              period === p.id ? 'bg-indigo-50 text-indigo-600 font-medium' : 'text-slate-500 hover:bg-slate-50'
+            }`}>
             {p.label}
           </button>
         ))}
@@ -176,159 +167,174 @@ export default function AdvancedAnalytics() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-xl p-5 border border-green-500/30">
-          <p className="text-sm text-gray-400 mb-1">Total Pendapatan</p>
-          <p className="text-2xl font-bold text-green-400">{formatRupiah(totalIncome)}</p>
+        <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <Icon name="trending-up" size={18} className="text-emerald-500" />
+            </div>
+            <p className="text-sm text-slate-500">Total Pendapatan</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-800">{formatRupiah(totalIncome)}</p>
         </div>
-        <div className="bg-gradient-to-br from-red-600/20 to-rose-600/20 rounded-xl p-5 border border-red-500/30">
-          <p className="text-sm text-gray-400 mb-1">Total Pengeluaran</p>
-          <p className="text-2xl font-bold text-red-400">{formatRupiah(totalExpense)}</p>
+        <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center">
+              <Icon name="trending-down" size={18} className="text-rose-500" />
+            </div>
+            <p className="text-sm text-slate-500">Total Pengeluaran</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-800">{formatRupiah(totalExpense)}</p>
         </div>
-        <div className={`bg-gradient-to-br ${profit >= 0 ? 'from-blue-600/20 to-cyan-600/20 border-blue-500/30' : 'from-orange-600/20 to-red-600/20 border-orange-500/30'} rounded-xl p-5 border`}>
-          <p className="text-sm text-gray-400 mb-1">Keuntungan Bersih</p>
-          <p className={`text-2xl font-bold ${profit >= 0 ? 'text-blue-400' : 'text-orange-400'}`}>
+        <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${profit >= 0 ? 'bg-indigo-50' : 'bg-amber-50'}`}>
+              <Icon name="dollar" size={18} className={profit >= 0 ? 'text-indigo-500' : 'text-amber-500'} />
+            </div>
+            <p className="text-sm text-slate-500">Keuntungan Bersih</p>
+          </div>
+          <p className={`text-2xl font-bold ${profit >= 0 ? 'text-indigo-600' : 'text-amber-600'}`}>
             {formatRupiah(profit)}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl p-5 border border-purple-500/30">
-          <p className="text-sm text-gray-400 mb-1">Margin Keuntungan</p>
-          <p className={`text-2xl font-bold ${profitMargin >= 20 ? 'text-green-400' : profitMargin >= 10 ? 'text-yellow-400' : 'text-red-400'}`}>
+        <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center">
+              <Icon name="target" size={18} className="text-violet-500" />
+            </div>
+            <p className="text-sm text-slate-500">Margin Keuntungan</p>
+          </div>
+          <p className={`text-2xl font-bold ${profitMargin >= 20 ? 'text-emerald-600' : profitMargin >= 10 ? 'text-amber-600' : 'text-rose-600'}`}>
             {profitMargin.toFixed(1)}%
           </p>
         </div>
       </div>
 
       {/* Revenue vs Expense Chart */}
-      <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-        <h3 className="text-xl font-bold mb-4">📈 Pendapatan vs Pengeluaran</h3>
+      <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Icon name="analytics" size={18} className="text-indigo-500" />
+          <h3 className="text-lg font-semibold text-slate-800">Pendapatan vs Pengeluaran</h3>
+        </div>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={dailyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="date" stroke="#9ca3af" style={{ fontSize: '12px' }} />
-            <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-            <Tooltip
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              formatter={(value: number) => formatRupiah(value)}
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+            <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
             <Legend />
-            <Line type="monotone" dataKey="income" stroke="#22c55e" strokeWidth={2} name="Pendapatan" />
-            <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} name="Pengeluaran" />
-            <Line type="monotone" dataKey="profit" stroke="#a855f7" strokeWidth={2} name="Keuntungan" />
+            <Line type="monotone" dataKey="income" stroke="#34d399" strokeWidth={2} name="Pendapatan" />
+            <Line type="monotone" dataKey="expense" stroke="#fb7185" strokeWidth={2} name="Pengeluaran" />
+            <Line type="monotone" dataKey="profit" stroke="#818cf8" strokeWidth={2} name="Keuntungan" />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Expense by Category */}
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-          <h3 className="text-xl font-bold mb-4">🥧 Pengeluaran per Kategori</h3>
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Icon name="analytics" size={18} className="text-indigo-500" />
+            <h3 className="text-lg font-semibold text-slate-800">Pengeluaran per Kategori</h3>
+          </div>
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
+                <Pie data={categoryData} cx="50%" cy="50%" labelLine={false}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
+                  outerRadius={80} fill="#8884d8" dataKey="value">
                   {categoryData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => formatRupiah(value)} />
+                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-center py-12">Belum ada data pengeluaran</p>
+            <p className="text-slate-500 text-center py-12">Belum ada data pengeluaran</p>
           )}
         </div>
 
         {/* Top Products */}
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-          <h3 className="text-xl font-bold mb-4">🏆 Top 5 Produk (Nilai Inventori)</h3>
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Icon name="award" size={18} className="text-indigo-500" />
+            <h3 className="text-lg font-semibold text-slate-800">Top 5 Produk (Nilai Inventori)</h3>
+          </div>
           {topProducts.length > 0 ? (
             <div className="space-y-3">
               {topProducts.map((product, i) => (
                 <div key={product.id} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold">
+                  <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold">
                     {i + 1}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold">{product.name}</p>
-                    <p className="text-sm text-gray-400">{product.stock} {product.category}</p>
+                    <p className="font-semibold text-slate-800">{product.name}</p>
+                    <p className="text-sm text-slate-500">{product.stock} {product.category}</p>
                   </div>
-                  <p className="font-bold text-purple-400">{formatRupiah(product.value)}</p>
+                  <p className="font-bold text-indigo-600">{formatRupiah(product.value)}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-center py-12">Belum ada produk</p>
+            <p className="text-slate-500 text-center py-12">Belum ada produk</p>
           )}
         </div>
       </div>
 
       {/* Sales Forecast */}
-      <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-        <h3 className="text-xl font-bold mb-4">🔮 Prediksi Penjualan 7 Hari ke Depan</h3>
-        <p className="text-sm text-gray-400 mb-4">Berdasarkan rata-rata penjualan 7 hari terakhir</p>
+      <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Icon name="trending-up" size={18} className="text-indigo-500" />
+          <h3 className="text-lg font-semibold text-slate-800">Prediksi Penjualan 7 Hari ke Depan</h3>
+        </div>
+        <p className="text-sm text-slate-500 mb-4">Berdasarkan rata-rata penjualan 7 hari terakhir</p>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={forecastData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="date" stroke="#9ca3af" style={{ fontSize: '12px' }} />
-            <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-            <Tooltip
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              formatter={(value: number) => formatRupiah(value)}
-            />
-            <Bar dataKey="predicted" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} name="Prediksi" />
-            <defs>
-              <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#ec4899" />
-              </linearGradient>
-            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+            <Tooltip contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
+            <Bar dataKey="predicted" fill="#818cf8" radius={[8, 8, 0, 0]} name="Prediksi" />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Invoice Analytics */}
-      <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-        <h3 className="text-xl font-bold mb-4">🧾 Analisa Invoice</h3>
+      <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Icon name="invoice" size={18} className="text-indigo-500" />
+          <h3 className="text-lg font-semibold text-slate-800">Analisa Invoice</h3>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-800/50 rounded-xl p-4">
-            <p className="text-sm text-gray-400 mb-1">Total Invoice</p>
-            <p className="text-2xl font-bold">{invoiceStats.total}</p>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <p className="text-xs text-slate-500 mb-1">Total Invoice</p>
+            <p className="text-2xl font-bold text-slate-800">{invoiceStats.total}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4">
-            <p className="text-sm text-gray-400 mb-1">Lunas</p>
-            <p className="text-2xl font-bold text-green-400">{invoiceStats.paid}</p>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <p className="text-xs text-slate-500 mb-1">Lunas</p>
+            <p className="text-2xl font-bold text-emerald-600">{invoiceStats.paid}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4">
-            <p className="text-sm text-gray-400 mb-1">Belum Lunas</p>
-            <p className="text-2xl font-bold text-red-400">{invoiceStats.unpaid}</p>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <p className="text-xs text-slate-500 mb-1">Belum Lunas</p>
+            <p className="text-2xl font-bold text-rose-600">{invoiceStats.unpaid}</p>
           </div>
-          <div className="bg-gray-800/50 rounded-xl p-4">
-            <p className="text-sm text-gray-400 mb-1">Piutang</p>
-            <p className="text-2xl font-bold text-orange-400">{formatRupiah(invoiceStats.unpaidValue)}</p>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <p className="text-xs text-slate-500 mb-1">Piutang</p>
+            <p className="text-2xl font-bold text-amber-600">{formatRupiah(invoiceStats.unpaidValue)}</p>
           </div>
         </div>
         
-        {/* Payment Progress */}
         {invoiceStats.total > 0 && (
           <div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">Tingkat Pelunasan</span>
-              <span className="text-white font-bold">
+              <span className="text-slate-500">Tingkat Pelunasan</span>
+              <span className="text-slate-800 font-semibold">
                 {((invoiceStats.paid / invoiceStats.total) * 100).toFixed(0)}%
               </span>
             </div>
-            <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all"
+                className="h-full bg-indigo-500 rounded-full transition-all"
                 style={{ width: `${(invoiceStats.paid / invoiceStats.total) * 100}%` }}
               />
             </div>

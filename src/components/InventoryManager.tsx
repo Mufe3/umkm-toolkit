@@ -188,9 +188,12 @@ export default function InventoryManager() {
 
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row gap-3">
-        <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-          placeholder="🔍 Cari produk..."
-          className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
+        <div className="flex-1 relative">
+          <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+            placeholder="Cari produk..."
+            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
+        </div>
         <div className="flex bg-white rounded-lg border border-slate-200 overflow-hidden">
           {([
             { id: 'all', label: 'Semua' },

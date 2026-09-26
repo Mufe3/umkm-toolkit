@@ -31,6 +31,7 @@ interface ShippingReceipt {
   paymentMethod: string
   // Custom branding
   customLogo: string
+  customBrandName: string
   // Additional
   notes: string
   date: string
@@ -74,6 +75,7 @@ export default function ShippingReceipt() {
   const [insurance, setInsurance] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState('Tunai')
   const [customLogo, setCustomLogo] = useState('')
+  const [customBrandName, setCustomBrandName] = useState('')
   const [notes, setNotes] = useState('')
 
   // Address form state
@@ -89,19 +91,13 @@ export default function ShippingReceipt() {
     setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
   }, [])
 
-  // Generate QR Code when viewing receipt
+  // Generate QR Code when viewing receipt - Simplified to just resi number
   useEffect(() => {
     if (viewReceipt) {
-      const qrData = JSON.stringify({
-        resi: viewReceipt.resiNumber,
-        courier: viewReceipt.courier,
-        receiver: viewReceipt.receiverName,
-        city: viewReceipt.receiverCity,
-        status: viewReceipt.status,
-      })
-      QRCode.toDataURL(qrData, {
+      // Simple QR code with just the resi number for cleaner look
+      QRCode.toDataURL(viewReceipt.resiNumber, {
         width: 120,
-        margin: 0,
+        margin: 1,
         color: { dark: '#000000', light: '#ffffff' }
       }).then(setQrCodeUrl)
     }
@@ -125,6 +121,7 @@ export default function ShippingReceipt() {
       totalWeight, courier, service, shippingCost, insurance, totalCost,
       paymentMethod,
       customLogo,
+      customBrandName,
       notes, date: new Date().toISOString(),
       status: 'pending',
     }
@@ -139,7 +136,7 @@ export default function ShippingReceipt() {
     setSenderName(''); setSenderPhone(''); setSenderAddress(''); setSenderCity('')
     setReceiverName(''); setReceiverPhone(''); setReceiverAddress(''); setReceiverCity(''); setReceiverPostalCode('')
     setItems([{ name: '', qty: 1, weight: 1, price: 0 }])
-    setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setPaymentMethod('Tunai'); setCustomLogo(''); setNotes('')
+    setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setPaymentMethod('Tunai'); setCustomLogo(''); setCustomBrandName(''); setNotes('')
     setShowForm(false)
   }
 
@@ -278,19 +275,26 @@ export default function ShippingReceipt() {
         <div id="shipping-receipt-preview" className="bg-white border-2 border-black" style={{ width: '100mm', minHeight: '150mm', padding: '4mm' }}>
           
           {/* ===== BAGIAN 1: HEADER ===== */}
+          {/* ===== BAGIAN 1: HEADER - Logo Brand Kiri, QR Code Kanan ===== */}
           <div className="flex justify-between items-start mb-2">
-            {/* Logo & Info Ekspedisi - KIRI */}
+            {/* Logo & Brand Name - KIRI */}
             <div className="flex items-center gap-2">
               {viewReceipt.customLogo ? (
-                <img src={viewReceipt.customLogo} alt="Logo" className="w-10 h-10 object-contain border border-black" />
+                <img src={viewReceipt.customLogo} alt="Logo" className="w-10 h-10 object-contain" />
+              ) : viewReceipt.customBrandName ? (
+                <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-base">
+                  {viewReceipt.customBrandName.charAt(0).toUpperCase()}
+                </div>
               ) : (
                 <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-base">
                   {viewReceipt.courier.charAt(0)}
                 </div>
               )}
               <div>
-                <p className="text-sm font-bold text-black leading-tight">{viewReceipt.courier}</p>
-                <p className="text-[10px] text-black">{viewReceipt.service} • {formatDate(viewReceipt.date)}</p>
+                <p className="text-sm font-bold text-black leading-tight">
+                  {viewReceipt.customBrandName || viewReceipt.courier}
+                </p>
+                <p className="text-[10px] text-black">{viewReceipt.courier} • {viewReceipt.service}</p>
               </div>
             </div>
             {/* QR Code - KANAN */}
@@ -299,40 +303,42 @@ export default function ShippingReceipt() {
             )}
           </div>
 
-          {/* ===== BAGIAN 2: BARCODE & NO RESI ===== */}
+          {/* ===== BAGIAN 2: BARCODE & NO RESI (Full Width) ===== */}
           <div className="mb-3 pb-2 border-b-2 border-black">
             <p className="text-xs font-bold text-black mb-1 text-center tracking-wider">{viewReceipt.resiNumber}</p>
-            <div className="flex justify-center">
+            <div style={{ overflow: 'hidden', margin: '0 -4mm' }}>
               <Barcode 
                 value={viewReceipt.resiNumber} 
-                width={1.5}
-                height={35}
+                width={2.2}
+                height={38}
                 fontSize={0}
                 margin={0}
               />
             </div>
           </div>
 
-          {/* ===== BAGIAN 3: INFO PENERIMA (MENONJOL) ===== */}
-          <div className="mb-2 pb-2 border-b border-black">
-            <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">TUJUAN / TO:</p>
-            <p className="text-sm font-bold text-black leading-snug">{viewReceipt.receiverName}</p>
-            <p className="text-[11px] text-black leading-snug">{viewReceipt.receiverPhone}</p>
-            <p className="text-[11px] text-black leading-snug">{viewReceipt.receiverAddress}</p>
-            {viewReceipt.receiverCity && (
-              <p className="text-[11px] text-black leading-snug font-semibold">
-                {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
-              </p>
-            )}
-          </div>
-
-          {/* ===== BAGIAN 4: INFO PENGIRIM ===== */}
-          <div className="mb-2 pb-2 border-b border-black">
-            <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">DARI / FROM:</p>
-            <p className="text-[11px] text-black leading-snug font-semibold">{viewReceipt.senderName}</p>
-            <p className="text-[11px] text-black leading-snug">{viewReceipt.senderPhone}</p>
-            <p className="text-[11px] text-black leading-snug">{viewReceipt.senderAddress}</p>
-            {viewReceipt.senderCity && <p className="text-[11px] text-black leading-snug">{viewReceipt.senderCity}</p>}
+          {/* ===== BAGIAN 3: INFO PENERIMA & PENGIRIM (Side by Side) ===== */}
+          <div className="mb-2 pb-2 border-b border-black grid grid-cols-2 gap-2">
+            {/* PENERIMA - KIRI */}
+            <div className="border-r border-black pr-2">
+              <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">TUJUAN / TO:</p>
+              <p className="text-xs font-bold text-black leading-tight mb-0.5">{viewReceipt.receiverName}</p>
+              <p className="text-[10px] text-black leading-tight">{viewReceipt.receiverPhone}</p>
+              <p className="text-[10px] text-black leading-tight">{viewReceipt.receiverAddress}</p>
+              {viewReceipt.receiverCity && (
+                <p className="text-[10px] text-black leading-tight font-semibold">
+                  {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
+                </p>
+              )}
+            </div>
+            {/* PENGIRIM - KANAN */}
+            <div className="pl-2">
+              <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">DARI / FROM:</p>
+              <p className="text-[10px] text-black leading-tight font-semibold">{viewReceipt.senderName}</p>
+              <p className="text-[10px] text-black leading-tight">{viewReceipt.senderPhone}</p>
+              <p className="text-[10px] text-black leading-tight">{viewReceipt.senderAddress}</p>
+              {viewReceipt.senderCity && <p className="text-[10px] text-black leading-tight">{viewReceipt.senderCity}</p>}
+            </div>
           </div>
 
           {/* ===== BAGIAN 5: DETAIL PAKET ===== */}
@@ -539,14 +545,24 @@ export default function ShippingReceipt() {
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
           <h3 className="text-lg font-semibold text-slate-900">Buat Resi Pengiriman Baru</h3>
 
-          {/* Custom Logo Upload */}
+          {/* Custom Brand & Logo */}
           <div>
             <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-              <Icon name="image" size={16} className="text-violet-500" /> Logo Custom (Opsional)
+              <Icon name="image" size={16} className="text-violet-500" /> Brand & Logo Custom (Opsional)
             </h4>
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <label className="text-sm text-slate-600 mb-1 block">Upload Logo Toko/Brand Anda</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Nama Brand/Toko</label>
+                <input 
+                  type="text"
+                  value={customBrandName}
+                  onChange={e => setCustomBrandName(e.target.value)}
+                  placeholder="Contoh: Toko Maju Jaya"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Upload Logo (Opsional)</label>
                 <input 
                   type="file" 
                   accept="image/*"
@@ -563,14 +579,20 @@ export default function ShippingReceipt() {
                   className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
                 />
               </div>
-              {customLogo && (
-                <div className="flex-shrink-0">
-                  <img src={customLogo} alt="Preview" className="w-16 h-16 object-contain border border-slate-200 rounded" />
-                  <button onClick={() => setCustomLogo('')} className="text-xs text-rose-500 hover:text-rose-600 mt-1">Hapus</button>
-                </div>
-              )}
             </div>
-            <p className="text-xs text-slate-500 mt-2">Logo akan ditampilkan di kanan atas resi. Jika tidak diisi, akan menggunakan logo ekspedisi default.</p>
+            {(customLogo || customBrandName) && (
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                {customLogo && (
+                  <img src={customLogo} alt="Preview" className="w-12 h-12 object-contain" />
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-800">{customBrandName || 'Brand Name'}</p>
+                  <p className="text-xs text-slate-600">Preview: {courier} • {service}</p>
+                </div>
+                <button onClick={() => { setCustomLogo(''); setCustomBrandName('') }} className="text-xs text-rose-500 hover:text-rose-600">Hapus</button>
+              </div>
+            )}
+            <p className="text-xs text-slate-500 mt-2">Brand name dan logo akan ditampilkan di header resi. Jika tidak diisi, akan menggunakan nama ekspedisi default.</p>
           </div>
 
           {/* Sender Info */}

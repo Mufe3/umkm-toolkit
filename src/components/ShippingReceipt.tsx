@@ -305,11 +305,11 @@ export default function ShippingReceipt() {
           </div>
 
           {/* ===== BAGIAN 2: BARCODE & NO RESI (Full Width) ===== */}
-          <div className="mb-3 pb-2 border-b-2 border-black" style={{ margin: '0 -4mm', padding: '0 4mm' }}>
-            <div className="w-full">
+          <div className="mb-3 pb-2 border-b-2 border-black px-2">
+            <div className="flex justify-center items-center w-full">
               <Barcode 
                 value={viewReceipt.resiNumber} 
-                width={2.5}
+                width={viewReceipt.resiNumber.length > 15 ? 1.5 : viewReceipt.resiNumber.length > 12 ? 2 : 2.5}
                 height={40}
                 fontSize={0}
                 margin={0}

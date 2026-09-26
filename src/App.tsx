@@ -6,8 +6,12 @@ import CashFlowTracker from './components/CashFlowTracker'
 import InventoryManager from './components/InventoryManager'
 import CustomerManagement from './components/CustomerManagement'
 import AdvancedAnalytics from './components/AdvancedAnalytics'
+import PurchaseOrder from './components/PurchaseOrder'
+import SupplierManagement from './components/SupplierManagement'
+import WhatsAppShare from './components/WhatsAppShare'
+import QRCodeGenerator from './components/QRCodeGenerator'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -21,26 +25,26 @@ export default function App() {
     { id: 'inventory' as Page, label: 'Inventory', icon: '📦' },
     { id: 'customers' as Page, label: 'Pelanggan', icon: '👥' },
     { id: 'analytics' as Page, label: 'Analytics', icon: '📈' },
+    { id: 'purchase' as Page, label: 'Purchase', icon: '📋' },
+    { id: 'supplier' as Page, label: 'Supplier', icon: '🏭' },
+    { id: 'whatsapp' as Page, label: 'WhatsApp', icon: '📱' },
+    { id: 'qrcode' as Page, label: 'QR Code', icon: '🏷️' },
   ]
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />
-      case 'invoice':
-        return <InvoiceGenerator />
-      case 'calculator':
-        return <PriceCalculator />
-      case 'cashflow':
-        return <CashFlowTracker />
-      case 'inventory':
-        return <InventoryManager />
-      case 'customers':
-        return <CustomerManagement />
-      case 'analytics':
-        return <AdvancedAnalytics />
-      default:
-        return <Dashboard />
+      case 'dashboard': return <Dashboard />
+      case 'invoice': return <InvoiceGenerator />
+      case 'calculator': return <PriceCalculator />
+      case 'cashflow': return <CashFlowTracker />
+      case 'inventory': return <InventoryManager />
+      case 'customers': return <CustomerManagement />
+      case 'analytics': return <AdvancedAnalytics />
+      case 'purchase': return <PurchaseOrder />
+      case 'supplier': return <SupplierManagement />
+      case 'whatsapp': return <WhatsAppShare />
+      case 'qrcode': return <QRCodeGenerator />
+      default: return <Dashboard />
     }
   }
 
@@ -48,14 +52,14 @@ export default function App() {
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">🚀</div>
+            <div className="text-2xl">🚀</div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 UMKM Toolkit
               </h1>
-              <p className="text-xs text-gray-400">Tools lengkap untuk bisnis kamu</p>
+              <p className="text-xs text-gray-400 hidden sm:block">All-in-one tools untuk bisnis kamu</p>
             </div>
           </div>
           
@@ -70,12 +74,12 @@ export default function App() {
           </button>
 
           {/* Desktop menu */}
-          <nav className="hidden md:flex gap-1">
+          <nav className="hidden md:flex gap-0.5 overflow-x-auto max-w-[calc(100vw-200px)]">
             {menuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setCurrentPage(item.id)}
-                className={`px-3 py-2 rounded-lg transition-all text-sm ${
+                className={`px-2.5 py-1.5 rounded-lg transition-all text-xs whitespace-nowrap ${
                   currentPage === item.id
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                     : 'text-gray-400 hover:bg-gray-800 hover:text-white'
@@ -90,7 +94,7 @@ export default function App() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <nav className="md:hidden border-t border-gray-800 px-4 py-2">
+          <nav className="md:hidden border-t border-gray-800 px-4 py-2 max-h-[70vh] overflow-y-auto">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -119,7 +123,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-gray-800 py-6 text-center text-gray-500 text-sm">
-        <p>UMKM Toolkit © 2024 - Dibuat dengan ❤️ untuk UMKM Indonesia</p>
+        <p>UMKM Toolkit © 2024 - 11 Tools Lengkap untuk UMKM Indonesia 🇮🇩</p>
       </footer>
     </div>
   )

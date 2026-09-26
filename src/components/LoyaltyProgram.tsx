@@ -191,22 +191,34 @@ export default function LoyaltyProgram() {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-            <p className="font-bold text-amber-700 mb-1">🥉 Bronze</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Icon name="award" size={16} className="text-amber-700" />
+              <p className="font-bold text-amber-700">Bronze</p>
+            </div>
             <p className="text-xs text-slate-600">Spending: &lt; Rp2jt</p>
             <p className="text-xs text-slate-600 mt-1">{tierBenefits.bronze}</p>
           </div>
           <div className="p-4 bg-slate-50 rounded-lg border border-slate-300">
-            <p className="font-bold text-slate-700 mb-1">🥈 Silver</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Icon name="award" size={16} className="text-slate-700" />
+              <p className="font-bold text-slate-700">Silver</p>
+            </div>
             <p className="text-xs text-slate-600">Spending: Rp2jt-5jt</p>
             <p className="text-xs text-slate-600 mt-1">{tierBenefits.silver}</p>
           </div>
           <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-300">
-            <p className="font-bold text-yellow-700 mb-1">🥇 Gold</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Icon name="award" size={16} className="text-yellow-700" />
+              <p className="font-bold text-yellow-700">Gold</p>
+            </div>
             <p className="text-xs text-slate-600">Spending: Rp5jt-10jt</p>
             <p className="text-xs text-slate-600 mt-1">{tierBenefits.gold}</p>
           </div>
           <div className="p-4 bg-violet-50 rounded-lg border border-violet-300">
-            <p className="font-bold text-violet-700 mb-1">💎 Platinum</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Icon name="award" size={16} className="text-violet-700" />
+              <p className="font-bold text-violet-700">Platinum</p>
+            </div>
             <p className="text-xs text-slate-600">Spending: &gt; Rp10jt</p>
             <p className="text-xs text-slate-600 mt-1">{tierBenefits.platinum}</p>
           </div>
@@ -296,9 +308,9 @@ export default function LoyaltyProgram() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3 text-sm text-slate-500">
-                    <span>📱 {m.phone}</span>
-                    <span>⭐ {m.points.toLocaleString()} poin</span>
-                    <span>💰 Total: {formatRupiah(m.totalSpent)}</span>
+                    <span className="flex items-center gap-1"><Icon name="phone" size={12} /> {m.phone}</span>
+                    <span className="flex items-center gap-1"><Icon name="star" size={12} /> {m.points.toLocaleString()} poin</span>
+                    <span className="flex items-center gap-1"><Icon name="dollar" size={12} /> Total: {formatRupiah(m.totalSpent)}</span>
                   </div>
                 </div>
                 <button onClick={() => deleteMember(m.id)}

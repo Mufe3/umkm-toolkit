@@ -18,7 +18,7 @@ export default function MarketplaceUI() {
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                <span className="text-2xl">🛒</span>
+                <Icon name="purchase" size={24} className="text-orange-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900">Tokopedia</h4>
@@ -32,7 +32,7 @@ export default function MarketplaceUI() {
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                <span className="text-2xl">🛍️</span>
+                <Icon name="purchase" size={24} className="text-orange-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900">Shopee</h4>
@@ -46,7 +46,7 @@ export default function MarketplaceUI() {
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                <span className="text-2xl">🏪</span>
+                <Icon name="purchase" size={24} className="text-blue-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900">Lazada</h4>
@@ -60,7 +60,7 @@ export default function MarketplaceUI() {
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
-                <span className="text-2xl">🎯</span>
+                <Icon name="target" size={24} className="text-red-600" />
               </div>
               <div>
                 <h4 className="font-semibold text-slate-900">Bukalapak</h4>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getFromStorage, formatRupiah } from '../utils/storage'
+import { Icon, StatIcon } from './Icon'
 
 interface Transaction {
   id: string
@@ -54,12 +55,14 @@ export default function Dashboard() {
       <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-xl shadow-indigo-200/50">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Selamat Datang! 👋</h2>
+            <h2 className="text-3xl font-bold mb-2">Selamat Datang!</h2>
             <p className="text-white/90 text-lg">
               Kelola bisnis UMKM Anda dengan mudah menggunakan toolkit lengkap ini.
             </p>
           </div>
-          <div className="hidden md:block text-6xl opacity-20">🚀</div>
+          <div className="hidden md:block opacity-20">
+            <Icon name="zap" size={80} className="text-white" />
+          </div>
         </div>
       </div>
 
@@ -67,12 +70,12 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-200">
-              💰
-            </div>
-            <span className={`text-sm font-semibold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {balance >= 0 ? '↑' : '↓'}
-            </span>
+            <StatIcon icon="dollar" color="indigo" />
+            <Icon 
+              name={balance >= 0 ? 'arrow-up' : 'arrow-down'} 
+              size={16} 
+              className={balance >= 0 ? 'text-green-600' : 'text-red-600'} 
+            />
           </div>
           <p className="text-sm text-gray-500 mb-1">Saldo</p>
           <p className="text-2xl font-bold text-gray-900">{formatRupiah(balance)}</p>
@@ -80,10 +83,8 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-2xl shadow-lg shadow-green-200">
-              📈
-            </div>
-            <span className="text-sm font-semibold text-green-600">+</span>
+            <StatIcon icon="trending-up" color="green" />
+            <Icon name="check" size={16} className="text-green-600" />
           </div>
           <p className="text-sm text-gray-500 mb-1">Pemasukan</p>
           <p className="text-2xl font-bold text-gray-900">{formatRupiah(totalIncome)}</p>
@@ -91,10 +92,8 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-2xl shadow-lg shadow-red-200">
-              📉
-            </div>
-            <span className="text-sm font-semibold text-red-600">-</span>
+            <StatIcon icon="trending-down" color="red" />
+            <Icon name="alert-circle" size={16} className="text-red-600" />
           </div>
           <p className="text-sm text-gray-500 mb-1">Pengeluaran</p>
           <p className="text-2xl font-bold text-gray-900">{formatRupiah(totalExpense)}</p>
@@ -102,9 +101,7 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-2xl shadow-lg shadow-purple-200">
-              📦
-            </div>
+            <StatIcon icon="package" color="purple" />
             <span className="text-sm font-semibold text-purple-600">{products.length}</span>
           </div>
           <p className="text-sm text-gray-500 mb-1">Total Produk</p>
@@ -117,8 +114,8 @@ export default function Dashboard() {
         {/* Low Stock Alert */}
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-xl">
-              ⚠️
+            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Icon name="alert" size={20} className="text-amber-600" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Stok Menipis</h3>
           </div>
@@ -148,8 +145,8 @@ export default function Dashboard() {
         {/* Unpaid Invoices */}
         <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-xl">
-              🧾
+            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <Icon name="invoice" size={20} className="text-blue-600" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Invoice Belum Dibayar</h3>
           </div>
@@ -173,22 +170,33 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 mb-6">⚡ Aksi Cepat</h3>
+        <div className="flex items-center gap-2 mb-6">
+          <Icon name="zap" size={20} className="text-indigo-600" filled />
+          <h3 className="text-lg font-bold text-gray-900">Aksi Cepat</h3>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <button className="group p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 hover:border-indigo-200 hover:shadow-md transition-all">
-            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🧾</div>
+            <div className="mb-3 group-hover:scale-110 transition-transform">
+              <Icon name="invoice" size={32} className="text-indigo-600" />
+            </div>
             <div className="text-sm font-semibold text-gray-700">Buat Invoice</div>
           </button>
           <button className="group p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100 hover:border-green-200 hover:shadow-md transition-all">
-            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">💰</div>
+            <div className="mb-3 group-hover:scale-110 transition-transform">
+              <Icon name="cashflow" size={32} className="text-green-600" />
+            </div>
             <div className="text-sm font-semibold text-gray-700">Catat Transaksi</div>
           </button>
           <button className="group p-5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100 hover:border-blue-200 hover:shadow-md transition-all">
-            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">📦</div>
+            <div className="mb-3 group-hover:scale-110 transition-transform">
+              <Icon name="inventory" size={32} className="text-blue-600" />
+            </div>
             <div className="text-sm font-semibold text-gray-700">Tambah Produk</div>
           </button>
           <button className="group p-5 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-100 hover:border-orange-200 hover:shadow-md transition-all">
-            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🧮</div>
+            <div className="mb-3 group-hover:scale-110 transition-transform">
+              <Icon name="calculator" size={32} className="text-orange-600" />
+            </div>
             <div className="text-sm font-semibold text-gray-700">Hitung Harga</div>
           </button>
         </div>

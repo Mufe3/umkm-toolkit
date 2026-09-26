@@ -10,6 +10,8 @@ import PurchaseOrder from './components/PurchaseOrder'
 import SupplierManagement from './components/SupplierManagement'
 import WhatsAppShare from './components/WhatsAppShare'
 import QRCodeGenerator from './components/QRCodeGenerator'
+import { Icon } from './components/Icon'
+import type { IconName } from './components/Icon'
 
 type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode'
 
@@ -18,17 +20,17 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const menuItems = [
-    { id: 'dashboard' as Page, label: 'Dashboard', icon: '📊', category: 'Overview' },
-    { id: 'invoice' as Page, label: 'Invoice', icon: '🧾', category: 'Keuangan' },
-    { id: 'cashflow' as Page, label: 'Cash Flow', icon: '💰', category: 'Keuangan' },
-    { id: 'calculator' as Page, label: 'Kalkulator Harga', icon: '🧮', category: 'Keuangan' },
-    { id: 'inventory' as Page, label: 'Inventory', icon: '📦', category: 'Operasional' },
-    { id: 'purchase' as Page, label: 'Purchase Order', icon: '📋', category: 'Operasional' },
-    { id: 'supplier' as Page, label: 'Supplier', icon: '🏭', category: 'Operasional' },
-    { id: 'customers' as Page, label: 'Pelanggan', icon: '👥', category: 'Relasi' },
-    { id: 'analytics' as Page, label: 'Analytics', icon: '📈', category: 'Analisis' },
-    { id: 'whatsapp' as Page, label: 'WhatsApp', icon: '📱', category: 'Marketing' },
-    { id: 'qrcode' as Page, label: 'QR Code', icon: '🏷️', category: 'Marketing' },
+    { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
+    { id: 'invoice' as Page, label: 'Invoice', icon: 'invoice' as IconName, category: 'Keuangan' },
+    { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
+    { id: 'calculator' as Page, label: 'Kalkulator Harga', icon: 'calculator' as IconName, category: 'Keuangan' },
+    { id: 'inventory' as Page, label: 'Inventory', icon: 'inventory' as IconName, category: 'Operasional' },
+    { id: 'purchase' as Page, label: 'Purchase Order', icon: 'purchase' as IconName, category: 'Operasional' },
+    { id: 'supplier' as Page, label: 'Supplier', icon: 'supplier' as IconName, category: 'Operasional' },
+    { id: 'customers' as Page, label: 'Pelanggan', icon: 'customers' as IconName, category: 'Relasi' },
+    { id: 'analytics' as Page, label: 'Analytics', icon: 'analytics' as IconName, category: 'Analisis' },
+    { id: 'whatsapp' as Page, label: 'WhatsApp', icon: 'whatsapp' as IconName, category: 'Marketing' },
+    { id: 'qrcode' as Page, label: 'QR Code', icon: 'qrcode' as IconName, category: 'Marketing' },
   ]
 
   const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing']
@@ -108,7 +110,7 @@ export default function App() {
                         }
                       `}
                     >
-                      <span className="text-lg">{item.icon}</span>
+                      <Icon name={item.icon} size={18} filled={currentPage === item.id} />
                       <span>{item.label}</span>
                       {currentPage === item.id && (
                         <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500" />
@@ -145,19 +147,24 @@ export default function App() {
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <Icon name="menu" size={20} className="text-gray-600" />
               </button>
               
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {menuItems.find(m => m.id === currentPage)?.icon}{' '}
-                  {menuItems.find(m => m.id === currentPage)?.label}
-                </h2>
-                <p className="text-sm text-gray-400">
-                  {menuItems.find(m => m.id === currentPage)?.category}
-                </p>
+              <div className="flex items-center gap-3">
+                <Icon 
+                  name={menuItems.find(m => m.id === currentPage)?.icon || 'dashboard'} 
+                  size={24} 
+                  className="text-indigo-600"
+                  filled 
+                />
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {menuItems.find(m => m.id === currentPage)?.label}
+                  </h2>
+                  <p className="text-sm text-gray-400">
+                    {menuItems.find(m => m.id === currentPage)?.category}
+                  </p>
+                </div>
               </div>
             </div>
 

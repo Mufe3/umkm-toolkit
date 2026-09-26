@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getFromStorage, saveToStorage, formatRupiah, generateId } from '../utils/storage'
 import * as XLSX from 'xlsx'
+import { Icon } from './Icon'
 
 interface Product {
   id: string
@@ -20,7 +21,6 @@ export default function InventoryManager() {
   const [searchTerm, setSearchTerm] = useState('')
   const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all')
 
-  // Form state
   const [name, setName] = useState('')
   const [category, setCategory] = useState('')
   const [stock, setStock] = useState(0)
@@ -39,7 +39,6 @@ export default function InventoryManager() {
     }
 
     if (editingProduct) {
-      // Update existing
       const updated = products.map(p =>
         p.id === editingProduct.id
           ? { ...p, name, category, stock, minStock, price, unit, lastUpdated: new Date().toISOString() }
@@ -48,44 +47,26 @@ export default function InventoryManager() {
       setProducts(updated)
       saveToStorage('umkm_products', updated)
     } else {
-      // Create new
       const product: Product = {
-        id: generateId(),
-        name,
-        category,
-        stock,
-        minStock,
-        price,
-        unit,
+        id: generateId(), name, category, stock, minStock, price, unit,
         lastUpdated: new Date().toISOString(),
       }
       const updated = [product, ...products]
       setProducts(updated)
       saveToStorage('umkm_products', updated)
     }
-
     resetForm()
   }
 
   const resetForm = () => {
-    setName('')
-    setCategory('')
-    setStock(0)
-    setMinStock(5)
-    setPrice(0)
-    setUnit('pcs')
-    setShowForm(false)
-    setEditingProduct(null)
+    setName(''); setCategory(''); setStock(0); setMinStock(5); setPrice(0); setUnit('pcs')
+    setShowForm(false); setEditingProduct(null)
   }
 
   const startEdit = (product: Product) => {
     setEditingProduct(product)
-    setName(product.name)
-    setCategory(product.category)
-    setStock(product.stock)
-    setMinStock(product.minStock)
-    setPrice(product.price)
-    setUnit(product.unit)
+    setName(product.name); setCategory(product.category); setStock(product.stock)
+    setMinStock(product.minStock); setPrice(product.price); setUnit(product.unit)
     setShowForm(true)
   }
 
@@ -99,49 +80,33 @@ export default function InventoryManager() {
 
   const updateStock = (id: string, delta: number) => {
     const updated = products.map(p =>
-      p.id === id
-        ? { ...p, stock: Math.max(0, p.stock + delta), lastUpdated: new Date().toISOString() }
-        : p
+      p.id === id ? { ...p, stock: Math.max(0, p.stock + delta), lastUpdated: new Date().toISOString() } : p
     )
     setProducts(updated)
     saveToStorage('umkm_products', updated)
   }
 
-  // Filter products
   const filteredProducts = products.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.category.toLowerCase().includes(searchTerm.toLowerCase())
-
-    if (stockFilter === 'low') {
-      return matchSearch && p.stock <= p.minStock && p.stock > 0
-    }
-    if (stockFilter === 'out') {
-      return matchSearch && p.stock === 0
-    }
+    if (stockFilter === 'low') return matchSearch && p.stock <= p.minStock && p.stock > 0
+    if (stockFilter === 'out') return matchSearch && p.stock === 0
     return matchSearch
   })
 
-  // Stats
   const totalProducts = products.length
   const totalValue = products.reduce((sum, p) => sum + p.stock * p.price, 0)
   const lowStockCount = products.filter(p => p.stock <= p.minStock && p.stock > 0).length
   const outOfStockCount = products.filter(p => p.stock === 0).length
-
-  // Categories
   const categories = [...new Set(products.map(p => p.category))]
 
   const handleExportCSV = () => {
     const data = products.map(p => ({
-      Nama: p.name,
-      Kategori: p.category,
-      Stok: p.stock,
-      'Stok Minimum': p.minStock,
-      Satuan: p.unit,
-      'Harga per Unit': p.price,
-      'Nilai Total': p.stock * p.price,
+      Nama: p.name, Kategori: p.category, Stok: p.stock,
+      'Stok Minimum': p.minStock, Satuan: p.unit,
+      'Harga per Unit': p.price, 'Nilai Total': p.stock * p.price,
       Status: p.stock === 0 ? 'Habis' : p.stock <= p.minStock ? 'Menipis' : 'Aman',
     }))
-    
     const ws = XLSX.utils.json_to_sheet(data)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Inventory')
@@ -153,83 +118,89 @@ export default function InventoryManager() {
     const blob = new Blob([data], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url
-    a.download = `backup_inventory_${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    a.href = url; a.download = `backup_inventory_${new Date().toISOString().split('T')[0]}.json`
+    a.click(); URL.revokeObjectURL(url)
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold">📦 Inventory Manager</h2>
-          <p className="text-gray-400 mt-1">Kelola stok produk bisnis kamu</p>
+          <h2 className="text-2xl font-bold text-slate-800">Inventory Manager</h2>
+          <p className="text-slate-500 mt-1">Kelola stok produk bisnis Anda</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={handleExportCSV}
-            className="px-4 py-2 bg-green-600/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-600/30 transition-colors text-sm"
-          >
-            📊 Export
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={handleExportCSV}
+            className="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg hover:bg-emerald-100 transition-colors text-sm font-medium flex items-center gap-1">
+            <Icon name="download" size={14} /> Export
           </button>
-          <button
-            onClick={handleBackupJSON}
-            className="px-4 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/30 transition-colors text-sm"
-          >
-            💾 Backup
+          <button onClick={handleBackupJSON}
+            className="px-4 py-2 bg-sky-50 text-sky-600 border border-sky-100 rounded-lg hover:bg-sky-100 transition-colors text-sm font-medium flex items-center gap-1">
+            <Icon name="download" size={14} /> Backup
           </button>
-          <button
-            onClick={() => { resetForm(); setShowForm(!showForm) }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg shadow-purple-500/30"
-          >
-            {showForm ? 'Batal' : '+ Tambah Produk'}
+          <button onClick={() => { resetForm(); setShowForm(!showForm) }}
+            className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center gap-2">
+            <Icon name={showForm ? 'close' : 'plus'} size={18} />
+            {showForm ? 'Batal' : 'Tambah Produk'}
           </button>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <p className="text-sm text-gray-400">Total Produk</p>
-          <p className="text-2xl font-bold text-white">{totalProducts}</p>
+        <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+              <Icon name="package" size={16} className="text-indigo-500" />
+            </div>
+            <p className="text-xs text-slate-500">Total Produk</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-800">{totalProducts}</p>
         </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <p className="text-sm text-gray-400">Nilai Inventori</p>
-          <p className="text-2xl font-bold text-purple-400">{formatRupiah(totalValue)}</p>
+        <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+              <Icon name="dollar" size={16} className="text-violet-500" />
+            </div>
+            <p className="text-xs text-slate-500">Nilai Inventori</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-800">{formatRupiah(totalValue)}</p>
         </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <p className="text-sm text-gray-400">Stok Menipis</p>
-          <p className="text-2xl font-bold text-yellow-400">{lowStockCount}</p>
+        <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Icon name="alert" size={16} className="text-amber-500" />
+            </div>
+            <p className="text-xs text-slate-500">Stok Menipis</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-800">{lowStockCount}</p>
         </div>
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <p className="text-sm text-gray-400">Stok Habis</p>
-          <p className="text-2xl font-bold text-red-400">{outOfStockCount}</p>
+        <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+              <Icon name="x-circle" size={16} className="text-rose-500" />
+            </div>
+            <p className="text-xs text-slate-500">Stok Habis</p>
+          </div>
+          <p className="text-2xl font-bold text-slate-800">{outOfStockCount}</p>
         </div>
       </div>
 
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row gap-3">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+        <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
           placeholder="🔍 Cari produk..."
-          className="flex-1 px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:border-purple-500 focus:outline-none"
-        />
-        <div className="flex bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+          className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
+        <div className="flex bg-white rounded-lg border border-slate-200 overflow-hidden">
           {([
             { id: 'all', label: 'Semua' },
-            { id: 'low', label: '⚠️ Menipis' },
-            { id: 'out', label: '❌ Habis' },
+            { id: 'low', label: 'Menipis' },
+            { id: 'out', label: 'Habis' },
           ] as const).map(f => (
-            <button
-              key={f.id}
-              onClick={() => setStockFilter(f.id)}
+            <button key={f.id} onClick={() => setStockFilter(f.id)}
               className={`px-4 py-2 text-sm transition-colors ${
-                stockFilter === f.id ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
+                stockFilter === f.id ? 'bg-indigo-50 text-indigo-600 font-medium' : 'text-slate-500 hover:bg-slate-50'
+              }`}>
               {f.label}
             </button>
           ))}
@@ -238,32 +209,23 @@ export default function InventoryManager() {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-5">
-          <h3 className="text-xl font-bold">
-            {editingProduct ? '✏️ Edit Produk' : '📦 Tambah Produk Baru'}
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm space-y-5">
+          <h3 className="text-lg font-semibold text-slate-800">
+            {editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Nama Produk *</label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
+              <label className="text-sm text-slate-600 mb-1 block">Nama Produk *</label>
+              <input type="text" value={name} onChange={e => setName(e.target.value)}
                 placeholder="Contoh: Baju Polos"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-              />
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Kategori *</label>
-              <input
-                type="text"
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-                placeholder="Contoh: Pakaian"
-                list="categories"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-              />
+              <label className="text-sm text-slate-600 mb-1 block">Kategori *</label>
+              <input type="text" value={category} onChange={e => setCategory(e.target.value)}
+                placeholder="Contoh: Pakaian" list="categories"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
               <datalist id="categories">
                 {categories.map(c => <option key={c} value={c} />)}
               </datalist>
@@ -272,34 +234,21 @@ export default function InventoryManager() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Stok</label>
-              <input
-                type="number"
-                value={stock || ''}
-                onChange={e => setStock(parseInt(e.target.value) || 0)}
-                placeholder="0"
-                min="0"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-              />
+              <label className="text-sm text-slate-600 mb-1 block">Stok</label>
+              <input type="number" value={stock || ''} onChange={e => setStock(parseInt(e.target.value) || 0)}
+                placeholder="0" min="0"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Stok Minimum</label>
-              <input
-                type="number"
-                value={minStock || ''}
-                onChange={e => setMinStock(parseInt(e.target.value) || 0)}
-                placeholder="5"
-                min="0"
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-              />
+              <label className="text-sm text-slate-600 mb-1 block">Stok Minimum</label>
+              <input type="number" value={minStock || ''} onChange={e => setMinStock(parseInt(e.target.value) || 0)}
+                placeholder="5" min="0"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1 block">Satuan</label>
-              <select
-                value={unit}
-                onChange={e => setUnit(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-              >
+              <label className="text-sm text-slate-600 mb-1 block">Satuan</label>
+              <select value={unit} onChange={e => setUnit(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800">
                 <option value="pcs">Pcs</option>
                 <option value="kg">Kg</option>
                 <option value="liter">Liter</option>
@@ -312,22 +261,15 @@ export default function InventoryManager() {
           </div>
 
           <div>
-            <label className="text-sm text-gray-400 mb-1 block">Harga per Unit (Rp)</label>
-            <input
-              type="number"
-              value={price || ''}
-              onChange={e => setPrice(parseInt(e.target.value) || 0)}
-              placeholder="0"
-              min="0"
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-            />
+            <label className="text-sm text-slate-600 mb-1 block">Harga per Unit (Rp)</label>
+            <input type="number" value={price || ''} onChange={e => setPrice(parseInt(e.target.value) || 0)}
+              placeholder="0" min="0"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
           </div>
 
-          <button
-            onClick={handleSubmit}
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:scale-[1.02] transition-transform shadow-lg shadow-purple-500/30"
-          >
-            💾 {editingProduct ? 'Update' : 'Simpan'} Produk
+          <button onClick={handleSubmit}
+            className="w-full py-3 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
+            <Icon name="check" size={18} /> {editingProduct ? 'Update' : 'Simpan'} Produk
           </button>
         </div>
       )}
@@ -335,12 +277,12 @@ export default function InventoryManager() {
       {/* Product List */}
       <div className="space-y-3">
         {filteredProducts.length === 0 ? (
-          <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800 text-center">
-            <div className="text-5xl mb-4">📦</div>
-            <p className="text-gray-400">
-              {searchTerm || stockFilter !== 'all'
-                ? 'Tidak ada produk yang cocok'
-                : 'Belum ada produk. Tambah produk pertamamu!'}
+          <div className="bg-white rounded-xl p-12 border border-slate-100 shadow-sm text-center">
+            <div className="mb-4">
+              <Icon name="package" size={48} className="text-slate-300 mx-auto" />
+            </div>
+            <p className="text-slate-500">
+              {searchTerm || stockFilter !== 'all' ? 'Tidak ada produk yang cocok' : 'Belum ada produk. Tambah produk pertamamu!'}
             </p>
           </div>
         ) : (
@@ -348,73 +290,59 @@ export default function InventoryManager() {
             const isLow = product.stock <= product.minStock && product.stock > 0
             const isOut = product.stock === 0
             return (
-              <div
-                key={product.id}
-                className={`bg-gray-900 rounded-xl p-5 border transition-colors ${
-                  isOut
-                    ? 'border-red-500/50 bg-red-500/5'
-                    : isLow
-                    ? 'border-yellow-500/50 bg-yellow-500/5'
-                    : 'border-gray-800 hover:border-gray-700'
-                }`}
-              >
+              <div key={product.id}
+                className={`bg-white rounded-xl p-5 border shadow-sm transition-colors ${
+                  isOut ? 'border-rose-200 bg-rose-50/30' : isLow ? 'border-amber-200 bg-amber-50/30' : 'border-slate-100 hover:border-slate-200'
+                }`}>
                 <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-lg font-bold text-white">{product.name}</h4>
+                      <h4 className="text-lg font-semibold text-slate-800">{product.name}</h4>
                       {isOut && (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full text-xs font-bold">
-                          HABIS
-                        </span>
+                        <span className="px-2 py-0.5 bg-rose-100 text-rose-600 rounded-full text-xs font-semibold">HABIS</span>
                       )}
                       {isLow && (
-                        <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold">
-                          MENIPIS
-                        </span>
+                        <span className="px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-xs font-semibold">MENIPIS</span>
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-3 text-sm text-gray-400">
-                      <span>📁 {product.category}</span>
-                      <span>💰 {formatRupiah(product.price)}/{product.unit}</span>
-                      <span>📊 Nilai: {formatRupiah(product.stock * product.price)}</span>
+                    <div className="flex flex-wrap gap-3 text-sm text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <Icon name="filter" size={12} /> {product.category}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Icon name="dollar" size={12} /> {formatRupiah(product.price)}/{product.unit}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Icon name="analytics" size={12} /> Nilai: {formatRupiah(product.stock * product.price)}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    {/* Stock Controls */}
-                    <div className="flex items-center gap-2 bg-gray-800 rounded-lg p-1">
-                      <button
-                        onClick={() => updateStock(product.id, -1)}
-                        className="w-8 h-8 rounded bg-gray-700 hover:bg-red-600 transition-colors flex items-center justify-center"
-                      >
+                    <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+                      <button onClick={() => updateStock(product.id, -1)}
+                        className="w-8 h-8 rounded bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center justify-center text-slate-600">
                         -
                       </button>
-                      <span className={`w-16 text-center font-bold ${
-                        isOut ? 'text-red-400' : isLow ? 'text-yellow-400' : 'text-white'
+                      <span className={`w-16 text-center font-semibold ${
+                        isOut ? 'text-rose-600' : isLow ? 'text-amber-600' : 'text-slate-800'
                       }`}>
                         {product.stock} {product.unit}
                       </span>
-                      <button
-                        onClick={() => updateStock(product.id, 1)}
-                        className="w-8 h-8 rounded bg-gray-700 hover:bg-green-600 transition-colors flex items-center justify-center"
-                      >
+                      <button onClick={() => updateStock(product.id, 1)}
+                        className="w-8 h-8 rounded bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center justify-center text-slate-600">
                         +
                       </button>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => startEdit(product)}
-                        className="px-3 py-1.5 bg-gray-800 rounded-lg text-sm hover:bg-gray-700 transition-colors"
-                      >
-                        ✏️
+                      <button onClick={() => startEdit(product)}
+                        className="px-3 py-1.5 bg-slate-100 rounded-lg text-sm hover:bg-slate-200 transition-colors text-slate-600">
+                        <Icon name="edit" size={14} />
                       </button>
-                      <button
-                        onClick={() => deleteProduct(product.id)}
-                        className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-sm hover:bg-red-500/30 transition-colors"
-                      >
-                        🗑️
+                      <button onClick={() => deleteProduct(product.id)}
+                        className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-sm hover:bg-rose-100 transition-colors">
+                        <Icon name="trash" size={14} />
                       </button>
                     </div>
                   </div>

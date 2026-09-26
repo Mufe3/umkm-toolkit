@@ -15,21 +15,23 @@ type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const menuItems = [
-    { id: 'dashboard' as Page, label: 'Dashboard', icon: '📊' },
-    { id: 'invoice' as Page, label: 'Invoice', icon: '🧾' },
-    { id: 'calculator' as Page, label: 'Kalkulator', icon: '🧮' },
-    { id: 'cashflow' as Page, label: 'Cash Flow', icon: '💰' },
-    { id: 'inventory' as Page, label: 'Inventory', icon: '📦' },
-    { id: 'customers' as Page, label: 'Pelanggan', icon: '👥' },
-    { id: 'analytics' as Page, label: 'Analytics', icon: '📈' },
-    { id: 'purchase' as Page, label: 'Purchase', icon: '📋' },
-    { id: 'supplier' as Page, label: 'Supplier', icon: '🏭' },
-    { id: 'whatsapp' as Page, label: 'WhatsApp', icon: '📱' },
-    { id: 'qrcode' as Page, label: 'QR Code', icon: '🏷️' },
+    { id: 'dashboard' as Page, label: 'Dashboard', icon: '📊', category: 'Overview' },
+    { id: 'invoice' as Page, label: 'Invoice', icon: '🧾', category: 'Keuangan' },
+    { id: 'cashflow' as Page, label: 'Cash Flow', icon: '💰', category: 'Keuangan' },
+    { id: 'calculator' as Page, label: 'Kalkulator Harga', icon: '🧮', category: 'Keuangan' },
+    { id: 'inventory' as Page, label: 'Inventory', icon: '📦', category: 'Operasional' },
+    { id: 'purchase' as Page, label: 'Purchase Order', icon: '📋', category: 'Operasional' },
+    { id: 'supplier' as Page, label: 'Supplier', icon: '🏭', category: 'Operasional' },
+    { id: 'customers' as Page, label: 'Pelanggan', icon: '👥', category: 'Relasi' },
+    { id: 'analytics' as Page, label: 'Analytics', icon: '📈', category: 'Analisis' },
+    { id: 'whatsapp' as Page, label: 'WhatsApp', icon: '📱', category: 'Marketing' },
+    { id: 'qrcode' as Page, label: 'QR Code', icon: '🏷️', category: 'Marketing' },
   ]
+
+  const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing']
 
   const renderPage = () => {
     switch (currentPage) {
@@ -49,82 +51,144 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-[#fafbfc] flex">
+      {/* Sidebar Overlay (Mobile) */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed lg:sticky top-0 left-0 h-screen w-72 bg-white border-r border-gray-100 z-50
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        flex flex-col
+      `}>
+        {/* Logo */}
+        <div className="p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="text-2xl">🚀</div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+              <span className="text-white font-bold text-lg">U</span>
+            </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                UMKM Toolkit
-              </h1>
-              <p className="text-xs text-gray-400 hidden sm:block">All-in-one tools untuk bisnis kamu</p>
+              <h1 className="text-lg font-bold text-gray-900">UMKM Toolkit</h1>
+              <p className="text-xs text-gray-400">Business Management</p>
             </div>
           </div>
-          
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-800"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          {/* Desktop menu */}
-          <nav className="hidden md:flex gap-0.5 overflow-x-auto max-w-[calc(100vw-200px)]">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setCurrentPage(item.id)}
-                className={`px-2.5 py-1.5 rounded-lg transition-all text-xs whitespace-nowrap ${
-                  currentPage === item.id
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <span className="mr-1">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </nav>
         </div>
 
-        {/* Mobile menu */}
-        {menuOpen && (
-          <nav className="md:hidden border-t border-gray-800 px-4 py-2 max-h-[70vh] overflow-y-auto">
-            {menuItems.map((item) => (
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-6">
+          {categories.map(category => {
+            const items = menuItems.filter(item => item.category === category)
+            if (items.length === 0) return null
+            
+            return (
+              <div key={category}>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">
+                  {category}
+                </p>
+                <div className="space-y-1">
+                  {items.map(item => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setCurrentPage(item.id)
+                        setSidebarOpen(false)
+                      }}
+                      className={`
+                        w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                        transition-all duration-200
+                        ${currentPage === item.id
+                          ? 'bg-indigo-50 text-indigo-700 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        }
+                      `}
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.label}</span>
+                      {currentPage === item.id && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-100">
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4">
+            <p className="text-xs font-semibold text-indigo-700 mb-1">UMKM Toolkit Pro</p>
+            <p className="text-xs text-gray-500 mb-3">11 tools lengkap untuk bisnis Anda</p>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-xs text-gray-500">Data tersimpan lokal</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Header */}
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100">
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-4">
+              {/* Mobile menu button */}
               <button
-                key={item.id}
-                onClick={() => {
-                  setCurrentPage(item.id)
-                  setMenuOpen(false)
-                }}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
-                  currentPage === item.id
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
               >
-                <span className="mr-2">{item.icon}</span>
-                {item.label}
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </button>
-            ))}
-          </nav>
-        )}
-      </header>
+              
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {menuItems.find(m => m.id === currentPage)?.icon}{' '}
+                  {menuItems.find(m => m.id === currentPage)?.label}
+                </h2>
+                <p className="text-sm text-gray-400">
+                  {menuItems.find(m => m.id === currentPage)?.category}
+                </p>
+              </div>
+            </div>
 
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {renderPage()}
-      </main>
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-xs font-medium text-green-700">Online</span>
+              </div>
+            </div>
+          </div>
+        </header>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-800 py-6 text-center text-gray-500 text-sm">
-        <p>UMKM Toolkit © 2024 - 11 Tools Lengkap untuk UMKM Indonesia 🇮🇩</p>
-      </footer>
+        {/* Page Content */}
+        <main className="flex-1 p-6 lg:p-8 overflow-auto">
+          <div className="animate-fade-in">
+            {renderPage()}
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-gray-100 px-6 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+            <p className="text-xs text-gray-400">
+              © 2024 UMKM Toolkit — Dibuat dengan ❤️ untuk UMKM Indonesia
+            </p>
+            <p className="text-xs text-gray-400">
+              v2.0 • 11 Tools • All-in-One Business Solution
+            </p>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }

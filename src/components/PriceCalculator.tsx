@@ -41,14 +41,14 @@ export default function PriceCalculator() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">🧮 Kalkulator Harga</h2>
-        <p className="text-gray-400 mt-1">Hitung harga jual optimal untuk produk kamu</p>
+        <h2 className="text-2xl font-bold text-gray-900">Kalkulator Harga</h2>
+        <p className="text-gray-500 mt-1">Hitung harga jual optimal untuk produk Anda</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Section */}
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-5">
-          <h3 className="text-xl font-bold flex items-center gap-2">
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm space-y-5">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <span>📝</span> Input Data
           </h3>
 
@@ -152,17 +152,17 @@ export default function PriceCalculator() {
         {/* Result Section */}
         <div className="space-y-4">
           {/* Main Result */}
-          <div className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-2xl p-6 border border-purple-500/30">
-            <p className="text-gray-300 mb-2">💡 Harga Jual yang Disarankan</p>
-            <p className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl p-6 text-white shadow-lg shadow-indigo-200/50">
+            <p className="text-white/80 mb-2">💡 Harga Jual yang Disarankan</p>
+            <p className="text-4xl font-bold">
               {formatRupiah(finalPrice)}
             </p>
-            <p className="text-gray-400 mt-2 text-sm">per unit produk</p>
+            <p className="text-white/70 mt-2 text-sm">per unit produk</p>
           </div>
 
           {/* Breakdown */}
-          <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-            <h3 className="font-bold mb-4">📊 Rincian Perhitungan</h3>
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+            <h3 className="font-bold mb-4 text-gray-900">📊 Rincian Perhitungan</h3>
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-gray-800">
                 <span className="text-gray-400">Total Biaya (HPP + Operasional)</span>

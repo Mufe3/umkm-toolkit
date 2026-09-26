@@ -48,75 +48,95 @@ export default function Dashboard() {
   const lowStockProducts = products.filter(p => p.stock <= 5)
   const unpaidInvoices = invoices.filter(i => i.status === 'unpaid')
 
-  const stats = [
-    {
-      label: 'Saldo',
-      value: formatRupiah(balance),
-      icon: '💰',
-      color: balance >= 0 ? 'from-green-500 to-emerald-500' : 'from-red-500 to-rose-500',
-    },
-    {
-      label: 'Pemasukan',
-      value: formatRupiah(totalIncome),
-      icon: '📈',
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      label: 'Pengeluaran',
-      value: formatRupiah(totalExpense),
-      icon: '📉',
-      color: 'from-orange-500 to-red-500',
-    },
-    {
-      label: 'Total Produk',
-      value: products.length.toString(),
-      icon: '📦',
-      color: 'from-purple-500 to-pink-500',
-    },
-  ]
-
   return (
     <div className="space-y-8">
-      {/* Welcome */}
-      <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl p-8 border border-purple-500/30">
-        <h2 className="text-3xl font-bold mb-2">Selamat Datang! 👋</h2>
-        <p className="text-gray-300">
-          Kelola bisnis UMKM kamu dengan mudah menggunakan toolkit lengkap ini.
-        </p>
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 text-white shadow-xl shadow-indigo-200/50">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Selamat Datang! 👋</h2>
+            <p className="text-white/90 text-lg">
+              Kelola bisnis UMKM Anda dengan mudah menggunakan toolkit lengkap ini.
+            </p>
+          </div>
+          <div className="hidden md:block text-6xl opacity-20">🚀</div>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-gray-900 rounded-xl p-6 border border-gray-800 hover:border-gray-700 transition-colors"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-3xl">{stat.icon}</span>
-              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${stat.color} opacity-20`} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-200">
+              💰
             </div>
-            <p className="text-gray-400 text-sm mb-1">{stat.label}</p>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
+            <span className={`text-sm font-semibold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {balance >= 0 ? '↑' : '↓'}
+            </span>
           </div>
-        ))}
+          <p className="text-sm text-gray-500 mb-1">Saldo</p>
+          <p className="text-2xl font-bold text-gray-900">{formatRupiah(balance)}</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-2xl shadow-lg shadow-green-200">
+              📈
+            </div>
+            <span className="text-sm font-semibold text-green-600">+</span>
+          </div>
+          <p className="text-sm text-gray-500 mb-1">Pemasukan</p>
+          <p className="text-2xl font-bold text-gray-900">{formatRupiah(totalIncome)}</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-2xl shadow-lg shadow-red-200">
+              📉
+            </div>
+            <span className="text-sm font-semibold text-red-600">-</span>
+          </div>
+          <p className="text-sm text-gray-500 mb-1">Pengeluaran</p>
+          <p className="text-2xl font-bold text-gray-900">{formatRupiah(totalExpense)}</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm card-hover">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-2xl shadow-lg shadow-purple-200">
+              📦
+            </div>
+            <span className="text-sm font-semibold text-purple-600">{products.length}</span>
+          </div>
+          <p className="text-sm text-gray-500 mb-1">Total Produk</p>
+          <p className="text-2xl font-bold text-gray-900">{products.length}</p>
+        </div>
       </div>
 
-      {/* Alerts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Alerts & Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Low Stock Alert */}
-        <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>⚠️</span> Stok Menipis
-          </h3>
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-xl">
+              ⚠️
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Stok Menipis</h3>
+          </div>
           {lowStockProducts.length === 0 ? (
-            <p className="text-gray-400">Semua stok aman! 👍</p>
+            <div className="text-center py-8">
+              <div className="text-4xl mb-2">✅</div>
+              <p className="text-gray-500">Semua stok aman!</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {lowStockProducts.slice(0, 5).map((product) => (
-                <div key={product.id} className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
-                  <span className="text-white">{product.name}</span>
-                  <span className={`font-bold ${product.stock <= 2 ? 'text-red-400' : 'text-yellow-400'}`}>
+                <div key={product.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-700 font-medium">{product.name}</span>
+                  <span className={`px-2 py-1 rounded-md text-xs font-bold ${
+                    product.stock <= 2 
+                      ? 'bg-red-100 text-red-700' 
+                      : 'bg-amber-100 text-amber-700'
+                  }`}>
                     {product.stock} pcs
                   </span>
                 </div>
@@ -126,18 +146,24 @@ export default function Dashboard() {
         </div>
 
         {/* Unpaid Invoices */}
-        <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-            <span>🧾</span> Invoice Belum Dibayar
-          </h3>
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-xl">
+              🧾
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Invoice Belum Dibayar</h3>
+          </div>
           {unpaidInvoices.length === 0 ? (
-            <p className="text-gray-400">Semua invoice sudah lunas! 🎉</p>
+            <div className="text-center py-8">
+              <div className="text-4xl mb-2">🎉</div>
+              <p className="text-gray-500">Semua invoice sudah lunas!</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {unpaidInvoices.slice(0, 5).map((invoice) => (
-                <div key={invoice.id} className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg">
-                  <span className="text-white">{invoice.customer}</span>
-                  <span className="font-bold text-orange-400">{formatRupiah(invoice.total)}</span>
+                <div key={invoice.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-700 font-medium">{invoice.customer}</span>
+                  <span className="text-orange-600 font-bold">{formatRupiah(invoice.total)}</span>
                 </div>
               ))}
             </div>
@@ -146,24 +172,24 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-        <h3 className="text-lg font-bold mb-4">⚡ Aksi Cepat</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button className="p-4 bg-gradient-to-br from-purple-600/20 to-pink-600/20 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-all hover:scale-105">
-            <div className="text-2xl mb-2">🧾</div>
-            <div className="text-sm text-gray-300">Buat Invoice</div>
+      <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+        <h3 className="text-lg font-bold text-gray-900 mb-6">⚡ Aksi Cepat</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button className="group p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 hover:border-indigo-200 hover:shadow-md transition-all">
+            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🧾</div>
+            <div className="text-sm font-semibold text-gray-700">Buat Invoice</div>
           </button>
-          <button className="p-4 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all hover:scale-105">
-            <div className="text-2xl mb-2">💰</div>
-            <div className="text-sm text-gray-300">Catat Transaksi</div>
+          <button className="group p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100 hover:border-green-200 hover:shadow-md transition-all">
+            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">💰</div>
+            <div className="text-sm font-semibold text-gray-700">Catat Transaksi</div>
           </button>
-          <button className="p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-xl border border-green-500/30 hover:border-green-500/50 transition-all hover:scale-105">
-            <div className="text-2xl mb-2">📦</div>
-            <div className="text-sm text-gray-300">Tambah Produk</div>
+          <button className="group p-5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-100 hover:border-blue-200 hover:shadow-md transition-all">
+            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">📦</div>
+            <div className="text-sm font-semibold text-gray-700">Tambah Produk</div>
           </button>
-          <button className="p-4 bg-gradient-to-br from-orange-600/20 to-red-600/20 rounded-xl border border-orange-500/30 hover:border-orange-500/50 transition-all hover:scale-105">
-            <div className="text-2xl mb-2">🧮</div>
-            <div className="text-sm text-gray-300">Hitung Harga</div>
+          <button className="group p-5 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-100 hover:border-orange-200 hover:shadow-md transition-all">
+            <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🧮</div>
+            <div className="text-sm font-semibold text-gray-700">Hitung Harga</div>
           </button>
         </div>
       </div>

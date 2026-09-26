@@ -120,22 +120,22 @@ export default function InvoiceGenerator() {
   // Invoice Preview
   if (viewInvoice) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="flex gap-2 mb-4">
+      <div className="max-w-2xl mx-auto space-y-4">
+        <div className="flex gap-3">
           <button
             onClick={() => setViewInvoice(null)}
-            className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+            className="px-5 py-2.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 font-medium"
           >
             ← Kembali
           </button>
           <button
             onClick={handleExportPDF}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:scale-105 transition-transform"
+            className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-indigo-200 transition-all font-medium"
           >
             📄 Export PDF
           </button>
         </div>
-        <div className="bg-white text-gray-900 rounded-2xl p-8 shadow-2xl" id="invoice-preview">
+        <div className="bg-white text-gray-900 rounded-2xl p-8 shadow-lg border border-gray-100" id="invoice-preview">
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-3xl font-bold text-purple-600">INVOICE</h1>
@@ -210,14 +210,14 @@ export default function InvoiceGenerator() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold">🧾 Invoice Generator</h2>
-          <p className="text-gray-400 mt-1">Buat invoice profesional untuk pelanggan kamu</p>
+          <h2 className="text-2xl font-bold text-gray-900">Invoice Generator</h2>
+          <p className="text-gray-500 mt-1">Buat invoice profesional untuk pelanggan Anda</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg shadow-purple-500/30"
+          className="px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-indigo-200 transition-all"
         >
           {showForm ? 'Batal' : '+ Buat Invoice'}
         </button>
@@ -225,7 +225,7 @@ export default function InvoiceGenerator() {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm space-y-6">
           <h3 className="text-xl font-bold">Data Invoice</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

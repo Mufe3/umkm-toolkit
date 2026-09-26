@@ -275,122 +275,115 @@ export default function ShippingReceipt() {
           </button>
         </div>
 
-        <div id="shipping-receipt-preview" className="bg-white border-2 border-black" style={{ width: '100mm', minHeight: '150mm', padding: '3mm' }}>
-          {/* HEADER - Logo Kiri, QR Code Kanan */}
-          <div className="flex justify-between items-start mb-3 pb-2 border-b-2 border-black">
-            {/* LOGO KIRI - Custom atau Ekspedisi */}
+        <div id="shipping-receipt-preview" className="bg-white border-2 border-black" style={{ width: '100mm', minHeight: '150mm', padding: '4mm' }}>
+          
+          {/* ===== BAGIAN 1: HEADER ===== */}
+          <div className="flex justify-between items-start mb-2">
+            {/* Logo & Info Ekspedisi - KIRI */}
             <div className="flex items-center gap-2">
               {viewReceipt.customLogo ? (
-                <img src={viewReceipt.customLogo} alt="Logo" className="w-12 h-12 object-contain" />
+                <img src={viewReceipt.customLogo} alt="Logo" className="w-10 h-10 object-contain border border-black" />
               ) : (
-                <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-base">
                   {viewReceipt.courier.charAt(0)}
                 </div>
               )}
               <div>
-                <h1 className="text-sm font-bold text-black leading-tight">{viewReceipt.courier}</h1>
-                <p className="text-xs text-black">{viewReceipt.service}</p>
+                <p className="text-sm font-bold text-black leading-tight">{viewReceipt.courier}</p>
+                <p className="text-[10px] text-black">{viewReceipt.service} • {formatDate(viewReceipt.date)}</p>
               </div>
             </div>
-            {/* QR CODE KANAN */}
+            {/* QR Code - KANAN */}
             {qrCodeUrl && (
-              <div className="flex-shrink-0">
-                <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 border-2 border-black" />
-              </div>
+              <img src={qrCodeUrl} alt="QR" className="w-16 h-16 border border-black" />
             )}
           </div>
 
-          {/* BARCODE - Full Width */}
-          <div className="mb-3 pb-3 border-b-2 border-black">
-            <div className="bg-white">
+          {/* ===== BAGIAN 2: BARCODE & NO RESI ===== */}
+          <div className="mb-3 pb-2 border-b-2 border-black">
+            <p className="text-xs font-bold text-black mb-1 text-center tracking-wider">{viewReceipt.resiNumber}</p>
+            <div className="flex justify-center">
               <Barcode 
                 value={viewReceipt.resiNumber} 
-                width={1.8}
-                height={40}
-                fontSize={10}
+                width={1.5}
+                height={35}
+                fontSize={0}
                 margin={0}
-                fontOptions="bold"
               />
             </div>
           </div>
 
-          {/* INFO PENERIMA (KIRI) & PENGIRIM (KANAN) - Side by Side */}
-          <div className="mb-3 pb-3 border-b-2 border-black grid grid-cols-2 gap-2">
-            {/* PENERIMA - KIRI */}
-            <div className="border-r border-black pr-2">
-              <p className="text-xs font-bold text-black mb-1 tracking-wide">PENERIMA / TO:</p>
-              <p className="text-sm font-bold text-black leading-tight mb-1">{viewReceipt.receiverName}</p>
-              <p className="text-xs text-black leading-tight">{viewReceipt.receiverPhone}</p>
-              <p className="text-xs text-black leading-tight">{viewReceipt.receiverAddress}</p>
-              {viewReceipt.receiverCity && (
-                <p className="text-xs text-black leading-tight font-semibold">
-                  {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
-                </p>
-              )}
-            </div>
-            {/* PENGIRIM - KANAN */}
-            <div className="pl-2">
-              <p className="text-xs font-bold text-black mb-1 tracking-wide">PENGIRIM / FROM:</p>
-              <p className="text-xs text-black leading-tight font-semibold">{viewReceipt.senderName}</p>
-              <p className="text-xs text-black leading-tight">{viewReceipt.senderPhone}</p>
-              <p className="text-xs text-black leading-tight">{viewReceipt.senderAddress}</p>
-              {viewReceipt.senderCity && <p className="text-xs text-black leading-tight">{viewReceipt.senderCity}</p>}
-            </div>
+          {/* ===== BAGIAN 3: INFO PENERIMA (MENONJOL) ===== */}
+          <div className="mb-2 pb-2 border-b border-black">
+            <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">TUJUAN / TO:</p>
+            <p className="text-sm font-bold text-black leading-snug">{viewReceipt.receiverName}</p>
+            <p className="text-[11px] text-black leading-snug">{viewReceipt.receiverPhone}</p>
+            <p className="text-[11px] text-black leading-snug">{viewReceipt.receiverAddress}</p>
+            {viewReceipt.receiverCity && (
+              <p className="text-[11px] text-black leading-snug font-semibold">
+                {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
+              </p>
+            )}
           </div>
 
-          {/* DETAIL PAKET & BIAYA */}
-          <div className="mb-3 pb-3 border-b border-black">
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-xs font-bold text-black tracking-wide">DETAIL PAKET</p>
-              <p className="text-xs font-bold text-black">{viewReceipt.totalWeight.toFixed(2)} kg • {viewReceipt.items.length} item</p>
+          {/* ===== BAGIAN 4: INFO PENGIRIM ===== */}
+          <div className="mb-2 pb-2 border-b border-black">
+            <p className="text-[10px] font-bold text-black mb-1 tracking-wider border-b border-black pb-0.5">DARI / FROM:</p>
+            <p className="text-[11px] text-black leading-snug font-semibold">{viewReceipt.senderName}</p>
+            <p className="text-[11px] text-black leading-snug">{viewReceipt.senderPhone}</p>
+            <p className="text-[11px] text-black leading-snug">{viewReceipt.senderAddress}</p>
+            {viewReceipt.senderCity && <p className="text-[11px] text-black leading-snug">{viewReceipt.senderCity}</p>}
+          </div>
+
+          {/* ===== BAGIAN 5: DETAIL PAKET ===== */}
+          <div className="mb-2 pb-2 border-b border-black">
+            <div className="flex justify-between items-center mb-1">
+              <p className="text-[10px] font-bold text-black tracking-wider">ISI PAKET</p>
+              <p className="text-[10px] font-bold text-black">{viewReceipt.totalWeight.toFixed(2)} kg</p>
             </div>
-            <div className="text-xs text-black mb-2 text-right">
-              <span className="font-semibold">Tanggal Kirim: </span>{formatDate(viewReceipt.date)}
-            </div>
-            <div className="text-xs text-black space-y-0.5 mb-2">
+            <div className="text-[10px] text-black space-y-0.5">
               {viewReceipt.items.map((item, i) => (
-                <div key={i} className="flex justify-between border-b border-dotted border-gray-400 pb-0.5">
-                  <span>{item.name} <span className="font-semibold">x{item.qty}</span></span>
-                  <span>{formatRupiah(item.price * item.qty)}</span>
+                <div key={i} className="flex justify-between">
+                  <span className="flex-1 truncate pr-1">{item.name} x{item.qty}</span>
+                  <span className="font-semibold">{formatRupiah(item.price * item.qty)}</span>
                 </div>
               ))}
             </div>
-            <div className="text-xs text-black space-y-0.5">
+          </div>
+
+          {/* ===== BAGIAN 6: BIAYA ===== */}
+          <div className="mb-2 pb-2 border-b border-black text-[10px] text-black">
+            <div className="flex justify-between">
+              <span>Ongkir:</span>
+              <span className="font-semibold">{formatRupiah(viewReceipt.shippingCost)}</span>
+            </div>
+            {viewReceipt.insurance > 0 && (
               <div className="flex justify-between">
-                <span>Ongkir ({viewReceipt.service}):</span>
-                <span className="font-semibold">{formatRupiah(viewReceipt.shippingCost)}</span>
+                <span>Asuransi:</span>
+                <span className="font-semibold">{formatRupiah(viewReceipt.insurance)}</span>
               </div>
-              {viewReceipt.insurance > 0 && (
-                <div className="flex justify-between">
-                  <span>Asuransi:</span>
-                  <span className="font-semibold">{formatRupiah(viewReceipt.insurance)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-bold text-sm pt-1 border-t border-black mt-1">
-                <span>TOTAL:</span>
-                <span>{formatRupiah(viewReceipt.totalCost)}</span>
-              </div>
-              <div className="flex justify-between text-xs pt-1">
-                <span>Bayar via:</span>
-                <span className="font-semibold">{viewReceipt.paymentMethod}</span>
-              </div>
+            )}
+            <div className="flex justify-between font-bold text-xs pt-1 mt-1 border-t border-black">
+              <span>TOTAL ({viewReceipt.paymentMethod}):</span>
+              <span>{formatRupiah(viewReceipt.totalCost)}</span>
             </div>
           </div>
 
-          {/* CATATAN - OPSIONAL */}
+          {/* ===== BAGIAN 7: CATATAN (JIKA ADA) ===== */}
           {viewReceipt.notes && (
-            <div className="mb-3 pb-3 border-b border-black">
-              <p className="text-xs font-bold text-black mb-1">CATATAN:</p>
-              <p className="text-xs text-black italic">{viewReceipt.notes}</p>
+            <div className="mb-2 pb-2 border-b border-black">
+              <p className="text-[10px] font-bold text-black mb-0.5">CATATAN:</p>
+              <p className="text-[10px] text-black italic">{viewReceipt.notes}</p>
             </div>
           )}
 
-          {/* STATUS - PALING BAWAH */}
+          {/* ===== BAGIAN 8: STATUS ===== */}
           <div className="text-center pt-1">
-            <p className="text-xs font-bold text-black border-2 border-black inline-block px-4 py-1 tracking-wide">
+            <p className="text-[10px] font-bold text-black border border-black inline-block px-3 py-0.5 tracking-wider">
               {statusLabels[viewReceipt.status]}
             </p>
           </div>
+
         </div>
       </div>
     )

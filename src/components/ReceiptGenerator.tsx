@@ -95,6 +95,10 @@ export default function ReceiptGenerator() {
     pdf.save(`${viewReceipt?.receiptNumber || 'struk'}.pdf`)
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   const handleSaveStoreSettings = () => {
     saveToStorage('umkm_store_settings', storeSettings)
     alert('Pengaturan toko tersimpan!')
@@ -111,6 +115,10 @@ export default function ReceiptGenerator() {
           <button onClick={handleExportPDF}
             className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium flex items-center gap-2">
             <Icon name="download" size={16} /> Export PDF
+          </button>
+          <button onClick={handlePrint}
+            className="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2">
+            <Icon name="print" size={16} /> Print
           </button>
         </div>
         <div id="receipt-preview" className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm font-mono text-sm">

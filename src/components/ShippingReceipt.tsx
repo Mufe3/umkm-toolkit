@@ -171,6 +171,10 @@ export default function ShippingReceipt() {
     pdf.save(`${viewReceipt?.resiNumber || 'resi'}.pdf`)
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   // Address Book Functions
   const handleSaveAddress = () => {
     if (!addrName || !addrAddress) {
@@ -270,6 +274,10 @@ export default function ShippingReceipt() {
           <button onClick={handleExportPDF}
             className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium flex items-center gap-2">
             <Icon name="download" size={16} /> Export PDF
+          </button>
+          <button onClick={handlePrint}
+            className="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2">
+            <Icon name="print" size={16} /> Print
           </button>
         </div>
 

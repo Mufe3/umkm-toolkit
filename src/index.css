@@ -237,6 +237,47 @@ input.bg-slate-50, textarea.bg-slate-50, select.bg-slate-50 {
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Print Styles - Only print the receipt/shipping preview */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+  
+  /* Show only the receipt preview and its children */
+  #receipt-preview,
+  #receipt-preview *,
+  #shipping-receipt-preview,
+  #shipping-receipt-preview * {
+    visibility: visible;
+  }
+  
+  /* Position the receipt preview at the top left */
+  #receipt-preview,
+  #shipping-receipt-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100mm;
+    margin: 0;
+    padding: 4mm;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Set page size to A6 (100mm x 150mm) */
+  @page {
+    size: 100mm 150mm;
+    margin: 0;
+  }
+  
+  /* Remove any background colors for printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
 /* Professional button styles */
 button {
   cursor: pointer;

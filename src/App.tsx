@@ -14,10 +14,16 @@ import CloudSyncUI from './components/CloudSyncUI'
 import TeamManagementUI from './components/TeamManagementUI'
 import AIFeaturesUI from './components/AIFeaturesUI'
 import MarketplaceUI from './components/MarketplaceUI'
+import ReceiptGenerator from './components/ReceiptGenerator'
+import PaymentTracker from './components/PaymentTracker'
+import FinancialReport from './components/FinancialReport'
+import LoyaltyProgram from './components/LoyaltyProgram'
+import ProductBundle from './components/ProductBundle'
+import ComingSoon from './components/ComingSoon'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'expedition' | 'payment-gateway' | 'wa-business'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -26,27 +32,40 @@ export default function App() {
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
     { id: 'invoice' as Page, label: 'Invoice', icon: 'invoice' as IconName, category: 'Keuangan' },
+    { id: 'receipt' as Page, label: 'Struk & Resi', icon: 'print' as IconName, category: 'Keuangan' },
+    { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Keuangan' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
-    { id: 'calculator' as Page, label: 'Kalkulator Harga', icon: 'calculator' as IconName, category: 'Keuangan' },
+    { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },
+    { id: 'calculator' as Page, label: 'Kalkulator', icon: 'calculator' as IconName, category: 'Keuangan' },
     { id: 'inventory' as Page, label: 'Inventory', icon: 'inventory' as IconName, category: 'Operasional' },
+    { id: 'bundle' as Page, label: 'Bundle', icon: 'package' as IconName, category: 'Operasional' },
     { id: 'purchase' as Page, label: 'Purchase Order', icon: 'purchase' as IconName, category: 'Operasional' },
     { id: 'supplier' as Page, label: 'Supplier', icon: 'supplier' as IconName, category: 'Operasional' },
     { id: 'customers' as Page, label: 'Pelanggan', icon: 'customers' as IconName, category: 'Relasi' },
+    { id: 'loyalty' as Page, label: 'Loyalty', icon: 'star' as IconName, category: 'Relasi' },
     { id: 'analytics' as Page, label: 'Analytics', icon: 'analytics' as IconName, category: 'Analisis' },
     { id: 'whatsapp' as Page, label: 'WhatsApp', icon: 'whatsapp' as IconName, category: 'Marketing' },
     { id: 'qrcode' as Page, label: 'QR Code', icon: 'qrcode' as IconName, category: 'Marketing' },
-    { id: 'cloud' as Page, label: 'Cloud Sync', icon: 'cloud' as IconName, category: 'Level 3' },
-    { id: 'team' as Page, label: 'Team', icon: 'users' as IconName, category: 'Level 3' },
-    { id: 'ai' as Page, label: 'AI Assistant', icon: 'brain' as IconName, category: 'Level 3' },
-    { id: 'marketplace' as Page, label: 'Marketplace', icon: 'purchase' as IconName, category: 'Level 3' },
+    { id: 'cloud' as Page, label: 'Cloud Sync', icon: 'cloud' as IconName, category: 'Advanced' },
+    { id: 'team' as Page, label: 'Team', icon: 'users' as IconName, category: 'Advanced' },
+    { id: 'ai' as Page, label: 'AI Assistant', icon: 'brain' as IconName, category: 'Advanced' },
+    { id: 'marketplace' as Page, label: 'Marketplace', icon: 'purchase' as IconName, category: 'Advanced' },
+    { id: 'expedition' as Page, label: 'Ekspedisi', icon: 'truck' as IconName, category: 'Integrasi' },
+    { id: 'payment-gateway' as Page, label: 'Payment GW', icon: 'credit-card' as IconName, category: 'Integrasi' },
+    { id: 'wa-business' as Page, label: 'WA Business', icon: 'message-circle' as IconName, category: 'Integrasi' },
   ]
 
-  const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Level 3']
+  const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
 
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard': return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
       case 'invoice': return <InvoiceGenerator />
+      case 'receipt': return <ReceiptGenerator />
+      case 'payment': return <PaymentTracker />
+      case 'report': return <FinancialReport />
+      case 'loyalty': return <LoyaltyProgram />
+      case 'bundle': return <ProductBundle />
       case 'calculator': return <PriceCalculator />
       case 'cashflow': return <CashFlowTracker />
       case 'inventory': return <InventoryManager />
@@ -60,6 +79,9 @@ export default function App() {
       case 'team': return <TeamManagementUI />
       case 'ai': return <AIFeaturesUI />
       case 'marketplace': return <MarketplaceUI />
+      case 'expedition': return <ComingSoon title="Integrasi Ekspedisi" description="Integrasi dengan jasa pengiriman untuk otomatisasi resi dan tracking" icon="truck" features={['Auto-generate resi', 'Auto-calculate ongkir', 'Real-time tracking', 'Multi-kurir (JNE, J&T, SiCepat)', 'Label pengiriman otomatis', 'Notifikasi status pengiriman']} />
+      case 'payment-gateway': return <ComingSoon title="Payment Gateway" description="Terima pembayaran online dari berbagai metode pembayaran" icon="credit-card" features={['Multi-payment methods', 'Auto-verify pembayaran', 'QRIS integration', 'Virtual account', 'E-wallet integration', 'Auto-reconciliation']} />
+      case 'wa-business': return <ComingSoon title="WhatsApp Business API" description="Integrasi WhatsApp Business untuk otomatisasi chat dan order" icon="message-circle" features={['Auto-reply chat', 'Broadcast message', 'Order via WhatsApp', 'Catalog integration', 'Template message', 'Chat analytics']} />
       default: return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
     }
   }
@@ -139,7 +161,7 @@ export default function App() {
         <div className="p-4 border-t border-slate-200">
           <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
             <p className="text-xs font-semibold text-indigo-700 mb-1">UMKM Toolkit Pro</p>
-            <p className="text-xs text-slate-700 mb-3">15 tools lengkap untuk bisnis Anda</p>
+            <p className="text-xs text-slate-700 mb-3">23 tools lengkap untuk bisnis Anda</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs text-slate-700">Data tersimpan lokal</span>
@@ -202,7 +224,7 @@ export default function App() {
               © 2024 UMKM Toolkit — Dibuat dengan ❤️ untuk UMKM Indonesia
             </p>
             <p className="text-xs text-slate-600">
-              v3.0 • 15 Tools • All-in-One Business Solution
+              v4.0 • 23 Tools • All-in-One Business Solution
             </p>
           </div>
         </footer>

@@ -52,6 +52,7 @@ import {
   Cloud,
   Brain,
   Shield,
+  CreditCard,
   TrendingUp as TrendingUpIcon,
 } from 'lucide-react'
 
@@ -66,6 +67,7 @@ export type IconName =
   | 'logout' | 'circle' | 'check-circle' | 'x-circle' | 'alert-circle'
   | 'info' | 'help' | 'zap' | 'target' | 'award' | 'package'
   | 'cloud' | 'brain' | 'users' | 'shield'
+  | 'truck' | 'credit-card' | 'message-circle'
 
 interface IconProps {
   name: IconName
@@ -137,6 +139,9 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'brain': Brain,
     'users': Users,
     'shield': Shield,
+    'truck': Truck,
+    'credit-card': CreditCard,
+    'message-circle': MessageCircle,
   }
 
   const IconComponent = icons[name]

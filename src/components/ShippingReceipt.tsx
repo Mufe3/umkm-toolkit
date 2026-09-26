@@ -29,6 +29,8 @@ interface ShippingReceipt {
   insurance: number
   totalCost: number
   paymentMethod: string
+  // Custom branding
+  customLogo: string
   // Additional
   notes: string
   date: string
@@ -71,6 +73,7 @@ export default function ShippingReceipt() {
   const [shippingCost, setShippingCost] = useState(0)
   const [insurance, setInsurance] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState('Tunai')
+  const [customLogo, setCustomLogo] = useState('')
   const [notes, setNotes] = useState('')
 
   // Address form state
@@ -121,6 +124,7 @@ export default function ShippingReceipt() {
       items: items.filter(i => i.name),
       totalWeight, courier, service, shippingCost, insurance, totalCost,
       paymentMethod,
+      customLogo,
       notes, date: new Date().toISOString(),
       status: 'pending',
     }
@@ -135,7 +139,7 @@ export default function ShippingReceipt() {
     setSenderName(''); setSenderPhone(''); setSenderAddress(''); setSenderCity('')
     setReceiverName(''); setReceiverPhone(''); setReceiverAddress(''); setReceiverCity(''); setReceiverPostalCode('')
     setItems([{ name: '', qty: 1, weight: 1, price: 0 }])
-    setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setPaymentMethod('Tunai'); setNotes('')
+    setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setPaymentMethod('Tunai'); setCustomLogo(''); setNotes('')
     setShowForm(false)
   }
 
@@ -272,37 +276,31 @@ export default function ShippingReceipt() {
         </div>
 
         <div id="shipping-receipt-preview" className="bg-white border-2 border-black" style={{ width: '100mm', minHeight: '150mm', padding: '3mm' }}>
-          {/* HEADER - Logo & Nama Ekspedisi */}
+          {/* HEADER - Logo Kiri, QR Code Kanan */}
           <div className="flex justify-between items-start mb-3 pb-2 border-b-2 border-black">
+            {/* LOGO KIRI - Custom atau Ekspedisi */}
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-lg">
-                {viewReceipt.courier.charAt(0)}
-              </div>
+              {viewReceipt.customLogo ? (
+                <img src={viewReceipt.customLogo} alt="Logo" className="w-12 h-12 object-contain" />
+              ) : (
+                <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-lg">
+                  {viewReceipt.courier.charAt(0)}
+                </div>
+              )}
               <div>
-                <h1 className="text-base font-bold text-black leading-tight">{viewReceipt.courier}</h1>
+                <h1 className="text-sm font-bold text-black leading-tight">{viewReceipt.courier}</h1>
                 <p className="text-xs text-black">{viewReceipt.service}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-black font-semibold">{formatDate(viewReceipt.date)}</p>
-            </div>
-          </div>
-
-          {/* QR CODE (Kiri Atas) & NOMOR RESI */}
-          <div className="mb-2">
-            <div className="flex gap-2 items-start">
-              {qrCodeUrl && (
-                <div className="flex-shrink-0">
-                  <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 border-2 border-black" />
-                </div>
-              )}
-              <div className="flex-1">
-                <p className="text-lg font-bold text-black font-mono tracking-wide mb-1">{viewReceipt.resiNumber}</p>
+            {/* QR CODE KANAN */}
+            {qrCodeUrl && (
+              <div className="flex-shrink-0">
+                <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 border-2 border-black" />
               </div>
-            </div>
+            )}
           </div>
 
-          {/* BARCODE - Full Width di bawah QR */}
+          {/* BARCODE - Full Width */}
           <div className="mb-3 pb-3 border-b-2 border-black">
             <div className="bg-white">
               <Barcode 
@@ -345,6 +343,9 @@ export default function ShippingReceipt() {
             <div className="flex justify-between items-center mb-2">
               <p className="text-xs font-bold text-black tracking-wide">DETAIL PAKET</p>
               <p className="text-xs font-bold text-black">{viewReceipt.totalWeight.toFixed(2)} kg • {viewReceipt.items.length} item</p>
+            </div>
+            <div className="text-xs text-black mb-2 text-right">
+              <span className="font-semibold">Tanggal Kirim: </span>{formatDate(viewReceipt.date)}
             </div>
             <div className="text-xs text-black space-y-0.5 mb-2">
               {viewReceipt.items.map((item, i) => (
@@ -544,6 +545,40 @@ export default function ShippingReceipt() {
       {showForm && (
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-6">
           <h3 className="text-lg font-semibold text-slate-900">Buat Resi Pengiriman Baru</h3>
+
+          {/* Custom Logo Upload */}
+          <div>
+            <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <Icon name="image" size={16} className="text-violet-500" /> Logo Custom (Opsional)
+            </h4>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <label className="text-sm text-slate-600 mb-1 block">Upload Logo Toko/Brand Anda</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      const reader = new FileReader()
+                      reader.onloadend = () => {
+                        setCustomLogo(reader.result as string)
+                      }
+                      reader.readAsDataURL(file)
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                />
+              </div>
+              {customLogo && (
+                <div className="flex-shrink-0">
+                  <img src={customLogo} alt="Preview" className="w-16 h-16 object-contain border border-slate-200 rounded" />
+                  <button onClick={() => setCustomLogo('')} className="text-xs text-rose-500 hover:text-rose-600 mt-1">Hapus</button>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-2">Logo akan ditampilkan di kanan atas resi. Jika tidak diisi, akan menggunakan logo ekspedisi default.</p>
+          </div>
 
           {/* Sender Info */}
           <div>

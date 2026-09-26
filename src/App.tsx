@@ -37,7 +37,7 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard />
+      case 'dashboard': return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
       case 'invoice': return <InvoiceGenerator />
       case 'calculator': return <PriceCalculator />
       case 'cashflow': return <CashFlowTracker />
@@ -48,7 +48,7 @@ export default function App() {
       case 'supplier': return <SupplierManagement />
       case 'whatsapp': return <WhatsAppShare />
       case 'qrcode': return <QRCodeGenerator />
-      default: return <Dashboard />
+      default: return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
     }
   }
 

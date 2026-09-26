@@ -25,7 +25,11 @@ interface Invoice {
   status: 'paid' | 'unpaid'
 }
 
-export default function Dashboard() {
+interface DashboardProps {
+  onNavigate?: (page: string) => void
+}
+
+export default function Dashboard({ onNavigate }: DashboardProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -179,25 +183,33 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-slate-900">Aksi Cepat</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all">
+          <button 
+            onClick={() => onNavigate?.('invoice')}
+            className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all cursor-pointer">
             <div className="mb-3 group-hover:scale-110 transition-transform">
               <Icon name="invoice" size={32} className="text-indigo-600" />
             </div>
             <div className="text-sm font-semibold text-slate-800">Buat Invoice</div>
           </button>
-          <button className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all">
+          <button 
+            onClick={() => onNavigate?.('cashflow')}
+            className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all cursor-pointer">
             <div className="mb-3 group-hover:scale-110 transition-transform">
               <Icon name="cashflow" size={32} className="text-emerald-600" />
             </div>
             <div className="text-sm font-semibold text-slate-800">Catat Transaksi</div>
           </button>
-          <button className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50 transition-all">
+          <button 
+            onClick={() => onNavigate?.('inventory')}
+            className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-sky-300 hover:bg-sky-50 transition-all cursor-pointer">
             <div className="mb-3 group-hover:scale-110 transition-transform">
               <Icon name="inventory" size={32} className="text-sky-600" />
             </div>
             <div className="text-sm font-semibold text-slate-800">Tambah Produk</div>
           </button>
-          <button className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50 transition-all">
+          <button 
+            onClick={() => onNavigate?.('calculator')}
+            className="group p-5 bg-slate-50 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50 transition-all cursor-pointer">
             <div className="mb-3 group-hover:scale-110 transition-transform">
               <Icon name="calculator" size={32} className="text-amber-600" />
             </div>

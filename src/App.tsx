@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Dashboard from './components/Dashboard'
 import InvoiceGenerator from './components/InvoiceGenerator'
 import PriceCalculator from './components/PriceCalculator'
 import CashFlowTracker from './components/CashFlowTracker'
 import InventoryManager from './components/InventoryManager'
+import CustomerManagement from './components/CustomerManagement'
+import AdvancedAnalytics from './components/AdvancedAnalytics'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -14,9 +16,11 @@ export default function App() {
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: '📊' },
     { id: 'invoice' as Page, label: 'Invoice', icon: '🧾' },
-    { id: 'calculator' as Page, label: 'Kalkulator Harga', icon: '🧮' },
+    { id: 'calculator' as Page, label: 'Kalkulator', icon: '🧮' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: '💰' },
     { id: 'inventory' as Page, label: 'Inventory', icon: '📦' },
+    { id: 'customers' as Page, label: 'Pelanggan', icon: '👥' },
+    { id: 'analytics' as Page, label: 'Analytics', icon: '📈' },
   ]
 
   const renderPage = () => {
@@ -31,6 +35,10 @@ export default function App() {
         return <CashFlowTracker />
       case 'inventory':
         return <InventoryManager />
+      case 'customers':
+        return <CustomerManagement />
+      case 'analytics':
+        return <AdvancedAnalytics />
       default:
         return <Dashboard />
     }
@@ -62,18 +70,18 @@ export default function App() {
           </button>
 
           {/* Desktop menu */}
-          <nav className="hidden md:flex gap-2">
+          <nav className="hidden md:flex gap-1">
             {menuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setCurrentPage(item.id)}
-                className={`px-4 py-2 rounded-lg transition-all ${
+                className={`px-3 py-2 rounded-lg transition-all text-sm ${
                   currentPage === item.id
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                     : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
               >
-                <span className="mr-2">{item.icon}</span>
+                <span className="mr-1">{item.icon}</span>
                 {item.label}
               </button>
             ))}

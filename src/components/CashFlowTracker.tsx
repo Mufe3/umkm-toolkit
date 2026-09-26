@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getFromStorage, saveToStorage, formatRupiah, formatDate, generateId } from '../utils/storage'
+import * as XLSX from 'xlsx'
 
 interface Transaction {
   id: string
@@ -105,12 +106,52 @@ export default function CashFlowTracker() {
 
   const maxCategoryAmount = Math.max(...Object.values(categoryBreakdown), 1)
 
+  const handleExportExcel = () => {
+    const data = filteredTransactions.map(t => ({
+      Tanggal: formatDate(t.date),
+      Tipe: t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+      Kategori: t.category,
+      Keterangan: t.description,
+      Jumlah: t.amount,
+    }))
+    
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Transaksi')
+    XLSX.writeFile(wb, `cashflow_${new Date().toISOString().split('T')[0]}.xlsx`)
+  }
+
+  const handleBackupJSON = () => {
+    const data = JSON.stringify(transactions, null, 2)
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `backup_cashflow_${new Date().toISOString().split('T')[0]}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold">💰 Cash Flow Tracker</h2>
           <p className="text-gray-400 mt-1">Catat pemasukan & pengeluaran bisnis kamu</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportExcel}
+            className="px-4 py-2 bg-green-600/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-600/30 transition-colors text-sm"
+          >
+            📊 Export Excel
+          </button>
+          <button
+            onClick={handleBackupJSON}
+            className="px-4 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/30 transition-colors text-sm"
+          >
+            💾 Backup
+          </button>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}

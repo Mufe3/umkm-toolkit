@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getFromStorage, saveToStorage, formatRupiah, formatDate, generateId } from '../utils/storage'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 interface InvoiceItem {
   name: string
@@ -102,16 +104,37 @@ export default function InvoiceGenerator() {
     }
   }
 
+  const handleExportPDF = async () => {
+    const element = document.getElementById('invoice-preview')
+    if (!element) return
+
+    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' })
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    pdf.save(`${viewInvoice?.invoiceNumber || 'invoice'}.pdf`)
+  }
+
   // Invoice Preview
   if (viewInvoice) {
     return (
       <div className="max-w-2xl mx-auto">
-        <button
-          onClick={() => setViewInvoice(null)}
-          className="mb-4 px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
-        >
-          ← Kembali
-        </button>
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => setViewInvoice(null)}
+            className="px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            ← Kembali
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:scale-105 transition-transform"
+          >
+            📄 Export PDF
+          </button>
+        </div>
         <div className="bg-white text-gray-900 rounded-2xl p-8 shadow-2xl" id="invoice-preview">
           <div className="flex justify-between items-start mb-8">
             <div>

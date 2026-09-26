@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getFromStorage, saveToStorage, formatRupiah, generateId } from '../utils/storage'
+import * as XLSX from 'xlsx'
 
 interface Product {
   id: string
@@ -129,6 +130,35 @@ export default function InventoryManager() {
   // Categories
   const categories = [...new Set(products.map(p => p.category))]
 
+  const handleExportCSV = () => {
+    const data = products.map(p => ({
+      Nama: p.name,
+      Kategori: p.category,
+      Stok: p.stock,
+      'Stok Minimum': p.minStock,
+      Satuan: p.unit,
+      'Harga per Unit': p.price,
+      'Nilai Total': p.stock * p.price,
+      Status: p.stock === 0 ? 'Habis' : p.stock <= p.minStock ? 'Menipis' : 'Aman',
+    }))
+    
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Inventory')
+    XLSX.writeFile(wb, `inventory_${new Date().toISOString().split('T')[0]}.xlsx`)
+  }
+
+  const handleBackupJSON = () => {
+    const data = JSON.stringify(products, null, 2)
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `backup_inventory_${new Date().toISOString().split('T')[0]}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -136,12 +166,26 @@ export default function InventoryManager() {
           <h2 className="text-3xl font-bold">📦 Inventory Manager</h2>
           <p className="text-gray-400 mt-1">Kelola stok produk bisnis kamu</p>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowForm(!showForm) }}
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg shadow-purple-500/30"
-        >
-          {showForm ? 'Batal' : '+ Tambah Produk'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="px-4 py-2 bg-green-600/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-600/30 transition-colors text-sm"
+          >
+            📊 Export
+          </button>
+          <button
+            onClick={handleBackupJSON}
+            className="px-4 py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-600/30 transition-colors text-sm"
+          >
+            💾 Backup
+          </button>
+          <button
+            onClick={() => { resetForm(); setShowForm(!showForm) }}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg shadow-purple-500/30"
+          >
+            {showForm ? 'Batal' : '+ Tambah Produk'}
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

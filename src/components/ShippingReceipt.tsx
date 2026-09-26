@@ -3,6 +3,8 @@ import { getFromStorage, saveToStorage, formatRupiah, formatDate, generateId } f
 import { Icon } from './Icon'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
+import Barcode from 'react-barcode'
+import QRCode from 'qrcode'
 
 interface ShippingReceipt {
   id: string
@@ -32,10 +34,25 @@ interface ShippingReceipt {
   status: 'pending' | 'picked_up' | 'in_transit' | 'delivered'
 }
 
+interface SavedAddress {
+  id: string
+  name: string
+  phone: string
+  address: string
+  city: string
+  postalCode: string
+  isDefault: boolean
+}
+
 export default function ShippingReceipt() {
   const [receipts, setReceipts] = useState<ShippingReceipt[]>([])
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([])
   const [showForm, setShowForm] = useState(false)
   const [viewReceipt, setViewReceipt] = useState<ShippingReceipt | null>(null)
+  const [showAddressBook, setShowAddressBook] = useState(false)
+  const [showAddressForm, setShowAddressForm] = useState(false)
+  const [editingAddress, setEditingAddress] = useState<SavedAddress | null>(null)
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
 
   // Form state
   const [senderName, setSenderName] = useState('')
@@ -54,9 +71,36 @@ export default function ShippingReceipt() {
   const [insurance, setInsurance] = useState(0)
   const [notes, setNotes] = useState('')
 
+  // Address form state
+  const [addrName, setAddrName] = useState('')
+  const [addrPhone, setAddrPhone] = useState('')
+  const [addrAddress, setAddrAddress] = useState('')
+  const [addrCity, setAddrCity] = useState('')
+  const [addrPostalCode, setAddrPostalCode] = useState('')
+  const [addrIsDefault, setAddrIsDefault] = useState(false)
+
   useEffect(() => {
     setReceipts(getFromStorage<ShippingReceipt[]>('umkm_shipping_receipts', []))
+    setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
   }, [])
+
+  // Generate QR Code when viewing receipt
+  useEffect(() => {
+    if (viewReceipt) {
+      const qrData = JSON.stringify({
+        resi: viewReceipt.resiNumber,
+        courier: viewReceipt.courier,
+        receiver: viewReceipt.receiverName,
+        city: viewReceipt.receiverCity,
+        status: viewReceipt.status,
+      })
+      QRCode.toDataURL(qrData, {
+        width: 150,
+        margin: 1,
+        color: { dark: '#1e293b', light: '#ffffff' }
+      }).then(setQrCodeUrl)
+    }
+  }, [viewReceipt])
 
   const totalWeight = items.reduce((sum, item) => sum + (item.qty * item.weight), 0)
   const totalCost = shippingCost + insurance
@@ -117,6 +161,79 @@ export default function ShippingReceipt() {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
     pdf.save(`${viewReceipt?.resiNumber || 'resi'}.pdf`)
+  }
+
+  // Address Book Functions
+  const handleSaveAddress = () => {
+    if (!addrName || !addrAddress) {
+      alert('Lengkapi nama dan alamat!')
+      return
+    }
+
+    if (editingAddress) {
+      const updated = savedAddresses.map(a => 
+        a.id === editingAddress.id 
+          ? { ...a, name: addrName, phone: addrPhone, address: addrAddress, city: addrCity, postalCode: addrPostalCode, isDefault: addrIsDefault }
+          : a
+      )
+      setSavedAddresses(updated)
+      saveToStorage('umkm_saved_addresses', updated)
+    } else {
+      const newAddress: SavedAddress = {
+        id: generateId(),
+        name: addrName,
+        phone: addrPhone,
+        address: addrAddress,
+        city: addrCity,
+        postalCode: addrPostalCode,
+        isDefault: addrIsDefault,
+      }
+      const updated = [newAddress, ...savedAddresses]
+      setSavedAddresses(updated)
+      saveToStorage('umkm_saved_addresses', updated)
+    }
+
+    resetAddressForm()
+  }
+
+  const resetAddressForm = () => {
+    setAddrName(''); setAddrPhone(''); setAddrAddress(''); setAddrCity(''); setAddrPostalCode(''); setAddrIsDefault(false)
+    setShowAddressForm(false)
+    setEditingAddress(null)
+  }
+
+  const startEditAddress = (addr: SavedAddress) => {
+    setEditingAddress(addr)
+    setAddrName(addr.name)
+    setAddrPhone(addr.phone)
+    setAddrAddress(addr.address)
+    setAddrCity(addr.city)
+    setAddrPostalCode(addr.postalCode)
+    setAddrIsDefault(addr.isDefault)
+    setShowAddressForm(true)
+  }
+
+  const deleteAddress = (id: string) => {
+    if (confirm('Hapus alamat ini?')) {
+      const updated = savedAddresses.filter(a => a.id !== id)
+      setSavedAddresses(updated)
+      saveToStorage('umkm_saved_addresses', updated)
+    }
+  }
+
+  const selectAddress = (addr: SavedAddress) => {
+    setReceiverName(addr.name)
+    setReceiverPhone(addr.phone)
+    setReceiverAddress(addr.address)
+    setReceiverCity(addr.city)
+    setReceiverPostalCode(addr.postalCode)
+    setShowAddressBook(false)
+  }
+
+  const setDefaultAddress = (id: string) => {
+    const updated = savedAddresses.map(a => ({ ...a, isDefault: a.id === id }))
+    setSavedAddresses(updated)
+    saveToStorage('umkm_saved_addresses', updated)
   }
 
   const statusColors = {
@@ -207,7 +324,7 @@ export default function ShippingReceipt() {
           </div>
 
           {/* Summary */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-6 mb-6">
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase mb-2">DETAIL PENGIRIMAN</p>
               <div className="space-y-1 text-sm">
@@ -246,20 +363,171 @@ export default function ShippingReceipt() {
             </div>
           </div>
 
+          {/* Barcode & QR Code */}
+          <div className="mb-6 pb-6 border-b border-slate-200">
+            <div className="flex justify-between items-center">
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-slate-500 uppercase mb-2">BARCODE</p>
+                <div className="bg-white p-2 border border-slate-200 rounded inline-block">
+                  <Barcode 
+                    value={viewReceipt.resiNumber} 
+                    width={1.5}
+                    height={50}
+                    fontSize={12}
+                    margin={0}
+                  />
+                </div>
+              </div>
+              {qrCodeUrl && (
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-slate-500 uppercase mb-2">QR CODE</p>
+                  <div className="bg-white p-2 border border-slate-200 rounded inline-block">
+                    <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Notes */}
           {viewReceipt.notes && (
-            <div className="mt-6 pt-6 border-t border-slate-200">
+            <div className="mb-6 pb-6 border-b border-slate-200">
               <p className="text-xs font-semibold text-slate-500 uppercase mb-2">CATATAN</p>
               <p className="text-sm text-slate-700">{viewReceipt.notes}</p>
             </div>
           )}
 
           {/* Status */}
-          <div className="mt-6 pt-6 border-t border-slate-200 text-center">
+          <div className="text-center">
             <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold border ${statusColors[viewReceipt.status]}`}>
               {statusLabels[viewReceipt.status]}
             </span>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Address Book View
+  if (showAddressBook) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Buku Alamat</h2>
+            <p className="text-slate-600 mt-1">Kelola alamat penerima yang sering digunakan</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setShowAddressBook(false)}
+              className="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2">
+              <Icon name="arrow-down" size={16} className="rotate-90" /> Kembali
+            </button>
+            <button onClick={() => { resetAddressForm(); setShowAddressForm(true) }}
+              className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center gap-2">
+              <Icon name="plus" size={18} /> Tambah Alamat
+            </button>
+          </div>
+        </div>
+
+        {/* Address Form */}
+        {showAddressForm && (
+          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <h3 className="text-lg font-semibold text-slate-900">
+              {editingAddress ? 'Edit Alamat' : 'Tambah Alamat Baru'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Nama Penerima *</label>
+                <input type="text" value={addrName} onChange={e => setAddrName(e.target.value)}
+                  placeholder="Nama penerima"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Telepon</label>
+                <input type="tel" value={addrPhone} onChange={e => setAddrPhone(e.target.value)}
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm text-slate-600 mb-1 block">Alamat *</label>
+                <textarea value={addrAddress} onChange={e => setAddrAddress(e.target.value)}
+                  placeholder="Alamat lengkap" rows={2}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg resize-none text-slate-800" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Kota</label>
+                <input type="text" value={addrCity} onChange={e => setAddrCity(e.target.value)}
+                  placeholder="Kota"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Kode Pos</label>
+                <input type="text" value={addrPostalCode} onChange={e => setAddrPostalCode(e.target.value)}
+                  placeholder="12345"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="isDefault" checked={addrIsDefault} onChange={e => setAddrIsDefault(e.target.checked)}
+                className="w-4 h-4 text-indigo-600 rounded" />
+              <label htmlFor="isDefault" className="text-sm text-slate-700">Jadikan alamat default</label>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={handleSaveAddress}
+                className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">
+                Simpan
+              </button>
+              <button onClick={resetAddressForm}
+                className="px-6 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors">
+                Batal
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Address List */}
+        <div className="space-y-3">
+          {savedAddresses.length === 0 ? (
+            <div className="bg-white rounded-xl p-12 border border-slate-200 shadow-sm text-center">
+              <div className="mb-4"><Icon name="location" size={48} className="text-slate-300 mx-auto" /></div>
+              <p className="text-slate-600">Belum ada alamat tersimpan. Tambah alamat pertamamu!</p>
+            </div>
+          ) : (
+            savedAddresses.map(addr => (
+              <div key={addr.id} className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="text-lg font-semibold text-slate-900">{addr.name}</h4>
+                      {addr.isDefault && (
+                        <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold">Default</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-600">{addr.phone}</p>
+                    <p className="text-sm text-slate-600">{addr.address}</p>
+                    {addr.city && <p className="text-sm text-slate-600">{addr.city}</p>}
+                    {addr.postalCode && <p className="text-sm text-slate-600">Kode Pos: {addr.postalCode}</p>}
+                  </div>
+                  <div className="flex gap-2">
+                    {!addr.isDefault && (
+                      <button onClick={() => setDefaultAddress(addr.id)}
+                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg text-sm hover:bg-indigo-100 transition-colors">
+                        Set Default
+                      </button>
+                    )}
+                    <button onClick={() => startEditAddress(addr)}
+                      className="px-3 py-1.5 bg-slate-100 rounded-lg text-sm text-slate-700 hover:bg-slate-200 transition-colors">
+                      <Icon name="edit" size={14} />
+                    </button>
+                    <button onClick={() => deleteAddress(addr.id)}
+                      className="px-3 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-sm hover:bg-rose-100 transition-colors">
+                      <Icon name="trash" size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     )
@@ -270,13 +538,19 @@ export default function ShippingReceipt() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Resi Pengiriman</h2>
-          <p className="text-slate-600 mt-1">Buat resi pengiriman dengan layout marketplace</p>
+          <p className="text-slate-600 mt-1">Buat resi pengiriman dengan barcode & QR code</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)}
-          className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center gap-2">
-          <Icon name={showForm ? 'close' : 'plus'} size={18} />
-          {showForm ? 'Batal' : 'Buat Resi'}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowAddressBook(true)}
+            className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2">
+            <Icon name="location" size={18} /> Buku Alamat
+          </button>
+          <button onClick={() => setShowForm(!showForm)}
+            className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center gap-2">
+            <Icon name={showForm ? 'close' : 'plus'} size={18} />
+            {showForm ? 'Batal' : 'Buat Resi'}
+          </button>
+        </div>
       </div>
 
       {/* Form */}
@@ -319,9 +593,20 @@ export default function ShippingReceipt() {
 
           {/* Receiver Info */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-              <Icon name="arrow-down" size={16} className="text-emerald-500" /> Info Penerima
-            </h4>
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Icon name="arrow-down" size={16} className="text-emerald-500" /> Info Penerima
+              </h4>
+              {savedAddresses.length > 0 && (
+                <button onClick={() => {
+                  const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0]
+                  if (defaultAddr) selectAddress(defaultAddr)
+                }}
+                  className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1">
+                  <Icon name="location" size={14} /> Pilih dari Buku Alamat
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-slate-600 mb-1 block">Nama *</label>

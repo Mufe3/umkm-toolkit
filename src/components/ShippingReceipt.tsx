@@ -21,13 +21,14 @@ interface ShippingReceipt {
   receiverCity: string
   receiverPostalCode: string
   // Package info
-  items: Array<{ name: string; qty: number; weight: number }>
+  items: Array<{ name: string; qty: number; weight: number; price: number }>
   totalWeight: number
   courier: string
   service: string
   shippingCost: number
   insurance: number
   totalCost: number
+  paymentMethod: string
   // Additional
   notes: string
   date: string
@@ -64,11 +65,12 @@ export default function ShippingReceipt() {
   const [receiverAddress, setReceiverAddress] = useState('')
   const [receiverCity, setReceiverCity] = useState('')
   const [receiverPostalCode, setReceiverPostalCode] = useState('')
-  const [items, setItems] = useState<Array<{ name: string; qty: number; weight: number }>>([{ name: '', qty: 1, weight: 1 }])
+  const [items, setItems] = useState<Array<{ name: string; qty: number; weight: number; price: number }>>([{ name: '', qty: 1, weight: 1, price: 0 }])
   const [courier, setCourier] = useState('JNE')
   const [service, setService] = useState('Regular')
   const [shippingCost, setShippingCost] = useState(0)
   const [insurance, setInsurance] = useState(0)
+  const [paymentMethod, setPaymentMethod] = useState('Tunai')
   const [notes, setNotes] = useState('')
 
   // Address form state
@@ -118,6 +120,7 @@ export default function ShippingReceipt() {
       receiverName, receiverPhone, receiverAddress, receiverCity, receiverPostalCode,
       items: items.filter(i => i.name),
       totalWeight, courier, service, shippingCost, insurance, totalCost,
+      paymentMethod,
       notes, date: new Date().toISOString(),
       status: 'pending',
     }
@@ -131,8 +134,8 @@ export default function ShippingReceipt() {
   const resetForm = () => {
     setSenderName(''); setSenderPhone(''); setSenderAddress(''); setSenderCity('')
     setReceiverName(''); setReceiverPhone(''); setReceiverAddress(''); setReceiverCity(''); setReceiverPostalCode('')
-    setItems([{ name: '', qty: 1, weight: 1 }])
-    setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setNotes('')
+    setItems([{ name: '', qty: 1, weight: 1, price: 0 }])
+    setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setPaymentMethod('Tunai'); setNotes('')
     setShowForm(false)
   }
 
@@ -285,72 +288,75 @@ export default function ShippingReceipt() {
             </div>
           </div>
 
-          {/* BARCODE & NOMOR RESI - PALING MENONJOL */}
-          <div className="mb-3 pb-3 border-b-2 border-black">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <p className="text-lg font-bold text-black font-mono tracking-wide mb-1">{viewReceipt.resiNumber}</p>
-                <div className="bg-white">
-                  <Barcode 
-                    value={viewReceipt.resiNumber} 
-                    width={1.5}
-                    height={45}
-                    fontSize={11}
-                    margin={0}
-                    fontOptions="bold"
-                  />
-                </div>
-              </div>
+          {/* QR CODE (Kiri Atas) & NOMOR RESI */}
+          <div className="mb-2">
+            <div className="flex gap-2 items-start">
               {qrCodeUrl && (
                 <div className="flex-shrink-0">
                   <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 border-2 border-black" />
                 </div>
               )}
+              <div className="flex-1">
+                <p className="text-lg font-bold text-black font-mono tracking-wide mb-1">{viewReceipt.resiNumber}</p>
+              </div>
             </div>
           </div>
 
-          {/* INFO PENERIMA - SANGAT MENONJOL (Hierarki #1) */}
-          <div className="mb-3 pb-3 border-b-2 border-black bg-gray-50 -mx-[3mm] px-[3mm] py-2">
-            <p className="text-xs font-bold text-black mb-1 tracking-wide">PENERIMA / TO:</p>
-            <p className="text-base font-bold text-black leading-tight mb-1">{viewReceipt.receiverName}</p>
-            <p className="text-xs text-black leading-tight">{viewReceipt.receiverPhone}</p>
-            <p className="text-xs text-black leading-tight">{viewReceipt.receiverAddress}</p>
-            {viewReceipt.receiverCity && (
-              <p className="text-xs text-black leading-tight font-semibold">
-                {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
-              </p>
-            )}
+          {/* BARCODE - Full Width di bawah QR */}
+          <div className="mb-3 pb-3 border-b-2 border-black">
+            <div className="bg-white">
+              <Barcode 
+                value={viewReceipt.resiNumber} 
+                width={1.8}
+                height={40}
+                fontSize={10}
+                margin={0}
+                fontOptions="bold"
+              />
+            </div>
           </div>
 
-          {/* INFO PENGIRIM - SECONDARY (Hierarki #2) */}
-          <div className="mb-3 pb-3 border-b border-black">
-            <p className="text-xs font-bold text-black mb-1 tracking-wide">PENGIRIM / FROM:</p>
-            <p className="text-xs text-black leading-tight">{viewReceipt.senderName} • {viewReceipt.senderPhone}</p>
-            <p className="text-xs text-black leading-tight">{viewReceipt.senderAddress}</p>
-            {viewReceipt.senderCity && <p className="text-xs text-black leading-tight">{viewReceipt.senderCity}</p>}
+          {/* INFO PENERIMA (KIRI) & PENGIRIM (KANAN) - Side by Side */}
+          <div className="mb-3 pb-3 border-b-2 border-black grid grid-cols-2 gap-2">
+            {/* PENERIMA - KIRI */}
+            <div className="border-r border-black pr-2">
+              <p className="text-xs font-bold text-black mb-1 tracking-wide">PENERIMA / TO:</p>
+              <p className="text-sm font-bold text-black leading-tight mb-1">{viewReceipt.receiverName}</p>
+              <p className="text-xs text-black leading-tight">{viewReceipt.receiverPhone}</p>
+              <p className="text-xs text-black leading-tight">{viewReceipt.receiverAddress}</p>
+              {viewReceipt.receiverCity && (
+                <p className="text-xs text-black leading-tight font-semibold">
+                  {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
+                </p>
+              )}
+            </div>
+            {/* PENGIRIM - KANAN */}
+            <div className="pl-2">
+              <p className="text-xs font-bold text-black mb-1 tracking-wide">PENGIRIM / FROM:</p>
+              <p className="text-xs text-black leading-tight font-semibold">{viewReceipt.senderName}</p>
+              <p className="text-xs text-black leading-tight">{viewReceipt.senderPhone}</p>
+              <p className="text-xs text-black leading-tight">{viewReceipt.senderAddress}</p>
+              {viewReceipt.senderCity && <p className="text-xs text-black leading-tight">{viewReceipt.senderCity}</p>}
+            </div>
           </div>
 
-          {/* DETAIL PAKET - TENGAH */}
+          {/* DETAIL PAKET & BIAYA */}
           <div className="mb-3 pb-3 border-b border-black">
             <div className="flex justify-between items-center mb-2">
               <p className="text-xs font-bold text-black tracking-wide">DETAIL PAKET</p>
               <p className="text-xs font-bold text-black">{viewReceipt.totalWeight.toFixed(2)} kg • {viewReceipt.items.length} item</p>
             </div>
-            <div className="text-xs text-black space-y-0.5">
+            <div className="text-xs text-black space-y-0.5 mb-2">
               {viewReceipt.items.map((item, i) => (
                 <div key={i} className="flex justify-between border-b border-dotted border-gray-400 pb-0.5">
-                  <span className="flex-1">{item.name} <span className="font-semibold">x{item.qty}</span></span>
-                  <span className="font-semibold">{(item.qty * item.weight).toFixed(2)} kg</span>
+                  <span>{item.name} <span className="font-semibold">x{item.qty}</span></span>
+                  <span>{formatRupiah(item.price * item.qty)}</span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* BIAYA - BAWAH */}
-          <div className="mb-3 pb-3 border-b border-black">
-            <div className="text-xs text-black space-y-1">
+            <div className="text-xs text-black space-y-0.5">
               <div className="flex justify-between">
-                <span>Ongkos Kirim:</span>
+                <span>Ongkir ({viewReceipt.service}):</span>
                 <span className="font-semibold">{formatRupiah(viewReceipt.shippingCost)}</span>
               </div>
               {viewReceipt.insurance > 0 && (
@@ -359,9 +365,13 @@ export default function ShippingReceipt() {
                   <span className="font-semibold">{formatRupiah(viewReceipt.insurance)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-sm pt-2 border-t-2 border-black mt-2">
-                <span>TOTAL BIAYA:</span>
+              <div className="flex justify-between font-bold text-sm pt-1 border-t border-black mt-1">
+                <span>TOTAL:</span>
                 <span>{formatRupiah(viewReceipt.totalCost)}</span>
+              </div>
+              <div className="flex justify-between text-xs pt-1">
+                <span>Bayar via:</span>
+                <span className="font-semibold">{viewReceipt.paymentMethod}</span>
               </div>
             </div>
           </div>
@@ -624,7 +634,7 @@ export default function ShippingReceipt() {
               <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Icon name="package" size={16} className="text-violet-500" /> Isi Paket
               </h4>
-              <button onClick={() => setItems([...items, { name: '', qty: 1, weight: 1 }])}
+              <button onClick={() => setItems([...items, { name: '', qty: 1, weight: 1, price: 0 }])}
                 className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1">
                 <Icon name="plus" size={14} /> Tambah Item
               </button>
@@ -633,11 +643,13 @@ export default function ShippingReceipt() {
               {items.map((item, i) => (
                 <div key={i} className="grid grid-cols-12 gap-2 items-center">
                   <input type="text" value={item.name} onChange={e => { const n = [...items]; n[i].name = e.target.value; setItems(n) }}
-                    placeholder="Nama barang" className="col-span-5 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
+                    placeholder="Nama barang" className="col-span-4 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
                   <input type="number" value={item.qty} onChange={e => { const n = [...items]; n[i].qty = parseInt(e.target.value) || 0; setItems(n) }}
-                    placeholder="Qty" min="1" className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
+                    placeholder="Qty" min="1" className="col-span-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
                   <input type="number" value={item.weight} onChange={e => { const n = [...items]; n[i].weight = parseFloat(e.target.value) || 0; setItems(n) }}
-                    placeholder="Berat (kg)" step="0.1" className="col-span-4 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
+                    placeholder="Berat" step="0.1" className="col-span-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
+                  <input type="number" value={item.price || ''} onChange={e => { const n = [...items]; n[i].price = parseFloat(e.target.value) || 0; setItems(n) }}
+                    placeholder="Harga" className="col-span-4 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800" />
                   {items.length > 1 && (
                     <button onClick={() => setItems(items.filter((_, idx) => idx !== i))} className="col-span-1 text-rose-400 text-xl">×</button>
                   )}
@@ -687,6 +699,18 @@ export default function ShippingReceipt() {
                 <label className="text-sm text-slate-600 mb-1 block">Asuransi (Rp)</label>
                 <input type="number" value={insurance || ''} onChange={e => setInsurance(parseInt(e.target.value) || 0)}
                   placeholder="0" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800" />
+              </div>
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Metode Pembayaran</label>
+                <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-800">
+                  <option>Tunai</option>
+                  <option>Transfer Bank</option>
+                  <option>E-Wallet (OVO/Dana/GoPay)</option>
+                  <option>QRIS</option>
+                  <option>Kartu Kredit/Debit</option>
+                  <option>COD (Bayar di Tempat)</option>
+                </select>
               </div>
             </div>
             <div className="mt-4 p-4 bg-slate-50 rounded-lg">

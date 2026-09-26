@@ -268,108 +268,115 @@ export default function ShippingReceipt() {
           </button>
         </div>
 
-        <div id="shipping-receipt-preview" className="bg-white rounded-lg p-4 border-2 border-black" style={{ width: '100mm', minHeight: '150mm' }}>
-          {/* Header - Kompak */}
-          <div className="flex justify-between items-center mb-2 pb-2 border-b border-black">
+        <div id="shipping-receipt-preview" className="bg-white border-2 border-black" style={{ width: '100mm', minHeight: '150mm', padding: '3mm' }}>
+          {/* HEADER - Logo & Nama Ekspedisi */}
+          <div className="flex justify-between items-start mb-3 pb-2 border-b-2 border-black">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-10 h-10 bg-black rounded flex items-center justify-center text-white font-bold text-lg">
                 {viewReceipt.courier.charAt(0)}
               </div>
               <div>
-                <h1 className="text-sm font-bold text-black">{viewReceipt.courier}</h1>
+                <h1 className="text-base font-bold text-black leading-tight">{viewReceipt.courier}</h1>
                 <p className="text-xs text-black">{viewReceipt.service}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-black">{formatDate(viewReceipt.date)}</p>
+              <p className="text-xs text-black font-semibold">{formatDate(viewReceipt.date)}</p>
             </div>
           </div>
 
-          {/* Barcode & QR Code - Kompak */}
-          <div className="mb-3 pb-3 border-b border-black">
-            <div className="flex justify-between items-start gap-2">
+          {/* BARCODE & NOMOR RESI - PALING MENONJOL */}
+          <div className="mb-3 pb-3 border-b-2 border-black">
+            <div className="flex gap-2">
               <div className="flex-1">
-                <p className="text-xs font-bold text-black mb-1">{viewReceipt.resiNumber}</p>
+                <p className="text-lg font-bold text-black font-mono tracking-wide mb-1">{viewReceipt.resiNumber}</p>
                 <div className="bg-white">
                   <Barcode 
                     value={viewReceipt.resiNumber} 
-                    width={1.2}
-                    height={35}
-                    fontSize={10}
+                    width={1.5}
+                    height={45}
+                    fontSize={11}
                     margin={0}
+                    fontOptions="bold"
                   />
                 </div>
               </div>
               {qrCodeUrl && (
-                <div>
-                  <img src={qrCodeUrl} alt="QR Code" className="w-16 h-16 border border-black" />
+                <div className="flex-shrink-0">
+                  <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 border-2 border-black" />
                 </div>
               )}
             </div>
           </div>
 
-          {/* Info Penerima - Kompak */}
-          <div className="mb-3 pb-3 border-b border-black">
-            <p className="text-xs font-bold text-black mb-1">PENERIMA:</p>
-            <p className="text-sm font-bold text-black">{viewReceipt.receiverName}</p>
-            <p className="text-xs text-black">{viewReceipt.receiverPhone}</p>
-            <p className="text-xs text-black">{viewReceipt.receiverAddress}</p>
-            {viewReceipt.receiverCity && <p className="text-xs text-black">{viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `- ${viewReceipt.receiverPostalCode}`}</p>}
+          {/* INFO PENERIMA - SANGAT MENONJOL (Hierarki #1) */}
+          <div className="mb-3 pb-3 border-b-2 border-black bg-gray-50 -mx-[3mm] px-[3mm] py-2">
+            <p className="text-xs font-bold text-black mb-1 tracking-wide">PENERIMA / TO:</p>
+            <p className="text-base font-bold text-black leading-tight mb-1">{viewReceipt.receiverName}</p>
+            <p className="text-xs text-black leading-tight">{viewReceipt.receiverPhone}</p>
+            <p className="text-xs text-black leading-tight">{viewReceipt.receiverAddress}</p>
+            {viewReceipt.receiverCity && (
+              <p className="text-xs text-black leading-tight font-semibold">
+                {viewReceipt.receiverCity} {viewReceipt.receiverPostalCode && `${viewReceipt.receiverPostalCode}`}
+              </p>
+            )}
           </div>
 
-          {/* Info Pengirim - Kompak */}
+          {/* INFO PENGIRIM - SECONDARY (Hierarki #2) */}
           <div className="mb-3 pb-3 border-b border-black">
-            <p className="text-xs font-bold text-black mb-1">PENGIRIM:</p>
-            <p className="text-xs text-black">{viewReceipt.senderName}</p>
-            <p className="text-xs text-black">{viewReceipt.senderPhone}</p>
-            <p className="text-xs text-black">{viewReceipt.senderAddress}</p>
-            {viewReceipt.senderCity && <p className="text-xs text-black">{viewReceipt.senderCity}</p>}
+            <p className="text-xs font-bold text-black mb-1 tracking-wide">PENGIRIM / FROM:</p>
+            <p className="text-xs text-black leading-tight">{viewReceipt.senderName} • {viewReceipt.senderPhone}</p>
+            <p className="text-xs text-black leading-tight">{viewReceipt.senderAddress}</p>
+            {viewReceipt.senderCity && <p className="text-xs text-black leading-tight">{viewReceipt.senderCity}</p>}
           </div>
 
-          {/* Detail Paket - Sangat Kompak */}
+          {/* DETAIL PAKET - TENGAH */}
           <div className="mb-3 pb-3 border-b border-black">
-            <p className="text-xs font-bold text-black mb-1">PAKET: {viewReceipt.totalWeight.toFixed(2)} kg | {viewReceipt.items.length} item</p>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-xs font-bold text-black tracking-wide">DETAIL PAKET</p>
+              <p className="text-xs font-bold text-black">{viewReceipt.totalWeight.toFixed(2)} kg • {viewReceipt.items.length} item</p>
+            </div>
             <div className="text-xs text-black space-y-0.5">
               {viewReceipt.items.map((item, i) => (
-                <div key={i} className="flex justify-between">
-                  <span>{item.name} x{item.qty}</span>
-                  <span>{(item.qty * item.weight).toFixed(2)} kg</span>
+                <div key={i} className="flex justify-between border-b border-dotted border-gray-400 pb-0.5">
+                  <span className="flex-1">{item.name} <span className="font-semibold">x{item.qty}</span></span>
+                  <span className="font-semibold">{(item.qty * item.weight).toFixed(2)} kg</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Biaya - Kompak */}
+          {/* BIAYA - BAWAH */}
           <div className="mb-3 pb-3 border-b border-black">
-            <div className="text-xs text-black space-y-0.5">
+            <div className="text-xs text-black space-y-1">
               <div className="flex justify-between">
-                <span>Ongkir:</span>
-                <span>{formatRupiah(viewReceipt.shippingCost)}</span>
+                <span>Ongkos Kirim:</span>
+                <span className="font-semibold">{formatRupiah(viewReceipt.shippingCost)}</span>
               </div>
               {viewReceipt.insurance > 0 && (
                 <div className="flex justify-between">
                   <span>Asuransi:</span>
-                  <span>{formatRupiah(viewReceipt.insurance)}</span>
+                  <span className="font-semibold">{formatRupiah(viewReceipt.insurance)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-sm pt-1 border-t border-black mt-1">
-                <span>TOTAL:</span>
+              <div className="flex justify-between font-bold text-sm pt-2 border-t-2 border-black mt-2">
+                <span>TOTAL BIAYA:</span>
                 <span>{formatRupiah(viewReceipt.totalCost)}</span>
               </div>
             </div>
           </div>
 
-          {/* Catatan - Jika ada */}
+          {/* CATATAN - OPSIONAL */}
           {viewReceipt.notes && (
             <div className="mb-3 pb-3 border-b border-black">
               <p className="text-xs font-bold text-black mb-1">CATATAN:</p>
-              <p className="text-xs text-black">{viewReceipt.notes}</p>
+              <p className="text-xs text-black italic">{viewReceipt.notes}</p>
             </div>
           )}
 
-          {/* Status - Kompak */}
-          <div className="text-center">
-            <p className="text-xs font-bold text-black border border-black inline-block px-3 py-1">
+          {/* STATUS - PALING BAWAH */}
+          <div className="text-center pt-1">
+            <p className="text-xs font-bold text-black border-2 border-black inline-block px-4 py-1 tracking-wide">
               {statusLabels[viewReceipt.status]}
             </p>
           </div>

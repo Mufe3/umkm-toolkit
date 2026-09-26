@@ -10,10 +10,14 @@ import PurchaseOrder from './components/PurchaseOrder'
 import SupplierManagement from './components/SupplierManagement'
 import WhatsAppShare from './components/WhatsAppShare'
 import QRCodeGenerator from './components/QRCodeGenerator'
+import CloudSyncUI from './components/CloudSyncUI'
+import TeamManagementUI from './components/TeamManagementUI'
+import AIFeaturesUI from './components/AIFeaturesUI'
+import MarketplaceUI from './components/MarketplaceUI'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -31,9 +35,13 @@ export default function App() {
     { id: 'analytics' as Page, label: 'Analytics', icon: 'analytics' as IconName, category: 'Analisis' },
     { id: 'whatsapp' as Page, label: 'WhatsApp', icon: 'whatsapp' as IconName, category: 'Marketing' },
     { id: 'qrcode' as Page, label: 'QR Code', icon: 'qrcode' as IconName, category: 'Marketing' },
+    { id: 'cloud' as Page, label: 'Cloud Sync', icon: 'cloud' as IconName, category: 'Level 3' },
+    { id: 'team' as Page, label: 'Team', icon: 'users' as IconName, category: 'Level 3' },
+    { id: 'ai' as Page, label: 'AI Assistant', icon: 'brain' as IconName, category: 'Level 3' },
+    { id: 'marketplace' as Page, label: 'Marketplace', icon: 'purchase' as IconName, category: 'Level 3' },
   ]
 
-  const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing']
+  const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Level 3']
 
   const renderPage = () => {
     switch (currentPage) {
@@ -48,6 +56,10 @@ export default function App() {
       case 'supplier': return <SupplierManagement />
       case 'whatsapp': return <WhatsAppShare />
       case 'qrcode': return <QRCodeGenerator />
+      case 'cloud': return <CloudSyncUI />
+      case 'team': return <TeamManagementUI />
+      case 'ai': return <AIFeaturesUI />
+      case 'marketplace': return <MarketplaceUI />
       default: return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
     }
   }
@@ -127,7 +139,7 @@ export default function App() {
         <div className="p-4 border-t border-slate-200">
           <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
             <p className="text-xs font-semibold text-indigo-700 mb-1">UMKM Toolkit Pro</p>
-            <p className="text-xs text-slate-700 mb-3">11 tools lengkap untuk bisnis Anda</p>
+            <p className="text-xs text-slate-700 mb-3">15 tools lengkap untuk bisnis Anda</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs text-slate-700">Data tersimpan lokal</span>
@@ -190,7 +202,7 @@ export default function App() {
               © 2024 UMKM Toolkit — Dibuat dengan ❤️ untuk UMKM Indonesia
             </p>
             <p className="text-xs text-slate-600">
-              v2.0 • 11 Tools • All-in-One Business Solution
+              v3.0 • 15 Tools • All-in-One Business Solution
             </p>
           </div>
         </footer>

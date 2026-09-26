@@ -49,6 +49,9 @@ import {
   Zap,
   Target,
   Award,
+  Cloud,
+  Brain,
+  Shield,
   TrendingUp as TrendingUpIcon,
 } from 'lucide-react'
 
@@ -62,6 +65,7 @@ export type IconName =
   | 'chevron-right' | 'chevron-down' | 'more' | 'settings' | 'bell'
   | 'logout' | 'circle' | 'check-circle' | 'x-circle' | 'alert-circle'
   | 'info' | 'help' | 'zap' | 'target' | 'award' | 'package'
+  | 'cloud' | 'brain' | 'users' | 'shield'
 
 interface IconProps {
   name: IconName
@@ -129,6 +133,10 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'target': Target,
     'award': Award,
     'package': Package,
+    'cloud': Cloud,
+    'brain': Brain,
+    'users': Users,
+    'shield': Shield,
   }
 
   const IconComponent = icons[name]

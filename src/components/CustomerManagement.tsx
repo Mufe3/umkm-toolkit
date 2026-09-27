@@ -335,7 +335,11 @@ export default function CustomerManagement() {
               .filter(s => s.receiverName === viewCustomer.name)
               .map(s => ({ ...s, type: 'shipping' as const }))
             
-            const allDocs = [...receipts, ...invoicesList, ...shipments]
+            const paymentsList = getFromStorage<any[]>('umkm_payments', [])
+              .filter(p => p.customerName === viewCustomer.name)
+              .map(p => ({ ...p, type: 'payment' as const }))
+            
+            const allDocs = [...receipts, ...invoicesList, ...shipments, ...paymentsList]
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
             
             if (allDocs.length === 0) {
@@ -349,12 +353,21 @@ export default function CustomerManagement() {
                     <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                         doc.type === 'receipt' ? 'bg-emerald-100' :
-                        doc.type === 'invoice' ? 'bg-indigo-100' : 'bg-blue-100'
+                        doc.type === 'invoice' ? 'bg-indigo-100' :
+                        doc.type === 'shipping' ? 'bg-blue-100' : 'bg-purple-100'
                       }`}>
                         <Icon 
-                          name={doc.type === 'receipt' ? 'package' : doc.type === 'invoice' ? 'file-text' : 'truck'} 
+                          name={
+                            doc.type === 'receipt' ? 'package' : 
+                            doc.type === 'invoice' ? 'file-text' : 
+                            doc.type === 'shipping' ? 'truck' : 'dollar'
+                          } 
                           size={16} 
-                          className={doc.type === 'receipt' ? 'text-emerald-600' : doc.type === 'invoice' ? 'text-indigo-600' : 'text-blue-600'} 
+                          className={
+                            doc.type === 'receipt' ? 'text-emerald-600' : 
+                            doc.type === 'invoice' ? 'text-indigo-600' : 
+                            doc.type === 'shipping' ? 'text-blue-600' : 'text-purple-600'
+                          } 
                         />
                       </div>
                       <div>
@@ -362,6 +375,7 @@ export default function CustomerManagement() {
                           {doc.type === 'receipt' && `Struk #${doc.receiptNumber || doc.id.slice(-6)}`}
                           {doc.type === 'invoice' && `Invoice #${doc.invoiceNumber || doc.id.slice(-6)}`}
                           {doc.type === 'shipping' && `Resi #${doc.resiNumber || doc.id.slice(-6)}`}
+                          {doc.type === 'payment' && `Payment #${doc.reference || doc.id.slice(-6)}`}
                         </p>
                         <p className="text-xs text-slate-500">{formatDate(doc.date)}</p>
                       </div>
@@ -370,18 +384,21 @@ export default function CustomerManagement() {
                       <p className="font-bold text-slate-800 text-sm">
                         {doc.type === 'shipping' 
                           ? formatRupiah(doc.shippingCost + (doc.insurance || 0))
-                          : formatRupiah(doc.total)}
+                          : formatRupiah(doc.total || doc.amount)}
                       </p>
                       {doc.status && (
                         <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                          doc.status === 'paid' || doc.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' :
+                          doc.status === 'paid' || doc.status === 'delivered' || doc.status === 'verified' ? 'bg-emerald-50 text-emerald-600' :
                           doc.status === 'unpaid' ? 'bg-rose-50 text-rose-600' :
+                          doc.status === 'pending' ? 'bg-amber-50 text-amber-600' :
                           'bg-blue-50 text-blue-600'
                         }`}>
                           {doc.status === 'paid' ? 'LUNAS' :
                            doc.status === 'unpaid' ? 'BELUM BAYAR' :
                            doc.status === 'delivered' ? 'TERKIRIM' :
                            doc.status === 'in_transit' ? 'DIKIRIM' :
+                           doc.status === 'verified' ? 'VERIFIED' :
+                           doc.status === 'pending' ? 'PENDING' :
                            doc.status.toUpperCase()}
                         </span>
                       )}

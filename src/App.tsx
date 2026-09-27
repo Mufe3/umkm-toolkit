@@ -72,55 +72,15 @@ export default function App() {
 
   const categories = ['Overview', 'Transaksi', 'Pengiriman', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
 
+  // Custom navigation function
   const navigateTo = (page: Page) => {
     setCurrentPage(page)
   }
 
-  useEffect(() => {
-    let touchStartX = 0
-    let touchStartY = 0
-    let isSwiping = false
+  // Swipe gesture removed - conflicts with browser native gestures
+  // Use hamburger menu button [☰] instead to open sidebar
 
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches[0].clientX < 50) {
-        touchStartX = e.touches[0].clientX
-        touchStartY = e.touches[0].clientY
-        isSwiping = true
-      }
-    }
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!isSwiping) return
-
-      const touchEndX = e.changedTouches[0].clientX
-      const touchEndY = e.changedTouches[0].clientY
-      const diffX = touchEndX - touchStartX
-      const diffY = touchEndY - touchStartY
-
-      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 80) {
-        if (diffX > 0) {
-          setSidebarOpen(true)
-        } else {
-          if (sidebarOpen) {
-            setSidebarOpen(false)
-          }
-        }
-      }
-
-      isSwiping = false
-      touchStartX = 0
-      touchStartY = 0
-    }
-
-    document.addEventListener('touchstart', handleTouchStart, { passive: true })
-    document.addEventListener('touchend', handleTouchEnd, { passive: true })
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart)
-      document.removeEventListener('touchend', handleTouchEnd)
-    }
-  }, [sidebarOpen])
-
+  // Listen for navigation events from components
   useEffect(() => {
     const handleNavigate = (e: CustomEvent) => {
       navigateTo(e.detail as Page)
@@ -166,20 +126,23 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] flex" style={{ touchAction: 'pan-y' }}>
+    <div className="min-h-screen bg-[#fafbfc] flex">
+      {/* Sidebar Overlay (Mobile) */}
       {sidebarOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black/20 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <aside className={`
         fixed lg:sticky top-0 left-0 h-screen w-72 bg-white border-r border-slate-100 z-50
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         flex flex-col
       `}>
+        {/* Logo */}
         <div className="p-6 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center shadow-md shadow-indigo-200">
@@ -192,11 +155,12 @@ export default function App() {
           </div>
         </div>
 
+        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-6">
           {categories.map(category => {
             const items = menuItems.filter(item => item.category === category)
             if (items.length === 0) return null
-
+            
             return (
               <div key={category}>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">
@@ -232,10 +196,11 @@ export default function App() {
           })}
         </nav>
 
+        {/* Footer */}
         <div className="p-4 border-t border-slate-200">
           <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
             <p className="text-xs font-semibold text-indigo-700 mb-1">UMKM Toolkit Pro</p>
-            <p className="text-xs text-slate-700 mb-3">32 tools lengkap untuk bisnis Anda</p>
+            <p className="text-xs text-slate-700 mb-3">23 tools lengkap untuk bisnis Anda</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs text-slate-700">Data tersimpan lokal</span>
@@ -244,24 +209,28 @@ export default function App() {
         </div>
       </aside>
 
+      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Floating Menu Button (Mobile Only) - Small & Unobtrusive */}
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-40 w-10 h-10 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-r-lg shadow-md hover:bg-white hover:shadow-lg transition-all flex items-center justify-center group"
             title="Buka Menu"
           >
-            <Icon
-              name="chevron-right"
-              size={20}
-              className="text-slate-600 group-hover:text-indigo-600 transition-colors"
+            <Icon 
+              name="chevron-right" 
+              size={20} 
+              className="text-slate-600 group-hover:text-indigo-600 transition-colors" 
             />
           </button>
         )}
-
+        
+      {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
+            {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
@@ -269,13 +238,13 @@ export default function App() {
             >
               <Icon name="menu" size={20} className="text-slate-700" />
             </button>
-
+            
             <div className="flex items-center gap-3">
-              <Icon
-                name={menuItems.find(m => m.id === currentPage)?.icon || 'dashboard'}
-                size={24}
+              <Icon 
+                name={menuItems.find(m => m.id === currentPage)?.icon || 'dashboard'} 
+                size={24} 
                 className="text-indigo-600"
-                filled
+                filled 
               />
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
@@ -296,24 +265,27 @@ export default function App() {
           </div>
         </div>
       </header>
+        {/* Page Content */}
         <main className="flex-1 p-6 lg:p-8 overflow-auto">
           <div className="animate-fade-in">
             {renderPage()}
           </div>
         </main>
 
+        {/* Footer */}
         <footer className="border-t border-slate-200 px-6 py-4 bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2">
             <p className="text-xs text-slate-600">
-              © 2024 UMKM Toolkit
+              © 2024 UMKM Toolkit — Dibuat dengan ❤️ untuk UMKM Indonesia
             </p>
             <p className="text-xs text-slate-600">
-              v5.0 - 32 Tools
+              v5.0 • 32 Tools • All-in-One Business Solution
             </p>
           </div>
         </footer>
       </div>
 
+      {/* PWA Installer */}
       <PWAInstaller />
     </div>
   )

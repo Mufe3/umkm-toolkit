@@ -38,6 +38,8 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [navigationHistory, setNavigationHistory] = useState<Page[]>(['dashboard'])
   const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [showSwipeHint, setShowSwipeHint] = useState(false)
+  const [mouseStart, setMouseStart] = useState<number | null>(null)
 
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
@@ -93,33 +95,87 @@ export default function App() {
     }
   }
 
-  // Swipe gesture handlers
+  // Swipe gesture handlers - Improved version
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX)
+    const touch = e.touches[0]
+    setTouchStart(touch.clientX)
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStart) return
+    if (touchStart === null) return
     
-    const currentX = e.touches[0].clientX
+    const touch = e.touches[0]
+    const currentX = touch.clientX
     const diff = currentX - touchStart
+    const absDiff = Math.abs(diff)
     
-    // Swipe right from left edge (50px from left)
-    if (touchStart < 50 && diff > 50 && !sidebarOpen) {
+    // Only trigger if moved enough (prevent accidental)
+    if (absDiff < 30) return
+    
+    // Swipe right from left edge (start within 80px from left)
+    if (touchStart < 80 && diff > 30 && !sidebarOpen) {
       setSidebarOpen(true)
       setTouchStart(null)
+      e.preventDefault()
     }
     
     // Swipe left to close sidebar
-    if (sidebarOpen && diff < -50) {
+    if (sidebarOpen && diff < -30) {
       setSidebarOpen(false)
       setTouchStart(null)
+      e.preventDefault()
     }
   }
 
   const handleTouchEnd = () => {
     setTouchStart(null)
   }
+
+  // Mouse drag handlers (untuk desktop testing)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only trigger from left edge (80px)
+    if (e.clientX < 80) {
+      setMouseStart(e.clientX)
+    }
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (mouseStart === null) return
+    
+    const diff = e.clientX - mouseStart
+    
+    if (Math.abs(diff) < 30) return
+    
+    // Drag right from left edge
+    if (mouseStart < 80 && diff > 30 && !sidebarOpen) {
+      setSidebarOpen(true)
+      setMouseStart(null)
+    }
+    
+    // Drag left to close
+    if (sidebarOpen && diff < -30) {
+      setSidebarOpen(false)
+      setMouseStart(null)
+    }
+  }
+
+  const handleMouseUp = () => {
+    setMouseStart(null)
+  }
+
+  // Show swipe hint on mobile first visit
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    const hasSeenHint = localStorage.getItem('swipe-hint-seen')
+    
+    if (isMobile && !hasSeenHint) {
+      setShowSwipeHint(true)
+      setTimeout(() => {
+        setShowSwipeHint(false)
+        localStorage.setItem('swipe-hint-seen', 'true')
+      }, 5000)
+    }
+  }, [])
 
   // Listen for navigation events from components
   useEffect(() => {
@@ -252,11 +308,30 @@ export default function App() {
 
       {/* Main Content */}
       <div 
-        className="flex-1 flex flex-col min-w-0"
+        className="flex-1 flex flex-col min-w-0 relative"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
       >
+        {/* Swipe Hint Overlay (Mobile only) */}
+        {showSwipeHint && !sidebarOpen && (
+          <div className="fixed top-20 left-4 z-40 animate-slide-up pointer-events-none">
+            <div className="bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+              <span className="text-lg">👈</span>
+              <span className="text-sm">Swipe dari kiri untuk menu</span>
+            </div>
+          </div>
+        )}
+        
+        {/* Left Edge Indicator (visual hint) */}
+        {!sidebarOpen && (
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 z-20 pointer-events-none lg:hidden">
+            <div className="w-1 h-16 bg-gradient-to-r from-indigo-500/50 to-transparent rounded-r" />
+          </div>
+        )}
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">

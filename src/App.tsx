@@ -1,3 +1,19 @@
+--- src/App.tsx (原始)
+import { useState } from 'react'
+import Dashboard from './components/Dashboard'
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('dashboard')
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Dashboard />
+    </div>
+  )
+}
+
+
++++ src/App.tsx (修改后)
 import { useState, useEffect } from 'react'
 import Dashboard from './components/Dashboard'
 import InvoiceGenerator from './components/InvoiceGenerator'
@@ -72,13 +88,60 @@ export default function App() {
 
   const categories = ['Overview', 'Transaksi', 'Pengiriman', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
 
-  // Custom navigation function
   const navigateTo = (page: Page) => {
     setCurrentPage(page)
   }
 
-  // Swipe gesture removed - conflicts with browser native gestures
-  // Use hamburger menu button [☰] instead to open sidebar
+  // Swipe gesture - SAFE VERSION
+  useEffect(() => {
+    let touchStartX = 0
+    let touchStartY = 0
+    let isSwiping = false
+
+    const handleTouchStart = (e: TouchEvent) => {
+      // Only start tracking if touch is from left edge (0-50px)
+      if (e.touches[0].clientX < 50) {
+        touchStartX = e.touches[0].clientX
+        touchStartY = e.touches[0].clientY
+        isSwiping = true
+      }
+    }
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isSwiping) return
+
+      const touchEndX = e.changedTouches[0].clientX
+      const touchEndY = e.changedTouches[0].clientY
+      const diffX = touchEndX - touchStartX
+      const diffY = touchEndY - touchStartY
+
+      // Only trigger if horizontal swipe is greater than vertical
+      // This prevents conflict with vertical scrolling
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 80) {
+        if (diffX > 0) {
+          // Swipe right - open menu
+          setSidebarOpen(true)
+        } else {
+          // Swipe left - close menu
+          if (sidebarOpen) {
+            setSidebarOpen(false)
+          }
+        }
+      }
+
+      isSwiping = false
+      touchStartX = 0
+      touchStartY = 0
+    }
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: true })
+    document.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [sidebarOpen])
 
   // Listen for navigation events from components
   useEffect(() => {
@@ -126,10 +189,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] flex">
+    <div className="min-h-screen bg-[#fafbfc] flex" style={{ touchAction: 'pan-y' }}>
       {/* Sidebar Overlay (Mobile) */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -160,7 +223,7 @@ export default function App() {
           {categories.map(category => {
             const items = menuItems.filter(item => item.category === category)
             if (items.length === 0) return null
-            
+
             return (
               <div key={category}>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">
@@ -200,7 +263,7 @@ export default function App() {
         <div className="p-4 border-t border-slate-200">
           <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
             <p className="text-xs font-semibold text-indigo-700 mb-1">UMKM Toolkit Pro</p>
-            <p className="text-xs text-slate-700 mb-3">23 tools lengkap untuk bisnis Anda</p>
+            <p className="text-xs text-slate-700 mb-3">32 tools lengkap untuk bisnis Anda</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs text-slate-700">Data tersimpan lokal</span>
@@ -218,14 +281,14 @@ export default function App() {
             className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-40 w-10 h-10 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-r-lg shadow-md hover:bg-white hover:shadow-lg transition-all flex items-center justify-center group"
             title="Buka Menu"
           >
-            <Icon 
-              name="chevron-right" 
-              size={20} 
-              className="text-slate-600 group-hover:text-indigo-600 transition-colors" 
+            <Icon
+              name="chevron-right"
+              size={20}
+              className="text-slate-600 group-hover:text-indigo-600 transition-colors"
             />
           </button>
         )}
-        
+
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">
@@ -238,13 +301,13 @@ export default function App() {
             >
               <Icon name="menu" size={20} className="text-slate-700" />
             </button>
-            
+
             <div className="flex items-center gap-3">
-              <Icon 
-                name={menuItems.find(m => m.id === currentPage)?.icon || 'dashboard'} 
-                size={24} 
+              <Icon
+                name={menuItems.find(m => m.id === currentPage)?.icon || 'dashboard'}
+                size={24}
                 className="text-indigo-600"
-                filled 
+                filled
               />
               <div>
                 <h2 className="text-xl font-bold text-slate-900">

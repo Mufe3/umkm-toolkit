@@ -54,6 +54,8 @@ import {
   Shield,
   CreditCard,
   Image,
+  Receipt,
+  Layers,
   TrendingUp as TrendingUpIcon,
 } from 'lucide-react'
 
@@ -69,7 +71,7 @@ export type IconName =
   | 'info' | 'help' | 'zap' | 'target' | 'award' | 'package'
   | 'cloud' | 'brain' | 'users' | 'shield'
   | 'truck' | 'credit-card' | 'message-circle' | 'image'
-  | 'file-text'
+  | 'file-text' | 'receipt' | 'layers'
 
 interface IconProps {
   name: IconName
@@ -146,6 +148,8 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'message-circle': MessageCircle,
     'image': Image,
     'file-text': FileText,
+    'receipt': Receipt,
+    'layers': Layers,
   }
 
   const IconComponent = icons[name]

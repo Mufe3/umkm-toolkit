@@ -272,7 +272,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Icon name="package" size={20} className="text-emerald-600" />
+              <Icon name="receipt" size={20} className="text-emerald-600" />
               <h3 className="font-semibold text-slate-900">Struk Penjualan</h3>
             </div>
             <button onClick={() => onNavigate?.('receipt')} className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">

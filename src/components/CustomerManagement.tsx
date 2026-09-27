@@ -199,7 +199,7 @@ export default function CustomerManagement() {
                 className="p-4 bg-white rounded-lg border border-emerald-200 hover:border-emerald-300 hover:shadow-md transition-all group"
               >
                 <div className="mb-2 group-hover:scale-110 transition-transform">
-                  <Icon name="package" size={32} className="text-emerald-600 mx-auto" />
+                  <Icon name="receipt" size={32} className="text-emerald-600 mx-auto" />
                 </div>
                 <div className="text-sm font-semibold text-slate-800">Buat Struk</div>
               </button>

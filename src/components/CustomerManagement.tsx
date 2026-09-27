@@ -255,6 +255,82 @@ export default function CustomerManagement() {
             </div>
           )}
         </div>
+
+        {/* All Documents History - Integrated View */}
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <Icon name="clock" size={18} className="text-violet-500" /> Semua Dokumen
+          </h3>
+          {(() => {
+            const receipts = getFromStorage<any[]>('umkm_receipts', [])
+              .filter(r => r.customerName === viewCustomer.name)
+              .map(r => ({ ...r, type: 'receipt' as const }))
+            
+            const invoicesList = getFromStorage<any[]>('umkm_invoices', [])
+              .filter(i => i.customer === viewCustomer.name)
+              .map(i => ({ ...i, type: 'invoice' as const }))
+            
+            const shipments = getFromStorage<any[]>('umkm_shipping_receipts', [])
+              .filter(s => s.receiverName === viewCustomer.name)
+              .map(s => ({ ...s, type: 'shipping' as const }))
+            
+            const allDocs = [...receipts, ...invoicesList, ...shipments]
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            
+            if (allDocs.length === 0) {
+              return <p className="text-slate-500 text-center py-8">Belum ada dokumen</p>
+            }
+            
+            return (
+              <div className="space-y-2">
+                {allDocs.map((doc, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        doc.type === 'receipt' ? 'bg-emerald-100' :
+                        doc.type === 'invoice' ? 'bg-indigo-100' : 'bg-blue-100'
+                      }`}>
+                        <Icon 
+                          name={doc.type === 'receipt' ? 'package' : doc.type === 'invoice' ? 'file-text' : 'truck'} 
+                          size={16} 
+                          className={doc.type === 'receipt' ? 'text-emerald-600' : doc.type === 'invoice' ? 'text-indigo-600' : 'text-blue-600'} 
+                        />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-800 text-sm">
+                          {doc.type === 'receipt' && `Struk #${doc.receiptNumber || doc.id.slice(-6)}`}
+                          {doc.type === 'invoice' && `Invoice #${doc.invoiceNumber || doc.id.slice(-6)}`}
+                          {doc.type === 'shipping' && `Resi #${doc.resiNumber || doc.id.slice(-6)}`}
+                        </p>
+                        <p className="text-xs text-slate-500">{formatDate(doc.date)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-800 text-sm">
+                        {doc.type === 'shipping' 
+                          ? formatRupiah(doc.shippingCost + (doc.insurance || 0))
+                          : formatRupiah(doc.total)}
+                      </p>
+                      {doc.status && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                          doc.status === 'paid' || doc.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' :
+                          doc.status === 'unpaid' ? 'bg-rose-50 text-rose-600' :
+                          'bg-blue-50 text-blue-600'
+                        }`}>
+                          {doc.status === 'paid' ? 'LUNAS' :
+                           doc.status === 'unpaid' ? 'BELUM BAYAR' :
+                           doc.status === 'delivered' ? 'TERKIRIM' :
+                           doc.status === 'in_transit' ? 'DIKIRIM' :
+                           doc.status.toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
       </div>
     )
   }

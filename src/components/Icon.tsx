@@ -69,6 +69,7 @@ export type IconName =
   | 'info' | 'help' | 'zap' | 'target' | 'award' | 'package'
   | 'cloud' | 'brain' | 'users' | 'shield'
   | 'truck' | 'credit-card' | 'message-circle' | 'image'
+  | 'file-text'
 
 interface IconProps {
   name: IconName
@@ -144,6 +145,7 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'credit-card': CreditCard,
     'message-circle': MessageCircle,
     'image': Image,
+    'file-text': FileText,
   }
 
   const IconComponent = icons[name]

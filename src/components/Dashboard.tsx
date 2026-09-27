@@ -25,6 +25,21 @@ interface Invoice {
   status: 'paid' | 'unpaid'
 }
 
+interface Receipt {
+  id: string
+  customerName: string
+  total: number
+  date: string
+}
+
+interface ShippingReceipt {
+  id: string
+  receiverName: string
+  totalCost: number
+  date: string
+  status: string
+}
+
 interface DashboardProps {
   onNavigate?: (page: string) => void
 }
@@ -33,11 +48,15 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [receipts, setReceipts] = useState<Receipt[]>([])
+  const [shipments, setShipments] = useState<ShippingReceipt[]>([])
 
   useEffect(() => {
     setTransactions(getFromStorage<Transaction[]>('umkm_transactions', []))
     setProducts(getFromStorage<Product[]>('umkm_products', []))
     setInvoices(getFromStorage<Invoice[]>('umkm_invoices', []))
+    setReceipts(getFromStorage<Receipt[]>('umkm_receipts', []))
+    setShipments(getFromStorage<ShippingReceipt[]>('umkm_shipping_receipts', []))
   }, [])
 
   const totalIncome = transactions
@@ -215,6 +234,100 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </div>
             <div className="text-sm font-semibold text-slate-800">Hitung Harga</div>
           </button>
+        </div>
+      </div>
+
+      {/* Transaction Overview Widget */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Invoice Widget */}
+        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Icon name="file-text" size={20} className="text-indigo-600" />
+              <h3 className="font-semibold text-slate-900">Invoice</h3>
+            </div>
+            <button onClick={() => onNavigate?.('invoice')} className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+              Lihat Semua →
+            </button>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Belum Lunas:</span>
+              <span className="font-bold text-rose-600">{invoices.filter(i => i.status === 'unpaid').length}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Sudah Lunas:</span>
+              <span className="font-bold text-emerald-600">{invoices.filter(i => i.status === 'paid').length}</span>
+            </div>
+            <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
+              <span className="text-slate-600">Total Piutang:</span>
+              <span className="font-bold text-slate-900">{formatRupiah(invoices.filter(i => i.status === 'unpaid').reduce((sum, i) => sum + i.total, 0))}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Struk Widget */}
+        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Icon name="package" size={20} className="text-emerald-600" />
+              <h3 className="font-semibold text-slate-900">Struk Penjualan</h3>
+            </div>
+            <button onClick={() => onNavigate?.('receipt')} className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
+              Lihat Semua →
+            </button>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Hari Ini:</span>
+              <span className="font-bold text-slate-900">
+                {receipts.filter(r => new Date(r.date).toDateString() === new Date().toDateString()).length}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Bulan Ini:</span>
+              <span className="font-bold text-slate-900">
+                {receipts.filter(r => {
+                  const d = new Date(r.date)
+                  const now = new Date()
+                  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+                }).length}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
+              <span className="text-slate-600">Total Penjualan:</span>
+              <span className="font-bold text-emerald-600">
+                {formatRupiah(receipts.reduce((sum, r) => sum + r.total, 0))}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Pengiriman Widget */}
+        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Icon name="truck" size={20} className="text-blue-600" />
+              <h3 className="font-semibold text-slate-900">Pengiriman</h3>
+            </div>
+            <button onClick={() => onNavigate?.('shipping')} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+              Lihat Semua →
+            </button>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Perlu Dikirim:</span>
+              <span className="font-bold text-amber-600">{shipments.filter(s => s.status === 'pending').length}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Dalam Pengiriman:</span>
+              <span className="font-bold text-blue-600">{shipments.filter(s => s.status === 'in_transit').length}</span>
+            </div>
+            <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
+              <span className="text-slate-600">Sudah Terkirim:</span>
+              <span className="font-bold text-emerald-600">{shipments.filter(s => s.status === 'delivered').length}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -91,15 +91,23 @@ export default function ShippingReceipt() {
     setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
     
     // Check if there's data from receipt
-    const shippingData = getFromStorage<any>('umkm_shipping_from_receipt', null)
-    if (shippingData) {
-      // Auto-fill form with receipt data
-      setReceiverName(shippingData.customerName || '')
-      setItems(shippingData.items || [{ name: '', qty: 1, weight: 1, price: 0 }])
+    const fromReceipt = getFromStorage<any>('umkm_shipping_from_receipt', null)
+    if (fromReceipt) {
+      setReceiverName(fromReceipt.customerName || '')
+      setItems(fromReceipt.items || [{ name: '', qty: 1, weight: 1, price: 0 }])
       setShowForm(true)
-      
-      // Clear the temporary data
       localStorage.removeItem('umkm_shipping_from_receipt')
+      return
+    }
+    
+    // Check if there's data from invoice
+    const fromInvoice = getFromStorage<any>('umkm_shipping_from_invoice', null)
+    if (fromInvoice) {
+      setReceiverName(fromInvoice.customerName || '')
+      setReceiverPhone(fromInvoice.customerPhone || '')
+      setItems(fromInvoice.items || [{ name: '', qty: 1, weight: 1, price: 0 }])
+      setShowForm(true)
+      localStorage.removeItem('umkm_shipping_from_invoice')
     }
   }, [])
 

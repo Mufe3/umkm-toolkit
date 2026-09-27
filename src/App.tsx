@@ -32,8 +32,8 @@ export default function App() {
 
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
-    { id: 'invoice' as Page, label: 'Invoice', icon: 'invoice' as IconName, category: 'Transaksi' },
-    { id: 'receipt' as Page, label: 'Struk Penjualan', icon: 'invoice' as IconName, category: 'Transaksi' },
+    { id: 'invoice' as Page, label: 'Invoice', icon: 'file-text' as IconName, category: 'Transaksi' },
+    { id: 'receipt' as Page, label: 'Struk Penjualan', icon: 'package' as IconName, category: 'Transaksi' },
     { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Transaksi' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
     { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },

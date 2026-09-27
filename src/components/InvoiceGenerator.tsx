@@ -21,6 +21,7 @@ interface Invoice {
   dueDate: string
   status: 'paid' | 'unpaid'
   notes: string
+  relatedReceiptId?: string // Link ke Struk saat lunas
 }
 
 export default function InvoiceGenerator() {
@@ -90,11 +91,57 @@ export default function InvoiceGenerator() {
   }
 
   const toggleStatus = (id: string) => {
-    const updated = invoices.map(inv =>
-      inv.id === id ? { ...inv, status: inv.status === 'paid' ? 'unpaid' : 'paid' } as Invoice : inv
-    )
-    setInvoices(updated)
-    saveToStorage('umkm_invoices', updated)
+    const invoice = invoices.find(inv => inv.id === id)
+    if (!invoice) return
+
+    const newStatus = invoice.status === 'paid' ? 'unpaid' : 'paid'
+    
+    // Jika status berubah ke 'paid', auto-generate Struk
+    if (newStatus === 'paid' && !invoice.relatedReceiptId) {
+      const receiptId = generateId()
+      const storeSettings = getFromStorage<any>('umkm_store_settings', {
+        storeName: 'Toko Saya',
+        storeAddress: '',
+        storePhone: '',
+      })
+      
+      const receipt: any = {
+        id: receiptId,
+        receiptNumber: `STRUK-${Date.now().toString().slice(-6)}`,
+        storeName: storeSettings.storeName,
+        storeAddress: storeSettings.storeAddress,
+        storePhone: storeSettings.storePhone,
+        customerName: invoice.customer,
+        items: invoice.items,
+        subtotal: invoice.total,
+        discount: 0,
+        tax: 0,
+        total: invoice.total,
+        paymentMethod: 'Transfer (dari Invoice)',
+        date: new Date().toISOString(),
+        notes: `Otomatis dari Invoice ${invoice.invoiceNumber}`,
+        relatedInvoiceId: invoice.id,
+      }
+      
+      const receipts = getFromStorage<any[]>('umkm_receipts', [])
+      const updatedReceipts = [receipt, ...receipts]
+      saveToStorage('umkm_receipts', updatedReceipts)
+      
+      // Update invoice dengan relatedReceiptId
+      const updated = invoices.map(inv =>
+        inv.id === id ? { ...inv, status: newStatus, relatedReceiptId: receiptId } as Invoice : inv
+      )
+      setInvoices(updated)
+      saveToStorage('umkm_invoices', updated)
+      
+      alert(`Invoice dilunasi! Struk #${receipt.receiptNumber} otomatis dibuat.`)
+    } else {
+      const updated = invoices.map(inv =>
+        inv.id === id ? { ...inv, status: newStatus } as Invoice : inv
+      )
+      setInvoices(updated)
+      saveToStorage('umkm_invoices', updated)
+    }
   }
 
   const deleteInvoice = (id: string) => {
@@ -118,22 +165,52 @@ export default function InvoiceGenerator() {
     pdf.save(`${viewInvoice?.invoiceNumber || 'invoice'}.pdf`)
   }
 
+  // Handle create shipping receipt from invoice
+  const handleCreateShippingFromInvoice = () => {
+    if (!viewInvoice) return
+    
+    // Store invoice data in localStorage for ShippingReceipt to use
+    const shippingData = {
+      customerName: viewInvoice.customer,
+      customerPhone: viewInvoice.customerPhone,
+      items: viewInvoice.items.map(item => ({
+        name: item.name,
+        qty: item.qty,
+        price: item.price,
+        weight: 1, // Default weight, user can adjust
+      })),
+      totalAmount: viewInvoice.total,
+      invoiceId: viewInvoice.id,
+      invoiceNumber: viewInvoice.invoiceNumber,
+    }
+    saveToStorage('umkm_shipping_from_invoice', shippingData)
+    
+    // Navigate to shipping receipt page
+    window.dispatchEvent(new CustomEvent('navigate', { detail: 'shipping' }))
+  }
+
   // Invoice Preview
   if (viewInvoice) {
     return (
       <div className="max-w-2xl mx-auto space-y-4">
-        <div className="flex gap-3">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setViewInvoice(null)}
-            className="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2"
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2"
           >
             <Icon name="arrow-down" size={16} className="rotate-90" /> Kembali
           </button>
           <button
             onClick={handleExportPDF}
-            className="px-5 py-2.5 bg-gradient-to-r from-indigo-400 to-violet-400 text-white rounded-lg hover:shadow-md hover:shadow-indigo-100 transition-all font-medium flex items-center gap-2"
+            className="px-4 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium flex items-center gap-2"
           >
             <Icon name="download" size={16} /> Export PDF
+          </button>
+          <button
+            onClick={handleCreateShippingFromInvoice}
+            className="px-4 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium flex items-center gap-2"
+          >
+            <Icon name="truck" size={16} /> Buat Resi Pengiriman
           </button>
         </div>
         <div className="bg-white text-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100" id="invoice-preview">

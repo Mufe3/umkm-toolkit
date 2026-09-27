@@ -4,6 +4,14 @@ import { Icon } from './Icon'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
+interface Customer {
+  id: string
+  name: string
+  phone: string
+  email: string
+  address: string
+}
+
 interface Receipt {
   id: string
   receiptNumber: string
@@ -11,6 +19,7 @@ interface Receipt {
   storeAddress: string
   storePhone: string
   customerName: string
+  customerId?: string
   items: Array<{ name: string; qty: number; price: number }>
   subtotal: number
   discount: number
@@ -23,8 +32,10 @@ interface Receipt {
 
 export default function ReceiptGenerator() {
   const [receipts, setReceipts] = useState<Receipt[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [showForm, setShowForm] = useState(false)
   const [viewReceipt, setViewReceipt] = useState<Receipt | null>(null)
+  const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [storeSettings, setStoreSettings] = useState({
     storeName: 'Toko Saya',
     storeAddress: '',
@@ -32,6 +43,7 @@ export default function ReceiptGenerator() {
   })
 
   const [customerName, setCustomerName] = useState('')
+  const [customerId, setCustomerId] = useState('')
   const [items, setItems] = useState<Array<{ name: string; qty: number; price: number }>>([{ name: '', qty: 1, price: 0 }])
   const [discount, setDiscount] = useState(0)
   const [tax, setTax] = useState(0)
@@ -40,9 +52,16 @@ export default function ReceiptGenerator() {
 
   useEffect(() => {
     setReceipts(getFromStorage<Receipt[]>('umkm_receipts', []))
+    setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
     const saved = getFromStorage<typeof storeSettings>('umkm_store_settings', storeSettings)
     setStoreSettings(saved)
   }, [])
+
+  const selectCustomer = (cust: Customer) => {
+    setCustomerName(cust.name)
+    setCustomerId(cust.id)
+    setShowCustomerPicker(false)
+  }
 
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0)
   const discountAmount = subtotal * (discount / 100)
@@ -59,6 +78,7 @@ export default function ReceiptGenerator() {
       receiptNumber: `STRUK-${Date.now().toString().slice(-6)}`,
       ...storeSettings,
       customerName,
+      customerId: customerId || undefined,
       items: items.filter(i => i.name),
       subtotal, discount: discountAmount, tax: taxAmount, total,
       paymentMethod, date: new Date().toISOString(), notes,
@@ -70,9 +90,9 @@ export default function ReceiptGenerator() {
   }
 
   const resetForm = () => {
-    setCustomerName(''); setItems([{ name: '', qty: 1, price: 0 }])
+    setCustomerName(''); setCustomerId(''); setItems([{ name: '', qty: 1, price: 0 }])
     setDiscount(0); setTax(0); setPaymentMethod('Cash'); setNotes('')
-    setShowForm(false)
+    setShowForm(false); setShowCustomerPicker(false)
   }
 
   const deleteReceipt = (id: string) => {
@@ -227,7 +247,47 @@ export default function ReceiptGenerator() {
         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-5">
           <h3 className="text-lg font-semibold text-slate-900">Buat Struk Baru</h3>
           <div>
-            <label className="text-sm text-slate-600 mb-1 block">Nama Pelanggan *</label>
+            <div className="flex justify-between items-center mb-3">
+              <label className="text-sm text-slate-600">Nama Pelanggan *</label>
+              {customers.length > 0 && (
+                <button 
+                  type="button"
+                  onClick={() => setShowCustomerPicker(!showCustomerPicker)}
+                  className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1"
+                >
+                  <Icon name="users" size={14} /> Pilih dari Database
+                </button>
+              )}
+            </div>
+            
+            {/* Customer Picker Modal */}
+            {showCustomerPicker && (
+              <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                <p className="text-sm font-semibold text-indigo-700 mb-3">Pilih Pelanggan:</p>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {customers.map(cust => (
+                    <button
+                      key={cust.id}
+                      type="button"
+                      onClick={() => selectCustomer(cust)}
+                      className="w-full text-left p-3 bg-white rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200"
+                    >
+                      <p className="font-semibold text-slate-800">{cust.name}</p>
+                      <p className="text-sm text-slate-600">{cust.phone}</p>
+                      {cust.address && <p className="text-xs text-slate-500 mt-1">{cust.address}</p>}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setShowCustomerPicker(false)}
+                  className="mt-3 text-sm text-slate-600 hover:text-slate-800"
+                >
+                  Tutup
+                </button>
+              </div>
+            )}
+            
             <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)}
               placeholder="Nama pelanggan"
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />

@@ -10,10 +10,19 @@ interface InvoiceItem {
   price: number
 }
 
+interface Customer {
+  id: string
+  name: string
+  phone: string
+  email: string
+  address: string
+}
+
 interface Invoice {
   id: string
   invoiceNumber: string
   customer: string
+  customerId?: string
   customerPhone: string
   items: InvoiceItem[]
   total: number
@@ -26,11 +35,14 @@ interface Invoice {
 
 export default function InvoiceGenerator() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [showForm, setShowForm] = useState(false)
   const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null)
+  const [showCustomerPicker, setShowCustomerPicker] = useState(false)
 
   // Form state
   const [customer, setCustomer] = useState('')
+  const [customerId, setCustomerId] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [items, setItems] = useState<InvoiceItem[]>([{ name: '', qty: 1, price: 0 }])
   const [dueDate, setDueDate] = useState('')
@@ -38,7 +50,15 @@ export default function InvoiceGenerator() {
 
   useEffect(() => {
     setInvoices(getFromStorage<Invoice[]>('umkm_invoices', []))
+    setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
   }, [])
+
+  const selectCustomer = (cust: Customer) => {
+    setCustomer(cust.name)
+    setCustomerId(cust.id)
+    setCustomerPhone(cust.phone)
+    setShowCustomerPicker(false)
+  }
 
   const addItem = () => {
     setItems([...items, { name: '', qty: 1, price: 0 }])
@@ -66,6 +86,7 @@ export default function InvoiceGenerator() {
       id: generateId(),
       invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
       customer,
+      customerId: customerId || undefined,
       customerPhone,
       items: items.filter(i => i.name),
       total,
@@ -83,11 +104,13 @@ export default function InvoiceGenerator() {
 
   const resetForm = () => {
     setCustomer('')
+    setCustomerId('')
     setCustomerPhone('')
     setItems([{ name: '', qty: 1, price: 0 }])
     setDueDate('')
     setNotes('')
     setShowForm(false)
+    setShowCustomerPicker(false)
   }
 
   const toggleStatus = (id: string) => {
@@ -313,26 +336,69 @@ export default function InvoiceGenerator() {
         <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm space-y-6">
           <h3 className="text-xl font-semibold text-slate-800">Data Invoice</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-slate-600 mb-1 block">Nama Pelanggan *</label>
-              <input
-                type="text"
-                value={customer}
-                onChange={e => setCustomer(e.target.value)}
-                placeholder="Contoh: Toko Maju Jaya"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
-              />
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <label className="text-sm text-slate-600">Data Pelanggan *</label>
+              {customers.length > 0 && (
+                <button 
+                  type="button"
+                  onClick={() => setShowCustomerPicker(!showCustomerPicker)}
+                  className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1"
+                >
+                  <Icon name="users" size={14} /> Pilih dari Database
+                </button>
+              )}
             </div>
-            <div>
-              <label className="text-sm text-slate-600 mb-1 block">No. Telepon</label>
-              <input
-                type="text"
-                value={customerPhone}
-                onChange={e => setCustomerPhone(e.target.value)}
-                placeholder="08xxxxxxxxxx"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
-              />
+            
+            {/* Customer Picker Modal */}
+            {showCustomerPicker && (
+              <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                <p className="text-sm font-semibold text-indigo-700 mb-3">Pilih Pelanggan:</p>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {customers.map(cust => (
+                    <button
+                      key={cust.id}
+                      type="button"
+                      onClick={() => selectCustomer(cust)}
+                      className="w-full text-left p-3 bg-white rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200"
+                    >
+                      <p className="font-semibold text-slate-800">{cust.name}</p>
+                      <p className="text-sm text-slate-600">{cust.phone}</p>
+                      {cust.address && <p className="text-xs text-slate-500 mt-1">{cust.address}</p>}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setShowCustomerPicker(false)}
+                  className="mt-3 text-sm text-slate-600 hover:text-slate-800"
+                >
+                  Tutup
+                </button>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">Nama Pelanggan *</label>
+                <input
+                  type="text"
+                  value={customer}
+                  onChange={e => setCustomer(e.target.value)}
+                  placeholder="Contoh: Toko Maju Jaya"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-600 mb-1 block">No. Telepon</label>
+                <input
+                  type="text"
+                  value={customerPhone}
+                  onChange={e => setCustomerPhone(e.target.value)}
+                  placeholder="08xxxxxxxxxx"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800"
+                />
+              </div>
             </div>
           </div>
 

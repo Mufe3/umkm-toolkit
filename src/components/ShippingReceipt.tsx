@@ -48,13 +48,23 @@ interface SavedAddress {
   isDefault: boolean
 }
 
+interface Customer {
+  id: string
+  name: string
+  phone: string
+  email: string
+  address: string
+}
+
 export default function ShippingReceipt() {
   const [receipts, setReceipts] = useState<ShippingReceipt[]>([])
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [showForm, setShowForm] = useState(false)
   const [viewReceipt, setViewReceipt] = useState<ShippingReceipt | null>(null)
   const [showAddressBook, setShowAddressBook] = useState(false)
   const [showAddressForm, setShowAddressForm] = useState(false)
+  const [showCustomerPicker, setShowCustomerPicker] = useState(false)
   const [editingAddress, setEditingAddress] = useState<SavedAddress | null>(null)
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
 
@@ -64,6 +74,7 @@ export default function ShippingReceipt() {
   const [senderAddress, setSenderAddress] = useState('')
   const [senderCity, setSenderCity] = useState('')
   const [receiverName, setReceiverName] = useState('')
+  const [receiverCustomerId, setReceiverCustomerId] = useState('')
   const [receiverPhone, setReceiverPhone] = useState('')
   const [receiverAddress, setReceiverAddress] = useState('')
   const [receiverCity, setReceiverCity] = useState('')
@@ -89,6 +100,7 @@ export default function ShippingReceipt() {
   useEffect(() => {
     setReceipts(getFromStorage<ShippingReceipt[]>('umkm_shipping_receipts', []))
     setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
+    setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
     
     // Check if there's data from receipt
     const fromReceipt = getFromStorage<any>('umkm_shipping_from_receipt', null)
@@ -110,6 +122,14 @@ export default function ShippingReceipt() {
       localStorage.removeItem('umkm_shipping_from_invoice')
     }
   }, [])
+
+  const selectCustomerFromDB = (cust: Customer) => {
+    setReceiverName(cust.name)
+    setReceiverCustomerId(cust.id)
+    setReceiverPhone(cust.phone)
+    setReceiverAddress(cust.address)
+    setShowCustomerPicker(false)
+  }
 
   // Generate QR Code when viewing receipt - Simplified to just resi number
   useEffect(() => {
@@ -667,16 +687,55 @@ export default function ShippingReceipt() {
               <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Icon name="arrow-down" size={16} className="text-emerald-500" /> Info Penerima
               </h4>
-              {savedAddresses.length > 0 && (
-                <button onClick={() => {
-                  const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0]
-                  if (defaultAddr) selectAddress(defaultAddr)
-                }}
-                  className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1">
-                  <Icon name="location" size={14} /> Pilih dari Buku Alamat
-                </button>
-              )}
+              <div className="flex gap-2">
+                {customers.length > 0 && (
+                  <button 
+                    type="button"
+                    onClick={() => setShowCustomerPicker(!showCustomerPicker)}
+                    className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1"
+                  >
+                    <Icon name="users" size={14} /> Database Pelanggan
+                  </button>
+                )}
+                {savedAddresses.length > 0 && (
+                  <button onClick={() => {
+                    const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0]
+                    if (defaultAddr) selectAddress(defaultAddr)
+                  }}
+                    className="text-sm text-emerald-500 hover:text-emerald-600 font-medium flex items-center gap-1">
+                    <Icon name="location" size={14} /> Buku Alamat
+                  </button>
+                )}
+              </div>
             </div>
+            
+            {/* Customer Picker Modal */}
+            {showCustomerPicker && (
+              <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                <p className="text-sm font-semibold text-indigo-700 mb-3">Pilih Pelanggan:</p>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {customers.map(cust => (
+                    <button
+                      key={cust.id}
+                      type="button"
+                      onClick={() => selectCustomerFromDB(cust)}
+                      className="w-full text-left p-3 bg-white rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200"
+                    >
+                      <p className="font-semibold text-slate-800">{cust.name}</p>
+                      <p className="text-sm text-slate-600">{cust.phone}</p>
+                      {cust.address && <p className="text-xs text-slate-500 mt-1">{cust.address}</p>}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setShowCustomerPicker(false)}
+                  className="mt-3 text-sm text-slate-600 hover:text-slate-800"
+                >
+                  Tutup
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-slate-600 mb-1 block">Nama *</label>

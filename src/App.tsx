@@ -36,6 +36,8 @@ type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [navigationHistory, setNavigationHistory] = useState<Page[]>(['dashboard'])
+  const [touchStart, setTouchStart] = useState<number | null>(null)
 
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
@@ -72,18 +74,65 @@ export default function App() {
 
   const categories = ['Overview', 'Transaksi', 'Pengiriman', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
 
+  // Custom navigation function with history tracking
+  const navigateTo = (page: Page) => {
+    setNavigationHistory(prev => [...prev, page])
+    setCurrentPage(page)
+  }
+
+  // Back function with manual history
+  const goBack = () => {
+    if (navigationHistory.length > 1) {
+      const newHistory = [...navigationHistory]
+      newHistory.pop() // Remove current page
+      const previousPage = newHistory[newHistory.length - 1]
+      setNavigationHistory(newHistory)
+      setCurrentPage(previousPage)
+    } else {
+      setCurrentPage('dashboard')
+    }
+  }
+
+  // Swipe gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return
+    
+    const currentX = e.touches[0].clientX
+    const diff = currentX - touchStart
+    
+    // Swipe right from left edge (50px from left)
+    if (touchStart < 50 && diff > 50 && !sidebarOpen) {
+      setSidebarOpen(true)
+      setTouchStart(null)
+    }
+    
+    // Swipe left to close sidebar
+    if (sidebarOpen && diff < -50) {
+      setSidebarOpen(false)
+      setTouchStart(null)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setTouchStart(null)
+  }
+
   // Listen for navigation events from components
   useEffect(() => {
     const handleNavigate = (e: CustomEvent) => {
-      setCurrentPage(e.detail as any)
+      navigateTo(e.detail as Page)
     }
     window.addEventListener('navigate', handleNavigate as EventListener)
     return () => window.removeEventListener('navigate', handleNavigate as EventListener)
-  }, [])
+  }, [navigationHistory])
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
+      case 'dashboard': return <Dashboard onNavigate={(page) => navigateTo(page as Page)} />
       case 'invoice': return <InvoiceGenerator />
       case 'receipt': return <ReceiptGenerator />
       case 'shipping': return <ShippingReceipt />
@@ -113,7 +162,7 @@ export default function App() {
       case 'expedition': return <ComingSoon title="Integrasi Ekspedisi" description="Integrasi dengan jasa pengiriman untuk otomatisasi resi dan tracking" icon="truck" features={['Auto-generate resi', 'Auto-calculate ongkir', 'Real-time tracking', 'Multi-kurir (JNE, J&T, SiCepat)', 'Label pengiriman otomatis', 'Notifikasi status pengiriman']} />
       case 'payment-gateway': return <ComingSoon title="Payment Gateway" description="Terima pembayaran online dari berbagai metode pembayaran" icon="credit-card" features={['Multi-payment methods', 'Auto-verify pembayaran', 'QRIS integration', 'Virtual account', 'E-wallet integration', 'Auto-reconciliation']} />
       case 'wa-business': return <ComingSoon title="WhatsApp Business API" description="Integrasi WhatsApp Business untuk otomatisasi chat dan order" icon="message-circle" features={['Auto-reply chat', 'Broadcast message', 'Order via WhatsApp', 'Catalog integration', 'Template message', 'Chat analytics']} />
-      default: return <Dashboard onNavigate={(page) => setCurrentPage(page as any)} />
+      default: return <Dashboard onNavigate={(page) => navigateTo(page as Page)} />
     }
   }
 
@@ -163,7 +212,7 @@ export default function App() {
                     <button
                       key={item.id}
                       onClick={() => {
-                        setCurrentPage(item.id)
+                        navigateTo(item.id)
                         setSidebarOpen(false)
                       }}
                       className={`
@@ -202,7 +251,12 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div 
+        className="flex-1 flex flex-col min-w-0"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">
@@ -210,13 +264,7 @@ export default function App() {
             {/* Back button (only show if not on dashboard) */}
             {currentPage !== 'dashboard' && (
               <button
-                onClick={() => {
-                  if (window.history.length > 1) {
-                    window.history.back()
-                  } else {
-                    setCurrentPage('dashboard')
-                  }
-                }}
+                onClick={goBack}
                 className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
                 title="Kembali"
               >
@@ -228,6 +276,7 @@ export default function App() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
+              title="Swipe dari kiri atau tap untuk menu"
             >
               <Icon name="menu" size={20} className="text-slate-700" />
             </button>

@@ -56,16 +56,30 @@ interface Customer {
   address: string
 }
 
+interface SenderProfile {
+  id: string
+  name: string
+  phone: string
+  address: string
+  city: string
+  logo: string
+  brandName: string
+  isDefault: boolean
+}
+
 export default function ShippingReceipt() {
   const [receipts, setReceipts] = useState<ShippingReceipt[]>([])
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [senderProfiles, setSenderProfiles] = useState<SenderProfile[]>([])
   const [showForm, setShowForm] = useState(false)
   const [viewReceipt, setViewReceipt] = useState<ShippingReceipt | null>(null)
   const [showAddressBook, setShowAddressBook] = useState(false)
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [showCustomerPicker, setShowCustomerPicker] = useState(false)
+  const [showSenderProfileManager, setShowSenderProfileManager] = useState(false)
   const [editingAddress, setEditingAddress] = useState<SavedAddress | null>(null)
+  const [editingSender, setEditingSender] = useState<SenderProfile | null>(null)
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
 
   // Form state
@@ -101,6 +115,7 @@ export default function ShippingReceipt() {
     setReceipts(getFromStorage<ShippingReceipt[]>('umkm_shipping_receipts', []))
     setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
     setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
+    setSenderProfiles(getFromStorage<SenderProfile[]>('umkm_sender_profiles', []))
     
     // Check for quick action from customer profile
     const quickAction = getFromStorage<any>('umkm_quick_action', null)
@@ -135,12 +150,82 @@ export default function ShippingReceipt() {
     }
   }, [])
 
+  // Auto-fill sender from default profile when form opens
+  useEffect(() => {
+    if (showForm && senderProfiles.length > 0) {
+      const defaultSender = senderProfiles.find(s => s.isDefault) || senderProfiles[0]
+      if (defaultSender && !senderName) {
+        setSenderName(defaultSender.name)
+        setSenderPhone(defaultSender.phone)
+        setSenderAddress(defaultSender.address)
+        setSenderCity(defaultSender.city)
+        setCustomLogo(defaultSender.logo)
+        setCustomBrandName(defaultSender.brandName)
+      }
+    }
+  }, [showForm, senderProfiles])
+
   const selectCustomerFromDB = (cust: Customer) => {
     setReceiverName(cust.name)
     setReceiverCustomerId(cust.id)
     setReceiverPhone(cust.phone)
     setReceiverAddress(cust.address)
     setShowCustomerPicker(false)
+  }
+
+  // Sender Profile Management
+  const handleSaveSenderProfile = () => {
+    if (!senderName || !senderAddress) {
+      alert('Nama dan alamat pengirim wajib diisi!')
+      return
+    }
+
+    const profile: SenderProfile = {
+      id: editingSender?.id || generateId(),
+      name: senderName,
+      phone: senderPhone,
+      address: senderAddress,
+      city: senderCity,
+      logo: customLogo,
+      brandName: customBrandName,
+      isDefault: senderProfiles.length === 0 || editingSender?.isDefault || false,
+    }
+
+    let updated: SenderProfile[]
+    if (editingSender) {
+      updated = senderProfiles.map(s => s.id === editingSender.id ? profile : s)
+    } else {
+      updated = [...senderProfiles, profile]
+    }
+
+    setSenderProfiles(updated)
+    saveToStorage('umkm_sender_profiles', updated)
+    setEditingSender(null)
+    setShowSenderProfileManager(false)
+    alert('Profil pengirim berhasil disimpan!')
+  }
+
+  const selectSenderProfile = (profile: SenderProfile) => {
+    setSenderName(profile.name)
+    setSenderPhone(profile.phone)
+    setSenderAddress(profile.address)
+    setSenderCity(profile.city)
+    setCustomLogo(profile.logo)
+    setCustomBrandName(profile.brandName)
+  }
+
+  const deleteSenderProfile = (id: string) => {
+    if (confirm('Hapus profil pengirim ini?')) {
+      const updated = senderProfiles.filter(s => s.id !== id)
+      setSenderProfiles(updated)
+      saveToStorage('umkm_sender_profiles', updated)
+    }
+  }
+
+  const setDefaultSender = (id: string) => {
+    const updated = senderProfiles.map(s => ({ ...s, isDefault: s.id === id }))
+    setSenderProfiles(updated)
+    saveToStorage('umkm_sender_profiles', updated)
   }
 
   // Generate QR Code when viewing receipt - Simplified to just resi number
@@ -190,6 +275,7 @@ export default function ShippingReceipt() {
     setReceiverName(''); setReceiverPhone(''); setReceiverAddress(''); setReceiverCity(''); setReceiverPostalCode('')
     setItems([{ name: '', qty: 1, weight: 1, price: 0 }])
     setCourier('JNE'); setService('Regular'); setShippingCost(0); setInsurance(0); setPaymentMethod('Tunai'); setCustomLogo(''); setCustomBrandName(''); setNotes('')
+    setEditingSender(null)
     setShowForm(false)
   }
 
@@ -585,6 +671,133 @@ export default function ShippingReceipt() {
     )
   }
 
+  // Sender Profile Manager View
+  if (showSenderProfileManager) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Profil Pengirim</h2>
+            <p className="text-slate-600 mt-1">Kelola data pengirim yang sering digunakan</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => { setShowSenderProfileManager(false); setEditingSender(null) }}
+              className="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2">
+              <Icon name="arrow-down" size={16} className="rotate-90" /> Kembali
+            </button>
+            <button onClick={() => {
+              setEditingSender(null)
+              setSenderName('')
+              setSenderPhone('')
+              setSenderAddress('')
+              setSenderCity('')
+              setCustomLogo('')
+              setCustomBrandName('')
+              setShowForm(true)
+              setShowSenderProfileManager(false)
+            }}
+              className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center gap-2">
+              <Icon name="plus" size={18} /> Tambah Profil
+            </button>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-200">
+          <div className="flex items-start gap-3">
+            <Icon name="info" size={20} className="text-indigo-600 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-indigo-900 mb-1">Tips:</p>
+              <p className="text-sm text-indigo-800">
+                Simpan profil pengirim untuk toko/brand Anda. Data akan otomatis terisi saat membuat resi baru, sehingga tidak perlu input ulang.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sender Profiles List */}
+        <div className="space-y-3">
+          {senderProfiles.length === 0 ? (
+            <div className="bg-white rounded-xl p-12 border border-slate-200 shadow-sm text-center">
+              <div className="mb-4">
+                <Icon name="users" size={48} className="text-slate-300 mx-auto" />
+              </div>
+              <p className="text-slate-600 mb-4">Belum ada profil pengirim tersimpan</p>
+              <button onClick={() => {
+                setEditingSender(null)
+                setSenderName('')
+                setSenderPhone('')
+                setSenderAddress('')
+                setSenderCity('')
+                setCustomLogo('')
+                setCustomBrandName('')
+                setShowForm(true)
+                setShowSenderProfileManager(false)
+              }}
+                className="px-6 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">
+                Buat Profil Pertama
+              </button>
+            </div>
+          ) : (
+            senderProfiles.map(profile => (
+              <div key={profile.id} className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-start gap-4 flex-1">
+                    {profile.logo ? (
+                      <img src={profile.logo} alt="Logo" className="w-16 h-16 object-contain border border-slate-200 rounded" />
+                    ) : (
+                      <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center">
+                        <Icon name="users" size={32} className="text-slate-400" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="text-lg font-semibold text-slate-900">{profile.brandName || profile.name}</h4>
+                        {profile.isDefault && (
+                          <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold">Default</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-600 mb-1">{profile.name}</p>
+                      <p className="text-sm text-slate-600 mb-1">{profile.phone}</p>
+                      <p className="text-sm text-slate-600">{profile.address}</p>
+                      {profile.city && <p className="text-sm text-slate-600">{profile.city}</p>}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {!profile.isDefault && (
+                      <button onClick={() => setDefaultSender(profile.id)}
+                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-lg text-sm hover:bg-indigo-100 transition-colors">
+                        Set Default
+                      </button>
+                    )}
+                    <button onClick={() => {
+                      setEditingSender(profile)
+                      setSenderName(profile.name)
+                      setSenderPhone(profile.phone)
+                      setSenderAddress(profile.address)
+                      setSenderCity(profile.city)
+                      setCustomLogo(profile.logo)
+                      setCustomBrandName(profile.brandName)
+                      setShowForm(true)
+                      setShowSenderProfileManager(false)
+                    }}
+                      className="px-3 py-1.5 bg-slate-100 rounded-lg text-sm text-slate-700 hover:bg-slate-200 transition-colors">
+                      <Icon name="edit" size={14} />
+                    </button>
+                    <button onClick={() => deleteSenderProfile(profile.id)}
+                      className="px-3 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-sm hover:bg-rose-100 transition-colors">
+                      <Icon name="trash" size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -593,6 +806,10 @@ export default function ShippingReceipt() {
           <p className="text-slate-600 mt-1">Buat resi pengiriman dengan barcode & QR code</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={() => setShowSenderProfileManager(true)}
+            className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2">
+            <Icon name="users" size={18} /> Profil Pengirim
+          </button>
           <button onClick={() => setShowAddressBook(true)}
             className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2">
             <Icon name="location" size={18} /> Buku Alamat
@@ -662,9 +879,87 @@ export default function ShippingReceipt() {
 
           {/* Sender Info */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-              <Icon name="arrow-up" size={16} className="text-indigo-500" /> Info Pengirim
-            </h4>
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <Icon name="arrow-up" size={16} className="text-indigo-500" /> Info Pengirim
+              </h4>
+              <div className="flex gap-2">
+                {senderProfiles.length > 0 && (
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      const defaultSender = senderProfiles.find(s => s.isDefault) || senderProfiles[0]
+                      if (defaultSender) selectSenderProfile(defaultSender)
+                    }}
+                    className="text-sm text-indigo-500 hover:text-indigo-600 font-medium flex items-center gap-1"
+                  >
+                    <Icon name="users" size={14} /> Pilih Profil
+                  </button>
+                )}
+                <button 
+                  type="button"
+                  onClick={() => {
+                    // Save current sender as new profile
+                    if (senderName && senderAddress) {
+                      const newProfile: SenderProfile = {
+                        id: generateId(),
+                        name: senderName,
+                        phone: senderPhone,
+                        address: senderAddress,
+                        city: senderCity,
+                        logo: customLogo,
+                        brandName: customBrandName,
+                        isDefault: senderProfiles.length === 0,
+                      }
+                      const updated = [...senderProfiles, newProfile]
+                      setSenderProfiles(updated)
+                      saveToStorage('umkm_sender_profiles', updated)
+                      alert('Profil pengirim berhasil disimpan!')
+                    } else {
+                      alert('Lengkapi nama dan alamat pengirim terlebih dahulu!')
+                    }
+                  }}
+                  className="text-sm text-emerald-500 hover:text-emerald-600 font-medium flex items-center gap-1"
+                >
+                  <Icon name="check" size={14} /> Simpan sebagai Profil
+                </button>
+              </div>
+            </div>
+
+            {/* Sender Profile Picker */}
+            {senderProfiles.length > 1 && (
+              <div className="mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                <p className="text-sm font-semibold text-indigo-700 mb-2">Pilih Profil Pengirim:</p>
+                <div className="space-y-2">
+                  {senderProfiles.map(profile => (
+                    <button
+                      key={profile.id}
+                      type="button"
+                      onClick={() => selectSenderProfile(profile)}
+                      className="w-full text-left p-3 bg-white rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200"
+                    >
+                      <div className="flex items-center gap-3">
+                        {profile.logo ? (
+                          <img src={profile.logo} alt="Logo" className="w-10 h-10 object-contain" />
+                        ) : (
+                          <div className="w-10 h-10 bg-slate-100 rounded flex items-center justify-center">
+                            <Icon name="users" size={20} className="text-slate-400" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-semibold text-slate-800 text-sm">{profile.brandName || profile.name}</p>
+                          <p className="text-xs text-slate-600">{profile.phone} • {profile.city}</p>
+                        </div>
+                        {profile.isDefault && (
+                          <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">Default</span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-slate-600 mb-1 block">Nama *</label>

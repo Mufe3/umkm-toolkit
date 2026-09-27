@@ -36,9 +36,6 @@ type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [navigationHistory, setNavigationHistory] = useState<Page[]>(['dashboard'])
-  // Swipe gesture removed - conflicts with browser native gestures
-  // Use hamburger menu button [☰] instead
 
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
@@ -75,23 +72,9 @@ export default function App() {
 
   const categories = ['Overview', 'Transaksi', 'Pengiriman', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
 
-  // Custom navigation function with history tracking
+  // Custom navigation function
   const navigateTo = (page: Page) => {
-    setNavigationHistory(prev => [...prev, page])
     setCurrentPage(page)
-  }
-
-  // Back function with manual history
-  const goBack = () => {
-    if (navigationHistory.length > 1) {
-      const newHistory = [...navigationHistory]
-      newHistory.pop() // Remove current page
-      const previousPage = newHistory[newHistory.length - 1]
-      setNavigationHistory(newHistory)
-      setCurrentPage(previousPage)
-    } else {
-      setCurrentPage('dashboard')
-    }
   }
 
   // Swipe gesture removed - conflicts with browser native gestures
@@ -104,7 +87,7 @@ export default function App() {
     }
     window.addEventListener('navigate', handleNavigate as EventListener)
     return () => window.removeEventListener('navigate', handleNavigate as EventListener)
-  }, [navigationHistory])
+  }, [])
 
   const renderPage = () => {
     switch (currentPage) {
@@ -228,26 +211,30 @@ export default function App() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Floating Menu Button (Mobile Only) - Small & Unobtrusive */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-40 w-10 h-10 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-r-lg shadow-md hover:bg-white hover:shadow-lg transition-all flex items-center justify-center group"
+            title="Buka Menu"
+          >
+            <Icon 
+              name="chevron-right" 
+              size={20} 
+              className="text-slate-600 group-hover:text-indigo-600 transition-colors" 
+            />
+          </button>
+        )}
+        
       {/* Top Header */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
-            {/* Back button (only show if not on dashboard) */}
-            {currentPage !== 'dashboard' && (
-              <button
-                onClick={goBack}
-                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                title="Kembali"
-              >
-                <Icon name="arrow-down" size={20} className="text-slate-700 -rotate-90" />
-              </button>
-            )}
-            
             {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
-              title="Swipe dari kiri atau tap untuk menu"
+              title="Menu"
             >
               <Icon name="menu" size={20} className="text-slate-700" />
             </button>

@@ -77,50 +77,8 @@ export default function App() {
     setCurrentPage(page)
   }
 
-  useEffect(() => {
-    let touchStartX = 0
-    let touchStartY = 0
-    let isSwiping = false
-
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches[0].clientX < 50) {
-        touchStartX = e.touches[0].clientX
-        touchStartY = e.touches[0].clientY
-        isSwiping = true
-      }
-    }
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!isSwiping) return
-
-      const touchEndX = e.changedTouches[0].clientX
-      const touchEndY = e.changedTouches[0].clientY
-      const diffX = touchEndX - touchStartX
-      const diffY = touchEndY - touchStartY
-
-      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 80) {
-        if (diffX > 0) {
-          setSidebarOpen(true)
-        } else {
-          if (sidebarOpen) {
-            setSidebarOpen(false)
-          }
-        }
-      }
-
-      isSwiping = false
-      touchStartX = 0
-      touchStartY = 0
-    }
-
-    document.addEventListener('touchstart', handleTouchStart, { passive: true })
-    document.addEventListener('touchend', handleTouchEnd, { passive: true })
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart)
-      document.removeEventListener('touchend', handleTouchEnd)
-    }
-  }, [sidebarOpen])
+  // Swipe gesture removed - conflicts with browser native gestures
+  // Use hamburger menu button [☰] instead to open sidebar
 
   // Listen for navigation events from components
   useEffect(() => {

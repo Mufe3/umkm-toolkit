@@ -144,37 +144,37 @@ export default function ReceiptGenerator() {
             <Icon name="truck" size={16} /> Buat Resi Pengiriman
           </button>
         </div>
-        <div id="receipt-preview" className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm font-mono text-sm">
-          <div className="text-center mb-4 border-b border-dashed border-slate-300 pb-4">
-            <h2 className="text-lg font-bold text-slate-900">{viewReceipt.storeName}</h2>
-            {viewReceipt.storeAddress && <p className="text-xs text-slate-600">{viewReceipt.storeAddress}</p>}
-            {viewReceipt.storePhone && <p className="text-xs text-slate-600">Telp: {viewReceipt.storePhone}</p>}
+        <div id="receipt-preview" className="bg-white border border-slate-200 shadow-sm font-mono" style={{ width: '80mm', padding: '3mm', fontSize: '10px' }}>
+          <div className="text-center mb-2 pb-2 border-b border-dashed border-slate-300">
+            <h2 className="text-sm font-bold text-slate-900">{viewReceipt.storeName}</h2>
+            {viewReceipt.storeAddress && <p className="text-[9px] text-slate-600 leading-tight">{viewReceipt.storeAddress}</p>}
+            {viewReceipt.storePhone && <p className="text-[9px] text-slate-600">Telp: {viewReceipt.storePhone}</p>}
           </div>
-          <div className="mb-4 border-b border-dashed border-slate-300 pb-4">
-            <p className="text-xs text-slate-600">No: {viewReceipt.receiptNumber}</p>
-            <p className="text-xs text-slate-600">Tanggal: {formatDate(viewReceipt.date)}</p>
-            <p className="text-xs text-slate-600">Customer: {viewReceipt.customerName}</p>
-            <p className="text-xs text-slate-600">Bayar: {viewReceipt.paymentMethod}</p>
+          <div className="mb-2 pb-2 border-b border-dashed border-slate-300">
+            <p className="text-[9px] text-slate-600">No: {viewReceipt.receiptNumber}</p>
+            <p className="text-[9px] text-slate-600">Tanggal: {formatDate(viewReceipt.date)}</p>
+            <p className="text-[9px] text-slate-600">Customer: {viewReceipt.customerName}</p>
+            <p className="text-[9px] text-slate-600">Bayar: {viewReceipt.paymentMethod}</p>
           </div>
-          <div className="mb-4 border-b border-dashed border-slate-300 pb-4">
+          <div className="mb-2 pb-2 border-b border-dashed border-slate-300">
             {viewReceipt.items.map((item, i) => (
-              <div key={i} className="mb-2">
-                <p className="text-slate-800">{item.name}</p>
-                <div className="flex justify-between text-xs text-slate-600">
+              <div key={i} className="mb-1">
+                <p className="text-[10px] text-slate-800 leading-tight">{item.name}</p>
+                <div className="flex justify-between text-[9px] text-slate-600">
                   <span>{item.qty} x {formatRupiah(item.price)}</span>
                   <span>{formatRupiah(item.qty * item.price)}</span>
                 </div>
               </div>
             ))}
           </div>
-          <div className="space-y-1 border-b border-dashed border-slate-300 pb-4 mb-4">
-            <div className="flex justify-between text-xs"><span className="text-slate-600">Subtotal</span><span>{formatRupiah(viewReceipt.subtotal)}</span></div>
-            {viewReceipt.discount > 0 && <div className="flex justify-between text-xs"><span className="text-slate-600">Diskon</span><span className="text-rose-600">-{formatRupiah(viewReceipt.discount)}</span></div>}
-            {viewReceipt.tax > 0 && <div className="flex justify-between text-xs"><span className="text-slate-600">Pajak</span><span>{formatRupiah(viewReceipt.tax)}</span></div>}
-            <div className="flex justify-between font-bold text-base pt-2 border-t border-slate-300"><span>TOTAL</span><span>{formatRupiah(viewReceipt.total)}</span></div>
+          <div className="space-y-0.5 border-b border-dashed border-slate-300 pb-2 mb-2">
+            <div className="flex justify-between text-[9px]"><span className="text-slate-600">Subtotal</span><span>{formatRupiah(viewReceipt.subtotal)}</span></div>
+            {viewReceipt.discount > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-600">Diskon</span><span className="text-rose-600">-{formatRupiah(viewReceipt.discount)}</span></div>}
+            {viewReceipt.tax > 0 && <div className="flex justify-between text-[9px]"><span className="text-slate-600">Pajak</span><span>{formatRupiah(viewReceipt.tax)}</span></div>}
+            <div className="flex justify-between font-bold text-xs pt-1 border-t border-slate-300"><span>TOTAL</span><span>{formatRupiah(viewReceipt.total)}</span></div>
           </div>
-          {viewReceipt.notes && <p className="text-xs text-slate-600 text-center italic">{viewReceipt.notes}</p>}
-          <p className="text-xs text-slate-500 text-center mt-4">Terima kasih atas kunjungan Anda!</p>
+          {viewReceipt.notes && <p className="text-[9px] text-slate-600 text-center italic">{viewReceipt.notes}</p>}
+          <p className="text-[9px] text-slate-500 text-center mt-2">Terima kasih atas kunjungan Anda!</p>
         </div>
       </div>
     )

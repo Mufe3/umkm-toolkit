@@ -253,7 +253,18 @@ input.bg-slate-50, textarea.bg-slate-50, select.bg-slate-50 {
   }
   
   /* Position the receipt preview at the top left */
-  #receipt-preview,
+  #receipt-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 3mm;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
   #shipping-receipt-preview {
     position: absolute;
     left: 0;
@@ -263,9 +274,10 @@ input.bg-slate-50, textarea.bg-slate-50, select.bg-slate-50 {
     padding: 4mm;
     border: none !important;
     box-shadow: none !important;
+    border-radius: 0 !important;
   }
   
-  /* Set page size to A6 (100mm x 150mm) */
+  /* Set page size based on receipt type */
   @page {
     size: 100mm 150mm;
     margin: 0;

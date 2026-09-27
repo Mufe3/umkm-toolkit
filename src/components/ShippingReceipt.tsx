@@ -89,6 +89,18 @@ export default function ShippingReceipt() {
   useEffect(() => {
     setReceipts(getFromStorage<ShippingReceipt[]>('umkm_shipping_receipts', []))
     setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
+    
+    // Check if there's data from receipt
+    const shippingData = getFromStorage<any>('umkm_shipping_from_receipt', null)
+    if (shippingData) {
+      // Auto-fill form with receipt data
+      setReceiverName(shippingData.customerName || '')
+      setItems(shippingData.items || [{ name: '', qty: 1, weight: 1, price: 0 }])
+      setShowForm(true)
+      
+      // Clear the temporary data
+      localStorage.removeItem('umkm_shipping_from_receipt')
+    }
   }, [])
 
   // Generate QR Code when viewing receipt - Simplified to just resi number

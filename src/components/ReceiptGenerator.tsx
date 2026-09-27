@@ -104,21 +104,44 @@ export default function ReceiptGenerator() {
     alert('Pengaturan toko tersimpan!')
   }
 
+  // Handle create shipping receipt from sales receipt
+  const handleCreateShipping = () => {
+    if (!viewReceipt) return
+    
+    // Store receipt data in localStorage for ShippingReceipt to use
+    const shippingData = {
+      customerName: viewReceipt.customerName,
+      items: viewReceipt.items,
+      totalAmount: viewReceipt.total,
+      receiptId: viewReceipt.id,
+      receiptNumber: viewReceipt.receiptNumber,
+    }
+    saveToStorage('umkm_shipping_from_receipt', shippingData)
+    
+    // Navigate to shipping receipt page
+    // We'll use a custom event to trigger navigation
+    window.dispatchEvent(new CustomEvent('navigate', { detail: 'shipping' }))
+  }
+
   if (viewReceipt) {
     return (
       <div className="max-w-sm mx-auto space-y-4">
-        <div className="flex gap-3">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={() => setViewReceipt(null)}
-            className="px-5 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2">
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors text-slate-700 font-medium flex items-center gap-2">
             <Icon name="arrow-down" size={16} className="rotate-90" /> Kembali
           </button>
           <button onClick={handleExportPDF}
-            className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium flex items-center gap-2">
+            className="px-4 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium flex items-center gap-2">
             <Icon name="download" size={16} /> Export PDF
           </button>
           <button onClick={handlePrint}
-            className="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2">
+            className="px-4 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2">
             <Icon name="print" size={16} /> Print
+          </button>
+          <button onClick={handleCreateShipping}
+            className="px-4 py-2.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium flex items-center gap-2">
+            <Icon name="truck" size={16} /> Buat Resi Pengiriman
           </button>
         </div>
         <div id="receipt-preview" className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm font-mono text-sm">

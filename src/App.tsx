@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Dashboard from './components/Dashboard'
 import InvoiceGenerator from './components/InvoiceGenerator'
 import PriceCalculator from './components/PriceCalculator'
@@ -32,13 +32,13 @@ export default function App() {
 
   const menuItems = [
     { id: 'dashboard' as Page, label: 'Dashboard', icon: 'dashboard' as IconName, category: 'Overview' },
-    { id: 'invoice' as Page, label: 'Invoice', icon: 'invoice' as IconName, category: 'Keuangan' },
-    { id: 'receipt' as Page, label: 'Struk & Resi', icon: 'print' as IconName, category: 'Keuangan' },
-    { id: 'shipping' as Page, label: 'Resi Pengiriman', icon: 'truck' as IconName, category: 'Keuangan' },
-    { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Keuangan' },
+    { id: 'invoice' as Page, label: 'Invoice', icon: 'invoice' as IconName, category: 'Transaksi' },
+    { id: 'receipt' as Page, label: 'Struk Penjualan', icon: 'print' as IconName, category: 'Transaksi' },
+    { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Transaksi' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
     { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },
     { id: 'calculator' as Page, label: 'Kalkulator', icon: 'calculator' as IconName, category: 'Keuangan' },
+    { id: 'shipping' as Page, label: 'Resi Pengiriman', icon: 'truck' as IconName, category: 'Pengiriman' },
     { id: 'inventory' as Page, label: 'Inventory', icon: 'inventory' as IconName, category: 'Operasional' },
     { id: 'bundle' as Page, label: 'Bundle', icon: 'package' as IconName, category: 'Operasional' },
     { id: 'purchase' as Page, label: 'Purchase Order', icon: 'purchase' as IconName, category: 'Operasional' },
@@ -57,7 +57,16 @@ export default function App() {
     { id: 'wa-business' as Page, label: 'WA Business', icon: 'message-circle' as IconName, category: 'Integrasi' },
   ]
 
-  const categories = ['Overview', 'Keuangan', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
+  const categories = ['Overview', 'Transaksi', 'Pengiriman', 'Operasional', 'Relasi', 'Analisis', 'Marketing', 'Advanced', 'Integrasi']
+
+  // Listen for navigation events from components
+  useEffect(() => {
+    const handleNavigate = (e: CustomEvent) => {
+      setCurrentPage(e.detail as any)
+    }
+    window.addEventListener('navigate', handleNavigate as EventListener)
+    return () => window.removeEventListener('navigate', handleNavigate as EventListener)
+  }, [])
 
   const renderPage = () => {
     switch (currentPage) {

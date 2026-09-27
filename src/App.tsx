@@ -5,7 +5,7 @@ import PriceCalculator from './components/PriceCalculator'
 import CashFlowTracker from './components/CashFlowTracker'
 import InventoryManager from './components/InventoryManager'
 import CustomerManagement from './components/CustomerManagement'
-import AdvancedAnalytics from './components/AdvancedAnalytics'
+import EnhancedAnalytics from './components/EnhancedAnalytics'
 import PurchaseOrder from './components/PurchaseOrder'
 import SupplierManagement from './components/SupplierManagement'
 import WhatsAppShare from './components/WhatsAppShare'
@@ -20,11 +20,12 @@ import FinancialReport from './components/FinancialReport'
 import LoyaltyProgram from './components/LoyaltyProgram'
 import ProductBundle from './components/ProductBundle'
 import ShippingReceipt from './components/ShippingReceipt'
+import POS from './components/POS'
 import ComingSoon from './components/ComingSoon'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'expedition' | 'payment-gateway' | 'wa-business'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'pos' | 'expedition' | 'payment-gateway' | 'wa-business'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -39,6 +40,7 @@ export default function App() {
     { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },
     { id: 'calculator' as Page, label: 'Kalkulator', icon: 'calculator' as IconName, category: 'Keuangan' },
     { id: 'shipping' as Page, label: 'Resi Pengiriman', icon: 'truck' as IconName, category: 'Pengiriman' },
+    { id: 'pos' as Page, label: 'POS / Kasir', icon: 'shopping-cart' as IconName, category: 'Operasional' },
     { id: 'inventory' as Page, label: 'Inventory', icon: 'package' as IconName, category: 'Operasional' },
     { id: 'bundle' as Page, label: 'Bundle', icon: 'layers' as IconName, category: 'Operasional' },
     { id: 'purchase' as Page, label: 'Purchase Order', icon: 'purchase' as IconName, category: 'Operasional' },
@@ -74,6 +76,7 @@ export default function App() {
       case 'invoice': return <InvoiceGenerator />
       case 'receipt': return <ReceiptGenerator />
       case 'shipping': return <ShippingReceipt />
+      case 'pos': return <POS />
       case 'payment': return <PaymentTracker />
       case 'report': return <FinancialReport />
       case 'loyalty': return <LoyaltyProgram />
@@ -82,7 +85,7 @@ export default function App() {
       case 'cashflow': return <CashFlowTracker />
       case 'inventory': return <InventoryManager />
       case 'customers': return <CustomerManagement />
-      case 'analytics': return <AdvancedAnalytics />
+      case 'analytics': return <EnhancedAnalytics />
       case 'purchase': return <PurchaseOrder />
       case 'supplier': return <SupplierManagement />
       case 'whatsapp': return <WhatsAppShare />

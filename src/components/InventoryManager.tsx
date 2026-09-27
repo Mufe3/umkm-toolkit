@@ -11,6 +11,7 @@ interface Product {
   minStock: number
   price: number
   unit: string
+  image?: string
   lastUpdated: string
 }
 
@@ -27,6 +28,7 @@ export default function InventoryManager() {
   const [minStock, setMinStock] = useState(5)
   const [price, setPrice] = useState(0)
   const [unit, setUnit] = useState('pcs')
+  const [image, setImage] = useState('')
 
   useEffect(() => {
     setProducts(getFromStorage<Product[]>('umkm_products', []))
@@ -41,14 +43,14 @@ export default function InventoryManager() {
     if (editingProduct) {
       const updated = products.map(p =>
         p.id === editingProduct.id
-          ? { ...p, name, category, stock, minStock, price, unit, lastUpdated: new Date().toISOString() }
+          ? { ...p, name, category, stock, minStock, price, unit, image, lastUpdated: new Date().toISOString() }
           : p
       )
       setProducts(updated)
       saveToStorage('umkm_products', updated)
     } else {
       const product: Product = {
-        id: generateId(), name, category, stock, minStock, price, unit,
+        id: generateId(), name, category, stock, minStock, price, unit, image,
         lastUpdated: new Date().toISOString(),
       }
       const updated = [product, ...products]
@@ -59,7 +61,7 @@ export default function InventoryManager() {
   }
 
   const resetForm = () => {
-    setName(''); setCategory(''); setStock(0); setMinStock(5); setPrice(0); setUnit('pcs')
+    setName(''); setCategory(''); setStock(0); setMinStock(5); setPrice(0); setUnit('pcs'); setImage('')
     setShowForm(false); setEditingProduct(null)
   }
 
@@ -67,7 +69,19 @@ export default function InventoryManager() {
     setEditingProduct(product)
     setName(product.name); setCategory(product.category); setStock(product.stock)
     setMinStock(product.minStock); setPrice(product.price); setUnit(product.unit)
+    setImage(product.image || '')
     setShowForm(true)
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImage(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const deleteProduct = (id: string) => {
@@ -270,6 +284,32 @@ export default function InventoryManager() {
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-100 text-slate-800" />
           </div>
 
+          <div>
+            <label className="text-sm text-slate-600 mb-1 block">Foto Produk (Opsional)</label>
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                />
+                <p className="text-xs text-slate-500 mt-1">Upload foto produk (JPG, PNG, max 2MB)</p>
+              </div>
+              {image && (
+                <div className="flex-shrink-0">
+                  <img src={image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border border-slate-200" />
+                  <button 
+                    onClick={() => setImage('')}
+                    className="text-xs text-rose-500 hover:text-rose-600 mt-1 block"
+                  >
+                    Hapus foto
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           <button onClick={handleSubmit}
             className="w-full py-3 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2">
             <Icon name="check" size={18} /> {editingProduct ? 'Update' : 'Simpan'} Produk
@@ -298,6 +338,9 @@ export default function InventoryManager() {
                   isOut ? 'border-rose-200 bg-rose-50/30' : isLow ? 'border-amber-200 bg-amber-50/30' : 'border-slate-100 hover:border-slate-200'
                 }`}>
                 <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                  {product.image && (
+                    <img src={product.image} alt={product.name} className="w-20 h-20 object-cover rounded-lg border border-slate-200 flex-shrink-0" />
+                  )}
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h4 className="text-lg font-semibold text-slate-800">{product.name}</h4>

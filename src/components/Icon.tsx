@@ -71,7 +71,7 @@ export type IconName =
   | 'info' | 'help' | 'zap' | 'target' | 'award' | 'package'
   | 'cloud' | 'brain' | 'users' | 'shield'
   | 'truck' | 'credit-card' | 'message-circle' | 'image'
-  | 'file-text' | 'receipt' | 'layers'
+  | 'file-text' | 'receipt' | 'layers' | 'shopping-cart' | 'wallet'
 
 interface IconProps {
   name: IconName
@@ -150,6 +150,8 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'file-text': FileText,
     'receipt': Receipt,
     'layers': Layers,
+    'shopping-cart': ShoppingCart,
+    'wallet': Wallet,
   }
 
   const IconComponent = icons[name]

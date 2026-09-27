@@ -21,11 +21,14 @@ import LoyaltyProgram from './components/LoyaltyProgram'
 import ProductBundle from './components/ProductBundle'
 import ShippingReceipt from './components/ShippingReceipt'
 import POS from './components/POS'
+import VoucherManager from './components/VoucherManager'
+import DebtManagement from './components/DebtManagement'
+import AutoReminder from './components/AutoReminder'
 import ComingSoon from './components/ComingSoon'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'pos' | 'expedition' | 'payment-gateway' | 'wa-business'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'pos' | 'voucher' | 'debt' | 'reminder' | 'expedition' | 'payment-gateway' | 'wa-business'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -36,11 +39,14 @@ export default function App() {
     { id: 'invoice' as Page, label: 'Invoice', icon: 'file-text' as IconName, category: 'Transaksi' },
     { id: 'receipt' as Page, label: 'Struk Penjualan', icon: 'receipt' as IconName, category: 'Transaksi' },
     { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Transaksi' },
+    { id: 'debt' as Page, label: 'Utang-Piutang', icon: 'dollar' as IconName, category: 'Transaksi' },
+    { id: 'reminder' as Page, label: 'Auto Reminder', icon: 'bell' as IconName, category: 'Transaksi' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
     { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },
     { id: 'calculator' as Page, label: 'Kalkulator', icon: 'calculator' as IconName, category: 'Keuangan' },
     { id: 'shipping' as Page, label: 'Resi Pengiriman', icon: 'truck' as IconName, category: 'Pengiriman' },
     { id: 'pos' as Page, label: 'POS / Kasir', icon: 'shopping-cart' as IconName, category: 'Operasional' },
+    { id: 'voucher' as Page, label: 'Voucher & Promo', icon: 'award' as IconName, category: 'Operasional' },
     { id: 'inventory' as Page, label: 'Inventory', icon: 'package' as IconName, category: 'Operasional' },
     { id: 'bundle' as Page, label: 'Bundle', icon: 'layers' as IconName, category: 'Operasional' },
     { id: 'purchase' as Page, label: 'Purchase Order', icon: 'purchase' as IconName, category: 'Operasional' },
@@ -77,6 +83,9 @@ export default function App() {
       case 'receipt': return <ReceiptGenerator />
       case 'shipping': return <ShippingReceipt />
       case 'pos': return <POS />
+      case 'voucher': return <VoucherManager />
+      case 'debt': return <DebtManagement />
+      case 'reminder': return <AutoReminder />
       case 'payment': return <PaymentTracker />
       case 'report': return <FinancialReport />
       case 'loyalty': return <LoyaltyProgram />

@@ -207,6 +207,23 @@ export default function App() {
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
+            {/* Back button (only show if not on dashboard) */}
+            {currentPage !== 'dashboard' && (
+              <button
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    window.history.back()
+                  } else {
+                    setCurrentPage('dashboard')
+                  }
+                }}
+                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                title="Kembali"
+              >
+                <Icon name="arrow-down" size={20} className="text-slate-700 -rotate-90" />
+              </button>
+            )}
+            
             {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}

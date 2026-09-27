@@ -58,6 +58,14 @@ import {
   Receipt,
   Layers,
   TrendingUp as TrendingUpIcon,
+  // Icon baru untuk menggantikan duplikat
+  ScanLine,
+  FileBarChart,
+  Route,
+  Store,
+  Coins,
+  UserCog,
+  Bot,
 } from 'lucide-react'
 
 export type IconName = 
@@ -74,6 +82,8 @@ export type IconName =
   | 'truck' | 'credit-card' | 'message-circle' | 'image'
   | 'file-text' | 'receipt' | 'layers' | 'shopping-cart' | 'wallet'
   | 'share'
+  // Icon baru untuk menggantikan duplikat
+  | 'scan' | 'file-chart' | 'route' | 'store' | 'coins' | 'user-cog' | 'bot'
 
 interface IconProps {
   name: IconName
@@ -155,6 +165,14 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'shopping-cart': ShoppingCart,
     'wallet': Wallet,
     'share': Share2,
+    // Icon baru untuk menggantikan duplikat
+    'scan': ScanLine,
+    'file-chart': FileBarChart,
+    'route': Route,
+    'store': Store,
+    'coins': Coins,
+    'user-cog': UserCog,
+    'bot': Bot,
   }
 
   const IconComponent = icons[name]

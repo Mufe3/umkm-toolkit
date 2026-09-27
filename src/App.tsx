@@ -24,11 +24,14 @@ import POS from './components/POS'
 import VoucherManager from './components/VoucherManager'
 import DebtManagement from './components/DebtManagement'
 import AutoReminder from './components/AutoReminder'
+import EmployeeManagement from './components/EmployeeManagement'
+import BarcodeScanner from './components/BarcodeScanner'
+import PWAInstaller from './components/PWAInstaller'
 import ComingSoon from './components/ComingSoon'
 import { Icon } from './components/Icon'
 import type { IconName } from './components/Icon'
 
-type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'pos' | 'voucher' | 'debt' | 'reminder' | 'expedition' | 'payment-gateway' | 'wa-business'
+type Page = 'dashboard' | 'invoice' | 'calculator' | 'cashflow' | 'inventory' | 'customers' | 'analytics' | 'purchase' | 'supplier' | 'whatsapp' | 'qrcode' | 'cloud' | 'team' | 'ai' | 'marketplace' | 'receipt' | 'shipping' | 'payment' | 'report' | 'loyalty' | 'bundle' | 'pos' | 'voucher' | 'debt' | 'reminder' | 'employee' | 'barcode' | 'expedition' | 'payment-gateway' | 'wa-business'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
@@ -41,6 +44,8 @@ export default function App() {
     { id: 'payment' as Page, label: 'Payment', icon: 'dollar' as IconName, category: 'Transaksi' },
     { id: 'debt' as Page, label: 'Utang-Piutang', icon: 'dollar' as IconName, category: 'Transaksi' },
     { id: 'reminder' as Page, label: 'Auto Reminder', icon: 'bell' as IconName, category: 'Transaksi' },
+    { id: 'employee' as Page, label: 'Karyawan', icon: 'users' as IconName, category: 'Operasional' },
+    { id: 'barcode' as Page, label: 'Barcode Scanner', icon: 'qrcode' as IconName, category: 'Operasional' },
     { id: 'cashflow' as Page, label: 'Cash Flow', icon: 'cashflow' as IconName, category: 'Keuangan' },
     { id: 'report' as Page, label: 'Laporan', icon: 'analytics' as IconName, category: 'Keuangan' },
     { id: 'calculator' as Page, label: 'Kalkulator', icon: 'calculator' as IconName, category: 'Keuangan' },
@@ -86,6 +91,8 @@ export default function App() {
       case 'voucher': return <VoucherManager />
       case 'debt': return <DebtManagement />
       case 'reminder': return <AutoReminder />
+      case 'employee': return <EmployeeManagement />
+      case 'barcode': return <BarcodeScanner />
       case 'payment': return <PaymentTracker />
       case 'report': return <FinancialReport />
       case 'loyalty': return <LoyaltyProgram />
@@ -248,11 +255,14 @@ export default function App() {
               © 2024 UMKM Toolkit — Dibuat dengan ❤️ untuk UMKM Indonesia
             </p>
             <p className="text-xs text-slate-600">
-              v4.0 • 23 Tools • All-in-One Business Solution
+              v5.0 • 32 Tools • All-in-One Business Solution
             </p>
           </div>
         </footer>
       </div>
+
+      {/* PWA Installer */}
+      <PWAInstaller />
     </div>
   )
 }

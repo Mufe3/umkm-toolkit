@@ -372,19 +372,15 @@ export default function ShippingReceipt() {
             <div className="text-[10px] text-black space-y-0.5">
               {viewReceipt.items.map((item, i) => (
                 <div key={i} className="flex justify-between">
-                  <span className="flex-1 truncate pr-1">{item.name} x{item.qty}</span>
-                  <span className="font-semibold">{formatRupiah(item.price * item.qty)}</span>
+                  <span className="flex-1">{item.name}</span>
+                  <span className="font-semibold">x{item.qty} ({item.weight}kg)</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ===== BAGIAN 6: BIAYA ===== */}
+          {/* ===== BAGIAN 6: BIAYA PENGIRIMAN ===== */}
           <div className="mb-2 pb-2 border-b border-black text-[10px] text-black">
-            <div className="flex justify-between">
-              <span>Subtotal Barang:</span>
-              <span className="font-semibold">{formatRupiah(viewReceipt.totalCost - viewReceipt.shippingCost - viewReceipt.insurance)}</span>
-            </div>
             <div className="flex justify-between">
               <span>Ongkir ({viewReceipt.service}):</span>
               <span className="font-semibold">{formatRupiah(viewReceipt.shippingCost)}</span>
@@ -396,8 +392,8 @@ export default function ShippingReceipt() {
               </div>
             )}
             <div className="flex justify-between font-bold text-xs pt-1 mt-1 border-t border-black">
-              <span>TOTAL ({viewReceipt.paymentMethod}):</span>
-              <span>{formatRupiah(viewReceipt.totalCost)}</span>
+              <span>TOTAL BIAYA KIRIM:</span>
+              <span>{formatRupiah(viewReceipt.shippingCost + viewReceipt.insurance)}</span>
             </div>
           </div>
 

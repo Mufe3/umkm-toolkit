@@ -174,21 +174,6 @@ export default function ReceiptGenerator() {
     window.print()
   }
 
-  const handleDownloadPDF = async () => {
-    const element = document.getElementById('receipt-preview')
-    if (!element) return
-    
-    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' })
-    const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [80, 200] })
-    const pdfWidth = 80
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-    
-    // Download PDF
-    pdf.save(`${viewReceipt?.receiptNumber || 'struk'}.pdf`)
-  }
-
   const handleShare = async () => {
     const element = document.getElementById('receipt-preview')
     if (!element) return
@@ -264,10 +249,6 @@ export default function ReceiptGenerator() {
             <button onClick={handlePrint}
               className="px-4 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2 text-sm">
               <Icon name="print" size={16} /> Print
-            </button>
-            <button onClick={handleDownloadPDF}
-              className="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2 text-sm">
-              <Icon name="download" size={16} /> PDF
             </button>
             <button onClick={handleShare}
               className="px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center gap-2 text-sm">

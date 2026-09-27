@@ -31,7 +31,44 @@ export default function WhatsAppShare() {
   useEffect(() => {
     setInvoices(getFromStorage<Invoice[]>('umkm_invoices', []))
     setProducts(getFromStorage<Product[]>('umkm_products', []))
-  }, [])
+    
+    // Check for quick action from customer profile
+    const quickAction = getFromStorage<any>('umkm_quick_action', null)
+    if (quickAction && quickAction.type === 'whatsapp') {
+      // Auto-fill customer phone for WhatsApp
+      const phone = quickAction.customerPhone || ''
+      if (phone) {
+        // Find unpaid invoices for this customer
+        const customerInvoices = invoices.filter(i => 
+          i.customer === quickAction.customerName && i.status === 'unpaid'
+        )
+        
+        if (customerInvoices.length > 0) {
+          // Auto-select first unpaid invoice
+          const invoice = customerInvoices[0]
+          const message = generateInvoiceMessage(invoice)
+          
+          // Open WhatsApp directly
+          let cleanPhone = phone.replace(/[^0-9]/g, '')
+          if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1)
+          if (!cleanPhone.startsWith('62')) cleanPhone = '62' + cleanPhone
+          
+          const encoded = encodeURIComponent(message)
+          window.open(`https://wa.me/${cleanPhone}?text=${encoded}`, '_blank')
+        } else {
+          // No unpaid invoice, just open WhatsApp with greeting
+          let cleanPhone = phone.replace(/[^0-9]/g, '')
+          if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1)
+          if (!cleanPhone.startsWith('62')) cleanPhone = '62' + cleanPhone
+          
+          const greeting = `Halo *${quickAction.customerName}*! 👋\n\nAda yang bisa kami bantu?`
+          const encoded = encodeURIComponent(greeting)
+          window.open(`https://wa.me/${cleanPhone}?text=${encoded}`, '_blank')
+        }
+      }
+      localStorage.removeItem('umkm_quick_action')
+    }
+  }, [invoices])
 
   const unpaidInvoices = invoices.filter(i => i.status === 'unpaid')
 

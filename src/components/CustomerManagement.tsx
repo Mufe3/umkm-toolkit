@@ -173,6 +173,67 @@ export default function CustomerManagement() {
             </div>
           </div>
 
+          {/* Quick Actions */}
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100 mb-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <Icon name="zap" size={20} className="text-indigo-600" /> Quick Actions
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <button 
+                onClick={() => {
+                  saveToStorage('umkm_quick_action', { type: 'invoice', customerId: viewCustomer.id, customerName: viewCustomer.name, customerPhone: viewCustomer.phone })
+                  window.dispatchEvent(new CustomEvent('navigate', { detail: 'invoice' }))
+                }}
+                className="p-4 bg-white rounded-lg border border-indigo-200 hover:border-indigo-300 hover:shadow-md transition-all group"
+              >
+                <div className="mb-2 group-hover:scale-110 transition-transform">
+                  <Icon name="file-text" size={32} className="text-indigo-600 mx-auto" />
+                </div>
+                <div className="text-sm font-semibold text-slate-800">Buat Invoice</div>
+              </button>
+              <button 
+                onClick={() => {
+                  saveToStorage('umkm_quick_action', { type: 'receipt', customerId: viewCustomer.id, customerName: viewCustomer.name })
+                  window.dispatchEvent(new CustomEvent('navigate', { detail: 'receipt' }))
+                }}
+                className="p-4 bg-white rounded-lg border border-emerald-200 hover:border-emerald-300 hover:shadow-md transition-all group"
+              >
+                <div className="mb-2 group-hover:scale-110 transition-transform">
+                  <Icon name="package" size={32} className="text-emerald-600 mx-auto" />
+                </div>
+                <div className="text-sm font-semibold text-slate-800">Buat Struk</div>
+              </button>
+              <button 
+                onClick={() => {
+                  saveToStorage('umkm_quick_action', { type: 'shipping', customerId: viewCustomer.id, customerName: viewCustomer.name, customerPhone: viewCustomer.phone, customerAddress: viewCustomer.address })
+                  window.dispatchEvent(new CustomEvent('navigate', { detail: 'shipping' }))
+                }}
+                className="p-4 bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all group"
+              >
+                <div className="mb-2 group-hover:scale-110 transition-transform">
+                  <Icon name="truck" size={32} className="text-blue-600 mx-auto" />
+                </div>
+                <div className="text-sm font-semibold text-slate-800">Buat Resi</div>
+              </button>
+              <button 
+                onClick={() => {
+                  if (viewCustomer.phone) {
+                    saveToStorage('umkm_quick_action', { type: 'whatsapp', customerId: viewCustomer.id, customerName: viewCustomer.name, customerPhone: viewCustomer.phone })
+                    window.dispatchEvent(new CustomEvent('navigate', { detail: 'whatsapp' }))
+                  } else {
+                    alert('Nomor telepon customer belum tersedia')
+                  }
+                }}
+                className="p-4 bg-white rounded-lg border border-green-200 hover:border-green-300 hover:shadow-md transition-all group"
+              >
+                <div className="mb-2 group-hover:scale-110 transition-transform">
+                  <Icon name="message-circle" size={32} className="text-green-600 mx-auto" />
+                </div>
+                <div className="text-sm font-semibold text-slate-800">WhatsApp</div>
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-sm text-slate-500 mb-1 flex items-center gap-1">

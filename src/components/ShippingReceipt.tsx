@@ -102,6 +102,18 @@ export default function ShippingReceipt() {
     setSavedAddresses(getFromStorage<SavedAddress[]>('umkm_saved_addresses', []))
     setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
     
+    // Check for quick action from customer profile
+    const quickAction = getFromStorage<any>('umkm_quick_action', null)
+    if (quickAction && quickAction.type === 'shipping') {
+      setReceiverName(quickAction.customerName || '')
+      setReceiverCustomerId(quickAction.customerId || '')
+      setReceiverPhone(quickAction.customerPhone || '')
+      setReceiverAddress(quickAction.customerAddress || '')
+      setShowForm(true)
+      localStorage.removeItem('umkm_quick_action')
+      return
+    }
+    
     // Check if there's data from receipt
     const fromReceipt = getFromStorage<any>('umkm_shipping_from_receipt', null)
     if (fromReceipt) {

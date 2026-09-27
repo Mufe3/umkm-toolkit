@@ -20,6 +20,7 @@ interface Product {
 interface Invoice {
   id: string
   customer: string
+  customerId?: string
   total: number
   date: string
   status: 'paid' | 'unpaid'
@@ -28,6 +29,7 @@ interface Invoice {
 interface Receipt {
   id: string
   customerName: string
+  customerId?: string
   total: number
   date: string
 }
@@ -329,6 +331,60 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Top Customers Widget */}
+      <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Icon name="award" size={20} className="text-amber-600" />
+            <h3 className="font-semibold text-slate-900">Top Customers</h3>
+          </div>
+          <button onClick={() => onNavigate?.('customers')} className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+            Lihat Semua →
+          </button>
+        </div>
+        {(() => {
+          const customers = getFromStorage<any[]>('umkm_customers', [])
+          const topCustomers = customers
+            .map(c => {
+              const customerReceipts = receipts.filter(r => r.customerId === c.id || r.customerName === c.name)
+              const customerInvoices = invoices.filter(i => i.customerId === c.id || i.customer === c.name)
+              const totalSpent = customerReceipts.reduce((sum, r) => sum + r.total, 0) +
+                               customerInvoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.total, 0)
+              return { ...c, totalSpent }
+            })
+            .sort((a, b) => b.totalSpent - a.totalSpent)
+            .slice(0, 5)
+          
+          if (topCustomers.length === 0) {
+            return <p className="text-slate-500 text-center py-8">Belum ada data customer</p>
+          }
+          
+          return (
+            <div className="space-y-3">
+              {topCustomers.map((customer, idx) => (
+                <div key={customer.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                      idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-slate-400' : idx === 2 ? 'bg-orange-400' : 'bg-slate-300'
+                    }`}>
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">{customer.name}</p>
+                      <p className="text-xs text-slate-500">{customer.phone}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-indigo-600">{formatRupiah(customer.totalSpent)}</p>
+                    <p className="text-xs text-slate-500">{customer.totalTransactions} transaksi</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )

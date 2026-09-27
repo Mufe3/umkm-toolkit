@@ -55,6 +55,15 @@ export default function ReceiptGenerator() {
     setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
     const saved = getFromStorage<typeof storeSettings>('umkm_store_settings', storeSettings)
     setStoreSettings(saved)
+    
+    // Check for quick action from customer profile
+    const quickAction = getFromStorage<any>('umkm_quick_action', null)
+    if (quickAction && quickAction.type === 'receipt') {
+      setCustomerName(quickAction.customerName || '')
+      setCustomerId(quickAction.customerId || '')
+      setShowForm(true)
+      localStorage.removeItem('umkm_quick_action')
+    }
   }, [])
 
   const selectCustomer = (cust: Customer) => {
@@ -86,7 +95,53 @@ export default function ReceiptGenerator() {
     const updated = [receipt, ...receipts]
     setReceipts(updated)
     saveToStorage('umkm_receipts', updated)
+    
+    // AUTO-SYNC 1: Create Cash Flow entry
+    const transactions = getFromStorage<any[]>('umkm_transactions', [])
+    const newTransaction = {
+      id: generateId(),
+      type: 'income',
+      amount: total,
+      category: 'Penjualan Produk',
+      description: `Struk #${receipt.receiptNumber} - ${customerName}`,
+      date: receipt.date,
+      customerId: customerId,
+    }
+    const updatedTransactions = [newTransaction, ...transactions]
+    saveToStorage('umkm_transactions', updatedTransactions)
+    
+    // AUTO-SYNC 2: Auto-earn Loyalty points (1 poin per Rp10.000)
+    if (customerId) {
+      const loyaltyMembers = getFromStorage<any[]>('umkm_loyalty_members', [])
+      const member = loyaltyMembers.find((m: any) => m.id === customerId)
+      if (member) {
+        const earnedPoints = Math.floor(total / 10000)
+        member.points += earnedPoints
+        member.totalSpent += total
+        
+        // Auto-upgrade tier
+        if (member.totalSpent >= 10000000) member.tier = 'platinum'
+        else if (member.totalSpent >= 5000000) member.tier = 'gold'
+        else if (member.totalSpent >= 2000000) member.tier = 'silver'
+        
+        saveToStorage('umkm_loyalty_members', loyaltyMembers)
+        
+        // Create point transaction
+        const pointTransactions = getFromStorage<any[]>('umkm_point_transactions', [])
+        const newPointTransaction = {
+          id: generateId(),
+          memberId: customerId,
+          type: 'earn',
+          points: earnedPoints,
+          description: `Belanja dari Struk #${receipt.receiptNumber}`,
+          date: receipt.date,
+        }
+        saveToStorage('umkm_point_transactions', [newPointTransaction, ...pointTransactions])
+      }
+    }
+    
     resetForm()
+    alert(`Struk berhasil dibuat!\n\nAuto-sync:\n✅ Cash Flow: +${formatRupiah(total)}\n✅ Loyalty: +${Math.floor(total / 10000)} poin`)
   }
 
   const resetForm = () => {

@@ -51,6 +51,16 @@ export default function InvoiceGenerator() {
   useEffect(() => {
     setInvoices(getFromStorage<Invoice[]>('umkm_invoices', []))
     setCustomers(getFromStorage<Customer[]>('umkm_customers', []))
+    
+    // Check for quick action from customer profile
+    const quickAction = getFromStorage<any>('umkm_quick_action', null)
+    if (quickAction && quickAction.type === 'invoice') {
+      setCustomer(quickAction.customerName || '')
+      setCustomerId(quickAction.customerId || '')
+      setCustomerPhone(quickAction.customerPhone || '')
+      setShowForm(true)
+      localStorage.removeItem('umkm_quick_action')
+    }
   }, [])
 
   const selectCustomer = (cust: Customer) => {
@@ -119,7 +129,7 @@ export default function InvoiceGenerator() {
 
     const newStatus = invoice.status === 'paid' ? 'unpaid' : 'paid'
     
-    // Jika status berubah ke 'paid', auto-generate Struk
+    // Jika status berubah ke 'paid', auto-generate Struk + Cash Flow + Loyalty
     if (newStatus === 'paid' && !invoice.relatedReceiptId) {
       const receiptId = generateId()
       const storeSettings = getFromStorage<any>('umkm_store_settings', {
@@ -135,6 +145,7 @@ export default function InvoiceGenerator() {
         storeAddress: storeSettings.storeAddress,
         storePhone: storeSettings.storePhone,
         customerName: invoice.customer,
+        customerId: invoice.customerId,
         items: invoice.items,
         subtotal: invoice.total,
         discount: 0,
@@ -150,6 +161,50 @@ export default function InvoiceGenerator() {
       const updatedReceipts = [receipt, ...receipts]
       saveToStorage('umkm_receipts', updatedReceipts)
       
+      // AUTO-SYNC: Create Cash Flow entry
+      const transactions = getFromStorage<any[]>('umkm_transactions', [])
+      const newTransaction = {
+        id: generateId(),
+        type: 'income',
+        amount: invoice.total,
+        category: 'Penjualan Produk',
+        description: `Invoice #${invoice.invoiceNumber} LUNAS - ${invoice.customer}`,
+        date: new Date().toISOString(),
+        customerId: invoice.customerId,
+      }
+      const updatedTransactions = [newTransaction, ...transactions]
+      saveToStorage('umkm_transactions', updatedTransactions)
+      
+      // AUTO-SYNC: Auto-earn Loyalty points
+      if (invoice.customerId) {
+        const loyaltyMembers = getFromStorage<any[]>('umkm_loyalty_members', [])
+        const member = loyaltyMembers.find((m: any) => m.id === invoice.customerId)
+        if (member) {
+          const earnedPoints = Math.floor(invoice.total / 10000)
+          member.points += earnedPoints
+          member.totalSpent += invoice.total
+          
+          // Auto-upgrade tier
+          if (member.totalSpent >= 10000000) member.tier = 'platinum'
+          else if (member.totalSpent >= 5000000) member.tier = 'gold'
+          else if (member.totalSpent >= 2000000) member.tier = 'silver'
+          
+          saveToStorage('umkm_loyalty_members', loyaltyMembers)
+          
+          // Create point transaction
+          const pointTransactions = getFromStorage<any[]>('umkm_point_transactions', [])
+          const newPointTransaction = {
+            id: generateId(),
+            memberId: invoice.customerId,
+            type: 'earn',
+            points: earnedPoints,
+            description: `Pembayaran Invoice #${invoice.invoiceNumber}`,
+            date: new Date().toISOString(),
+          }
+          saveToStorage('umkm_point_transactions', [newPointTransaction, ...pointTransactions])
+        }
+      }
+      
       // Update invoice dengan relatedReceiptId
       const updated = invoices.map(inv =>
         inv.id === id ? { ...inv, status: newStatus, relatedReceiptId: receiptId } as Invoice : inv
@@ -157,7 +212,8 @@ export default function InvoiceGenerator() {
       setInvoices(updated)
       saveToStorage('umkm_invoices', updated)
       
-      alert(`Invoice dilunasi! Struk #${receipt.receiptNumber} otomatis dibuat.`)
+      const earnedPoints = Math.floor(invoice.total / 10000)
+      alert(`Invoice dilunasi!\n\nAuto-sync:\n✅ Struk #${receipt.receiptNumber} dibuat\n✅ Cash Flow: +${formatRupiah(invoice.total)}\n✅ Loyalty: +${earnedPoints} poin`)
     } else {
       const updated = invoices.map(inv =>
         inv.id === id ? { ...inv, status: newStatus } as Invoice : inv

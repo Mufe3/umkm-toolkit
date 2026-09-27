@@ -313,6 +313,54 @@ export default function ShippingReceipt() {
     window.print()
   }
 
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById('shipping-receipt-preview')
+    if (!element) return
+    
+    const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' })
+    const imgData = canvas.toDataURL('image/png')
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [100, 150]
+    })
+    pdf.addImage(imgData, 'PNG', 0, 0, 100, 150)
+    pdf.save(`${viewReceipt?.resiNumber || 'resi'}.pdf`)
+  }
+
+  const handleShare = async () => {
+    const element = document.getElementById('shipping-receipt-preview')
+    if (!element) return
+    
+    try {
+      const canvas = await html2canvas(element, { scale: 3, backgroundColor: '#ffffff' })
+      canvas.toBlob(async (blob) => {
+        if (!blob) return
+        
+        const file = new File([blob], `${viewReceipt?.resiNumber || 'resi'}.png`, { type: 'image/png' })
+        
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Resi Pengiriman',
+            text: `Resi #${viewReceipt?.resiNumber}`,
+          })
+        } else {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${viewReceipt?.resiNumber || 'resi'}.png`
+          a.click()
+          URL.revokeObjectURL(url)
+          alert('File downloaded! Buka di app printer untuk print.')
+        }
+      }, 'image/png')
+    } catch (error) {
+      console.error('Share failed:', error)
+      alert('Share tidak support di browser ini. Gunakan Download PDF.')
+    }
+  }
+
   // Address Book Functions
   const handleSaveAddress = () => {
     if (!addrName || !addrAddress) {
@@ -413,10 +461,20 @@ export default function ShippingReceipt() {
             className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors font-medium flex items-center gap-2">
             <Icon name="download" size={16} /> Export PDF
           </button>
-          <button onClick={handlePrint}
-            className="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2">
-            <Icon name="print" size={16} /> Print
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handlePrint}
+              className="px-4 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center gap-2 text-sm">
+              <Icon name="print" size={16} /> Print
+            </button>
+            <button onClick={handleDownloadPDF}
+              className="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2 text-sm">
+              <Icon name="download" size={16} /> PDF
+            </button>
+            <button onClick={handleShare}
+              className="px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center gap-2 text-sm">
+              <Icon name="share" size={16} /> Share
+            </button>
+          </div>
         </div>
 
         <div id="shipping-receipt-preview" className="bg-white border-2 border-black" style={{ width: '100mm', minHeight: '150mm', padding: '4mm' }}>

@@ -48,6 +48,7 @@ import {
   HelpCircle,
   Zap,
   Target,
+  Share2,
   Award,
   Cloud,
   Brain,
@@ -72,6 +73,7 @@ export type IconName =
   | 'cloud' | 'brain' | 'users' | 'shield'
   | 'truck' | 'credit-card' | 'message-circle' | 'image'
   | 'file-text' | 'receipt' | 'layers' | 'shopping-cart' | 'wallet'
+  | 'share'
 
 interface IconProps {
   name: IconName
@@ -152,6 +154,7 @@ export function Icon({ name, size = 20, className = '', filled = false }: IconPr
     'layers': Layers,
     'shopping-cart': ShoppingCart,
     'wallet': Wallet,
+    'share': Share2,
   }
 
   const IconComponent = icons[name]

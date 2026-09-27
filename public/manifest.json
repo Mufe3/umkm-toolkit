@@ -3,6 +3,7 @@
   "short_name": "UMKM",
   "description": "All-in-one business management solution for Indonesian UMKM",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",

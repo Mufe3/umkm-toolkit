@@ -34,7 +34,7 @@ export default function AnalyticsScreen() {
 
   const revenue = inRange.reduce((s, r) => s + r.total, 0)
   const avg = inRange.length ? revenue / inRange.length : 0
-  const lowStock = products.filter((p) => p.stok <= (p as any).minStok ?? 5)
+  const lowStock = products.filter((p) => p.stok <= (((p as any).minStok ?? 5) as number))
 
   // produk terlaris berdasarkan item struk
   const topProducts = useMemo(() => {

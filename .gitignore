@@ -1,1 +1,12 @@
-(empty)
+# Android build artifacts
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+
+# Keystore (sensitive)
+*.keystore
+!debug.keystore
+
+# Node modules (common for React Native projects)
+node_modules/

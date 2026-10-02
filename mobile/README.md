@@ -29,7 +29,11 @@ Prasyarat build APK: Node.js 18+, lalu `npx expo prebuild` + Android Studio, ata
 | InventoryManager.tsx | `screens/InventoryScreen.tsx` ✅ |
 | POS.tsx | `screens/POSScreen.tsx` ✅ |
 | CustomerManagement.tsx | `screens/CustomersScreen.tsx` ✅ |
-| Sisanya (Invoice, Analytics, dll.) | Terdaftar di `screens/MoreScreen.tsx` (roadmap) |
+| Sisanya (Invoice, Analytics, dll.) | 15 layar native — diakses lewat tab "Lainnya" (`MoreScreen.tsx`) |
+
+## Navigasi
+- **Bottom Tabs**: Dashboard, Inventory, Kasir (POS), Pelanggan, Lainnya
+- **Stack** (dibuka dari tab Lainnya): Invoice, Struk, Cash Flow, Laporan Keuangan, Analitik, Purchase Order, Supplier, Utang & Piutang, Voucher, Loyalty, Karyawan, QR Code, Bundling, Hitung Harga, Profil Toko
 
 ## Catatan library web yang tidak bisa dipakai langsung di RN
 - `html2canvas`, `jspdf`, `xlsx` → ganti `react-native-html-to-pdf` / `expo-print`

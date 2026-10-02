@@ -186,3 +186,44 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', paddingVertical: spacing.xl, gap: 8 },
   emptyText: { color: colors.textMuted, fontSize: fonts.body },
 })
+
+// ---------- SegmentedControl (pengganti tombol filter pill Tailwind) ----------
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { label: string; value: T }[]
+  value: T
+  onChange: (v: T) => void
+}) {
+  return (
+    <View style={segStyles.row}>
+      {options.map((o) => (
+        <TouchableOpacity
+          key={o.value}
+          activeOpacity={0.8}
+          onPress={() => onChange(o.value)}
+          style={[segStyles.pill, value === o.value && segStyles.pillActive]}
+        >
+          <Text style={[segStyles.text, value === o.value && segStyles.textActive]}>{o.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  )
+}
+
+const segStyles = StyleSheet.create({
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radius.full,
+    backgroundColor: colors.white,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+  },
+  pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  text: { fontSize: fonts.small, fontWeight: '600', color: colors.textMuted },
+  textActive: { color: colors.white },
+})

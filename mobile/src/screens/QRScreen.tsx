@@ -1,9 +1,9 @@
 // Konversi native dari src/components/QRCodeGenerator.tsx (web)
-// qrcode.react + download PNG diganti: tampilkan teks/URL + tombol salin & buka.
+// qrcode.react → react-native-qrcode-svg (render QR asli, setara web).
 
 import React, { useState } from 'react'
 import { View, Text, StyleSheet, ScrollView, Alert, Linking } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import QRCode from 'react-native-qrcode-svg'
 import { Card, Button, Input, Segmented } from '../components/UI'
 import { colors, spacing, fonts, radius } from '../theme'
 import * as Clipboard from 'expo-clipboard'
@@ -51,7 +51,13 @@ export default function QRScreen() {
 
       <Card style={{ alignItems: 'center' }}>
         <View style={styles.qrBox}>
-          <Ionicons name="qr-code-outline" size={72} color={colors.primary} />
+          {payload.trim() ? (
+            <View style={styles.qrWhite}>
+              <QRCode value={payload} size={180} color={colors.text} backgroundColor="#ffffff" />
+            </View>
+          ) : (
+            <Text style={styles.payloadLabel}>Isi data untuk menampilkan QR</Text>
+          )}
           <Text style={styles.payloadLabel}>Isi QR:</Text>
           <Text style={styles.payload} selectable>{payload || '—'}</Text>
         </View>
@@ -64,9 +70,6 @@ export default function QRScreen() {
             onPress={() => Linking.openURL(link).catch(() => Alert.alert('Gagal', 'Tidak bisa membuka link.'))}
           />
         )}
-        <Text style={styles.hint}>
-          Versi web menampilkan gambar QR langsung. Di mobile, salin isi ini ke aplikasi QR generator, atau fitur render QR native menyusul.
-        </Text>
       </Card>
     </ScrollView>
   )
@@ -76,8 +79,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   title: { fontSize: fonts.h1, fontWeight: '800', color: colors.text },
   subtitle: { fontSize: fonts.small, color: colors.textMuted, marginBottom: spacing.md },
-  qrBox: { alignItems: 'center', paddingVertical: spacing.lg },
+  qrBox: { alignItems: 'center', paddingVertical: spacing.lg, width: '100%' },
+  qrWhite: { backgroundColor: '#ffffff', padding: spacing.md, borderRadius: radius.md, alignSelf: 'center' },
   payloadLabel: { marginTop: spacing.md, fontSize: fonts.small, color: colors.textMuted },
   payload: { marginTop: 4, fontSize: fonts.small, color: colors.text, fontWeight: '600', textAlign: 'center' },
-  hint: { marginTop: spacing.md, fontSize: fonts.tiny, color: colors.textMuted, textAlign: 'center' },
 })

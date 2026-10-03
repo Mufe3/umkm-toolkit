@@ -23,6 +23,12 @@ buildscript {
 
 apply plugin: "com.facebook.react.rootproject"
 
+// Windows 260-char path limit workaround: pass -PbuildDir=C:/tmp/bd to relocate
+// all build outputs (intermediates, .cxx) to a short root directory.
+if (hasProperty('buildDir')) {
+    layout.buildDirectory = new File(buildDir as String)
+}
+
 // Expose buildscript values as rootProject ext so expo-modules-core's
 // kotlinVersion() resolves to 1.9.25 (fixes Compose Compiler compatibility check)
 rootProject.ext.set("kotlinVersion", findProperty('android.kotlinVersion') ?: '1.9.25')

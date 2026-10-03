@@ -23,6 +23,10 @@ buildscript {
 
 apply plugin: "com.facebook.react.rootproject"
 
+// Expose buildscript values as rootProject ext so expo-modules-core's
+// kotlinVersion() resolves to 1.9.25 (fixes Compose Compiler compatibility check)
+rootProject.ext.set("kotlinVersion", findProperty('android.kotlinVersion') ?: '1.9.25')
+
 allprojects {
     repositories {
         maven {
@@ -38,4 +42,16 @@ allprojects {
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
     }
+}
+
+// FIX: expo-modules-core hardcodes fallback Kotlin 1.9.24 while the Compose
+// Compiler extension selected is 1.5.15 (requires 1.9.25). Force a consistent
+// pair and suppress the compatibility check for all subprojects.
+subprojects { sp ->
+  sp.plugins.withId('org.jetbrains.kotlin.android') {
+    try {
+      def options = sp.extensions.getByName('kotlin').androidTarget.compilerOptions
+      options.freeCompilerArgs += ['-Xsuppress-version-warnings']
+    } catch (ignored) {}
+  }
 }

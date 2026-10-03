@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   cartChip: { backgroundColor: colors.primaryLight, borderRadius: radius.md, padding: spacing.sm, marginRight: spacing.sm, minWidth: 110 },
-  cartChipName: { fontSize: fonts.tiny, fontWeight: '700', color: colors.primaryDark, width: 100 },
+  cartChipName: { fontSize: fonts.small, fontWeight: '700', color: colors.primaryDark, width: 110 },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
   qtyBtn: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: colors.white, alignItems: 'center', justifyContent: 'center' },
   qtyText: { fontSize: fonts.h3, fontWeight: '800', color: colors.primary },

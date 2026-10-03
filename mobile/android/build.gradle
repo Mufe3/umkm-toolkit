@@ -27,7 +27,17 @@ apply plugin: "com.facebook.react.rootproject"
 // kotlinVersion() resolves to 1.9.25 (fixes Compose Compiler compatibility check)
 rootProject.ext.set("kotlinVersion", findProperty('android.kotlinVersion') ?: '1.9.25')
 
-allprojects {
+// Windows 260-char path limit workaround: pass -PshortBuildDir=C:/tmp/bd to
+// relocate the MAIN app module's build outputs (.cxx, intermediates, apk) to a
+// short root. We intentionally do NOT touch included builds (expo's
+// gradle-plugin), otherwise shared tasks would write into one another's
+// output dirs and Gradle fails with implicit-dependency errors.
+def shortBuildRoot = providers.gradleProperty('shortBuildDir').orNull
+
+allprojects { p ->
+    if (shortBuildRoot && p.path == ':app') {
+        p.layout.buildDirectory = new File(shortBuildRoot)
+    }
     repositories {
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm

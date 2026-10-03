@@ -8,6 +8,27 @@ import { Ionicons } from '@expo/vector-icons'
 import { Card, Button, Badge, Input, Segmented, EmptyState, StatCard } from '../components/UI'
 import { colors, spacing, fonts, radius } from '../theme'
 import { loadItem, saveItem, formatRupiah, formatDate, generateId, todayISO } from '../utils/storage'
+import * as Notifications from 'expo-notifications'
+import { shareWhatsApp } from '../utils/exportUtils'
+
+// ---------- Reminder notifikasi lokal (pengganti AutoReminder versi web) ----------
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({ shouldShowAlert: true, shouldPlaySound: false, shouldSetBadge: false }),
+})
+
+async function scheduleDueReminder(d: Debt) {
+  try {
+    const due = new Date(d.dueDate + 'T08:00:00')
+    if (isNaN(due.getTime()) || due.getTime() <= Date.now()) return
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: d.type === 'receivable' ? '⏰ Pengingat Piutang' : '⏰ Pengingat Utang',
+        body: `${d.partyName} — ${formatRupiah(d.amount - d.paidAmount)} jatuh tempo ${formatDate(d.dueDate)}`,
+      },
+      trigger: { type: 'date', date: due } as Notifications.DateTriggerInput,
+    })
+  } catch { /* izin notifikasi belum diberikan — abaikan */ }
+}
 
 interface Debt {
   id: string
@@ -70,7 +91,19 @@ export default function DebtScreen() {
       dueDate, date: new Date().toISOString(), status: 'pending', notes,
     }
     persist([d, ...debts])
+    if (dueDate) {
+      Notifications.requestPermissionsAsync().then(() => scheduleDueReminder(d))
+    }
     resetForm()
+  }
+
+  const remindWA = (d: Debt) => {
+    const sisa = d.amount - d.paidAmount
+    shareWhatsApp(
+      d.type === 'receivable'
+        ? `Halo ${d.partyName}, kami ingin mengingatkan bahwa piutang *${formatRupiah(sisa)}* jatuh tempo pada *${d.dueDate ? formatDate(d.dueDate) : '-'}*. Mohon pembayarannya. Terima kasih 🙏`
+        : `Pengingat internal: utang ke *${d.partyName}* sebesar *${formatRupiah(sisa)}* jatuh tempo ${d.dueDate ? formatDate(d.dueDate) : '-'}.`,
+    )
   }
 
   const recordPayment = (debt: Debt) => {
@@ -141,6 +174,12 @@ export default function DebtScreen() {
                 <TouchableOpacity style={styles.actionBtn} onPress={() => recordPayment(item)}>
                   <Ionicons name="cash-outline" size={16} color={colors.success} />
                   <Text style={{ color: colors.success, fontWeight: '700', fontSize: fonts.small }}>Bayar</Text>
+                </TouchableOpacity>
+              )}
+              {item.status !== 'paid' && (
+                <TouchableOpacity style={styles.actionBtn} onPress={() => remindWA(item)}>
+                  <Ionicons name="logo-whatsapp" size={16} color={colors.success} />
+                  <Text style={{ color: colors.success, fontWeight: '700', fontSize: fonts.small }}>Ingatkan</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity style={styles.actionBtn} onPress={() => deleteDebt(item.id)}>

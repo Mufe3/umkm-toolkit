@@ -2,10 +2,11 @@
 // Recharts & export XLSX diganti batang View — sumber data umkm_transactions.
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
-import { Card, Segmented, StatCard, EmptyState } from '../components/UI'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native'
+import { Card, Button, Segmented, StatCard, EmptyState } from '../components/UI'
 import { colors, spacing, fonts, radius } from '../theme'
 import { loadItem, formatRupiah } from '../utils/storage'
+import { exportReportPDF, shareWhatsApp, TokoInfo } from '../utils/exportUtils'
 
 interface Transaction { id: string; type: 'income' | 'expense'; amount: number; category: string; description: string; date: string }
 type Period = 'week' | 'month' | 'year' | 'all'
@@ -13,9 +14,13 @@ type Period = 'week' | 'month' | 'year' | 'all'
 export default function FinancialReportScreen() {
   const [txs, setTxs] = useState<Transaction[]>([])
   const [period, setPeriod] = useState<Period>('month')
+  const [toko, setToko] = useState<TokoInfo>({ nama: 'Toko Saya', alamat: '-', telepon: '-' })
 
   useEffect(() => {
     loadItem<Transaction[]>('umkm_transactions', []).then(setTxs)
+    loadItem<any>('umkm_profile', {}).then((p) => {
+      if (p?.nama || p?.storeName) setToko({ nama: p.nama ?? p.storeName ?? 'Toko Saya', alamat: p.alamat ?? p.address ?? '-', telepon: p.telepon ?? p.phone ?? '-' })
+    })
   }, [])
 
   const filtered = useMemo(() => {
@@ -51,6 +56,24 @@ export default function FinancialReportScreen() {
     })
   }, [filtered])
   const maxVal = Math.max(...monthly.flatMap((m) => [m.income, m.expense]), 1)
+
+  const periodLabel = { week: '7 Hari Terakhir', month: 'Bulan Ini', year: String(new Date().getFullYear()), all: 'Semua Periode' }[period]
+
+  const breakdown = useMemo(() => {
+    const byCat: Record<string, number> = {}
+    filtered.filter((t) => t.type === 'expense').forEach((t) => { byCat[t.category || 'Lainnya'] = (byCat[t.category || 'Lainnya'] || 0) + t.amount })
+    return Object.entries(byCat).map(([label, nilai]) => ({ label, nilai }))
+  }, [filtered])
+
+  const doExportPDF = async () => {
+    try {
+      await exportReportPDF(toko, periodLabel, { pemasukan: income, pengeluaran: expense, laba: profit, breakdown })
+    } catch (e: any) { Alert.alert('Gagal export PDF', e?.message ?? String(e)) }
+  }
+
+  const doShareWA = () => {
+    shareWhatsApp(`*Laporan ${toko.nama}* (${periodLabel})\n\nMasuk: ${formatRupiah(income)}\nKeluar: ${formatRupiah(expense)}\n${profit >= 0 ? 'Laba' : 'Rugi'}: *${formatRupiah(Math.abs(profit))}*`)
+  }
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={{ padding: spacing.md, paddingBottom: 40 }}>
@@ -100,6 +123,21 @@ export default function FinancialReportScreen() {
           </View>
         </View>
       </Card>
+
+      {breakdown.length > 0 && (
+        <Card>
+          <Text style={styles.cardTitle}>Rincian Pengeluaran per Kategori</Text>
+          {breakdown.map((b, i) => (
+            <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5 }}>
+              <Text style={{ color: colors.text, fontSize: fonts.body }}>{b.label}</Text>
+              <Text style={{ color: colors.text, fontWeight: '700', fontSize: fonts.body }}>{formatRupiah(b.nilai)}</Text>
+            </View>
+          ))}
+        </Card>
+      )}
+
+      <Button title="Export PDF Laporan" icon="document-text-outline" onPress={doExportPDF} />
+      <Button title="Kirim via WhatsApp" variant="outline" icon="logo-whatsapp" onPress={doShareWA} />
     </ScrollView>
   )
 }
@@ -113,8 +151,8 @@ const styles = StyleSheet.create({
   muted: { color: colors.textMuted, fontSize: fonts.small },
   profit: { fontSize: fonts.h1, fontWeight: '900', marginVertical: 4 },
   chartRow: { flexDirection: 'row', alignItems: 'flex-end' },
-  bar: { width: 8, borderRadius: radius.sm },
-  dayLabel: { fontSize: 9, color: colors.textMuted },
+  bar: { width: 10, borderRadius: radius.sm },
+  dayLabel: { fontSize: fonts.tiny, color: colors.textMuted },
   legend: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md, justifyContent: 'center' },
   dot: { width: 10, height: 10, borderRadius: radius.full },
 })

@@ -146,9 +146,9 @@ export default function EmployeesScreen() {
             <View key={e.id} style={styles.attRow}>
               <Text style={{ flex: 1, color: colors.text }}>{e.name}</Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <View style={[styles.attChip, { backgroundColor: colors.successLight }]}><Text style={{ color: colors.success, fontWeight: '700', fontSize: fonts.tiny }}>Hadir</Text></View>
-                <View style={[styles.attChip, { backgroundColor: colors.warningLight }]}><Text style={{ color: colors.warning, fontWeight: '700', fontSize: fonts.tiny }}>Telat</Text></View>
-                <View style={[styles.attChip, { backgroundColor: colors.dangerLight }]}><Text style={{ color: colors.danger, fontWeight: '700', fontSize: fonts.tiny }}>Alpha</Text></View>
+                <View style={[styles.attChip, { backgroundColor: colors.successLight }]}><Text style={{ color: colors.success, fontWeight: '700', fontSize: fonts.small }}>Hadir</Text></View>
+                <View style={[styles.attChip, { backgroundColor: colors.warningLight }]}><Text style={{ color: colors.warning, fontWeight: '700', fontSize: fonts.small }}>Telat</Text></View>
+                <View style={[styles.attChip, { backgroundColor: colors.dangerLight }]}><Text style={{ color: colors.danger, fontWeight: '700', fontSize: fonts.small }}>Alpha</Text></View>
               </View>
             </View>
           ))}
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
   actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   attRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
-  attChip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.full },
+  attChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.full },
   modalWrap: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: { backgroundColor: colors.white, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: spacing.lg, maxHeight: '85%' },
   sheetTitle: { fontSize: fonts.h2, fontWeight: '800', marginBottom: spacing.md, color: colors.text },

@@ -8,6 +8,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { Card, Button, Badge, Input, EmptyState } from '../components/UI'
 import { colors, spacing, fonts, radius } from '../theme'
 import { loadItem, saveItem, formatRupiah, formatDate, generateId } from '../utils/storage'
+import * as Print from 'expo-print'
+import * as Sharing from 'expo-sharing'
 
 interface Customer { id: string; name: string; phone: string }
 interface ReceiptItem { name: string; qty: number; price: number }
@@ -92,6 +94,37 @@ export default function ReceiptsScreen() {
     try { await Linking.openURL(url) } catch { Alert.alert('Gagal', 'WhatsApp tidak tersedia.') }
   }
 
+  const exportStrukPDF = async (r: Receipt) => {
+    try {
+      const rows = r.items.map((i) => `<tr><td>${i.name}</td><td class="right">${i.qty}</td><td class="right">${formatRupiah(i.price)}</td><td class="right">${formatRupiah(i.qty * i.price)}</td></tr>`).join('')
+      const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+        body{font-family:'Roboto',monospace;color:#0f172a;padding:24px;max-width:320px;margin:0 auto}
+        h2{text-align:center;font-size:16px} .c{text-align:center;color:#64748b;font-size:11px}
+        table{width:100%;border-collapse:collapse;font-size:12px} td,th{padding:4px 2px;border-bottom:1px dashed #cbd5e1}
+        .right{text-align:right} .tot{font-weight:800;font-size:14px;border-top:2px solid #0f172a}
+      </style></head><body>
+        <h2>${r.storeName.toUpperCase()}</h2>
+        <p class="c">${r.receiptNumber}<br/>${formatDate(r.date)} • ${r.paymentMethod}</p>
+        <p class="c">Pelanggan: ${r.customerName}</p>
+        <table><tbody>${rows}
+          <tr><td colspan="3">Subtotal</td><td class="right">${formatRupiah(r.subtotal)}</td></tr>
+          ${r.discount ? `<tr><td colspan="3">Diskon</td><td class="right">-${formatRupiah(r.discount)}</td></tr>` : ''}
+          ${r.tax ? `<tr><td colspan="3">Pajak</td><td class="right">+${formatRupiah(r.tax)}</td></tr>` : ''}
+          <tr class="tot"><td colspan="3">TOTAL</td><td class="right">${formatRupiah(r.total)}</td></tr>
+        </tbody></table>
+        <p class="c" style="margin-top:16px">Terima kasih atas kunjungan Anda 🙏</p>
+      </body></html>`
+      const { uri } = await Print.printToFileAsync({ html, base64: false })
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: `Struk ${r.receiptNumber}` })
+      } else {
+        Alert.alert('Berhasil', `PDF tersimpan di:\n${uri}`)
+      }
+    } catch (e: any) {
+      Alert.alert('Gagal export PDF', e?.message ?? String(e))
+    }
+  }
+
   return (
     <View style={styles.screen}>
       <Text style={styles.title}>Struk Penjualan</Text>
@@ -149,6 +182,7 @@ export default function ReceiptsScreen() {
                 {!!viewReceipt.notes && <Text style={styles.meta}>{viewReceipt.notes}</Text>}
                 <View style={{ marginTop: spacing.md }}>
                   <Button title="Bagikan via WhatsApp" variant="success" icon="logo-whatsapp" onPress={() => shareWhatsApp(viewReceipt)} />
+                  <Button title="Simpan Struk PDF" icon="document-text-outline" onPress={() => exportStrukPDF(viewReceipt)} />
                   <Button title="Tutup" variant="outline" onPress={() => setViewReceipt(null)} />
                 </View>
               </>

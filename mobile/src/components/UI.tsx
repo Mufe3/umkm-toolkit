@@ -18,7 +18,7 @@ export function Card({ children, style }: { children: React.ReactNode; style?: V
   return <View style={[styles.card, style]}>{children}</View>
 }
 
-// ---------- Badge ----------
+// ---------- Badge (chip) — ukuran diperbesar agar presisi di layar sentuh ----------
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'primary'
 export function Badge({ label, variant = 'primary' }: { label: string; variant?: BadgeVariant }) {
   const map: Record<BadgeVariant, { bg: string; fg: string }> = {
@@ -135,14 +135,15 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: radius.full,
     alignSelf: 'flex-start',
   },
   badgeText: {
-    fontSize: fonts.tiny,
+    fontSize: fonts.small,
     fontWeight: '700',
+    letterSpacing: 0.2,
   },
   button: {
     flexDirection: 'row',
@@ -216,14 +217,14 @@ export function Segmented<T extends string>({
 const segStyles = StyleSheet.create({
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.md },
   pill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
     borderRadius: radius.full,
     backgroundColor: colors.white,
     borderWidth: 1.5,
     borderColor: colors.border,
   },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  text: { fontSize: fonts.small, fontWeight: '600', color: colors.textMuted },
+  text: { fontSize: fonts.body, fontWeight: '600', color: colors.textMuted },
   textActive: { color: colors.white },
 })

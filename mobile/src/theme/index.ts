@@ -38,13 +38,22 @@ export const radius = {
   full: 999,
 }
 
+// Skala tipografi diperbesar agar presisi di layar HP (revisi UI)
 export const fonts = {
-  h1: 26,
-  h2: 20,
-  h3: 17,
-  body: 15,
-  small: 13,
-  tiny: 11,
+  h1: 28,
+  h2: 22,
+  h3: 19,
+  body: 16,
+  small: 14,
+  tiny: 13, // sebelumnya 11 — terlalu kecil untuk dibaca di HP
+}
+
+export const weights = {
+  regular: '400' as const,
+  medium: '500' as const,
+  semibold: '600' as const,
+  bold: '700' as const,
+  extrabold: '800' as const,
 }
 
 export const shadows = {

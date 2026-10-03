@@ -15,8 +15,8 @@ set NODE_ENV=production
 REM 3. Buat folder build ber-path pendek (hindari limit 260 karakter)
 if not exist C:\tmp\bd mkdir C:\tmp\bd
 
-REM 4. Jalankan build release ke folder pendek tsb
-call gradlew.bat assembleRelease -PbuildDir=C:/tmp/bd
+REM 4. Jalankan build release; output modul :app dipindah ke folder pendek
+call gradlew.bat assembleRelease -PshortBuildDir=C:/tmp/bd
 
 if %errorlevel% neq 0 (
     echo.
@@ -26,7 +26,7 @@ if %errorlevel% neq 0 (
 )
 
 REM 5. Salin APK ke lokasi mudah diakses
-copy /Y C:\tmp\bd\outputs\apk\release\app-release.apk C:\simeka\app-release.apk
+copy /Y C:\tmp\bd\outputs\apk\release\app-release.apk C:\simeka\app-release.apk 2>nul || copy /Y app\build\outputs\apk\release\app-release.apk C:\simeka\app-release.apk
 echo.
 echo ============================================================
 echo  BUILD SUKSES!
